@@ -14,6 +14,8 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
+const sessionIdleTimeout = 30 * time.Minute
+
 func NewHandler(baseConfig sentiary.Config, httpClient *http.Client, version string) http.Handler {
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(request *http.Request) *mcp.Server {
 		config := baseConfig
@@ -21,7 +23,9 @@ func NewHandler(baseConfig sentiary.Config, httpClient *http.Client, version str
 			config.APIKey = apiKey
 		}
 		return mcpserver.New(config, httpClient, version)
-	}, nil)
+	}, &mcp.StreamableHTTPOptions{
+		SessionTimeout: sessionIdleTimeout,
+	})
 	protectedMCPHandler := withAPIKey(baseConfig.APIKey, mcpHandler)
 
 	mux := http.NewServeMux()
