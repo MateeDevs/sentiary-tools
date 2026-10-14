@@ -39,6 +39,15 @@ export SENTIARY_USER_API_KEY="user-api-key"
 
 You can set `SENTIARY_PROJECT_ID` as the default project ID. A command-level `--project-id` value takes precedence.
 
+The CLI sends the key in the `Authorization: Ribbon <key>` header.
+User keys identify an account. Project operations still require membership and the required role permissions.
+Project keys cannot manage projects or languages.
+
+Older API deployments accept user keys only on batch and string routes.
+A batch request can succeed while project or language commands return 401.
+Deploy the account-key backend fix and its Firestore index before you use these commands.
+No CLI authentication update is required.
+
 ## CLI commands
 
 Export Czech strings as JSON to standard output:
@@ -47,7 +56,7 @@ Export Czech strings as JSON to standard output:
 sentiary-cli export \
   --project-id="asdf" \
   --format="json" \
-  --language="cs_CZ"
+  --language="cs-CZ"
 ```
 
 Write the export to a file:
@@ -56,9 +65,14 @@ Write the export to a file:
 sentiary-cli export \
   --project-id="asdf" \
   --format="json" \
-  --language="cs_CZ" \
+  --language="cs-CZ" \
   --output="strings.json"
 ```
+
+Use language IDs from `list-languages`, such as `en-US`, `cs-CZ`, and `sk-SK`.
+Add each language with `add-project-language` before an import.
+The import language must match a project language exactly. An absent project language returns 404.
+Do not substitute `en` for `en-US` or use underscore forms such as `cs_CZ`.
 
 Import a file:
 
@@ -66,7 +80,7 @@ Import a file:
 sentiary-cli import \
   --project-id="asdf" \
   --format="json" \
-  --language="cs_CZ" \
+  --language="cs-CZ" \
   --input="strings.json"
 ```
 
@@ -98,7 +112,7 @@ Create a project and add Czech:
 sentiary-cli create-project --name="Mobile app"
 sentiary-cli add-project-language \
   --project-id="asdf" \
-  --language="cs_CZ"
+  --language="cs-CZ"
 ```
 
 Invite a developer:

@@ -38,7 +38,7 @@ func TestExportCommandWritesContent(t *testing.T) {
 		"export",
 		"--project-id=asdf",
 		"--format=json",
-		"--language=cs_CZ",
+		"--language=cs-CZ",
 	})
 	if err != nil {
 		t.Fatalf("Run export: %v", err)
@@ -52,7 +52,7 @@ func TestExportCommandWritesContent(t *testing.T) {
 	if got := requestURL.Query().Get("format"); got != "json" {
 		t.Fatalf("Export format = %q", got)
 	}
-	if got := requestURL.Query().Get("languageId"); got != "cs_CZ" {
+	if got := requestURL.Query().Get("languageId"); got != "cs-CZ" {
 		t.Fatalf("Export language = %q", got)
 	}
 	if authorization != "Ribbon test-key" {
@@ -73,7 +73,7 @@ func TestExportCommandWritesFile(t *testing.T) {
 		"export",
 		"--project-id=asdf",
 		"--format=json",
-		"--language=cs_CZ",
+		"--language=cs-CZ",
 		"--output=" + outputPath,
 	})
 	if err != nil {
@@ -98,7 +98,7 @@ func TestImportCommandReadsStandardInput(t *testing.T) {
 			return nil, err
 		}
 		importedContent = string(content)
-		return jsonResponse(request, `{"totalImportedCount":1,"skipped":[],"importLanguage":"cs_CZ"}`), nil
+		return jsonResponse(request, `{"totalImportedCount":1,"skipped":[],"importLanguage":"cs-CZ"}`), nil
 	})
 
 	stdout := &bytes.Buffer{}
@@ -111,7 +111,7 @@ func TestImportCommandReadsStandardInput(t *testing.T) {
 		"import",
 		"--project-id=asdf",
 		"--format=json",
-		"--language=cs_CZ",
+		"--language=cs-CZ",
 		"--override-existing",
 	})
 	if err != nil {
@@ -136,7 +136,7 @@ func TestSearchCommandUsesGeneralQuery(t *testing.T) {
 			"items":[{
 				"id":"term-id",
 				"name":"welcome_message",
-				"translations":[{"languageId":"cs_CZ","text":"Ahoj","updated":""}],
+				"translations":[{"languageId":"cs-CZ","text":"Ahoj","updated":""}],
 				"updated":""
 			}],
 			"pagination":{"size":25}
@@ -178,10 +178,10 @@ func TestManagementCommandsUseExpectedRoutes(t *testing.T) {
 		{name: "create project", args: []string{"create-project", "--name=App"}, method: http.MethodPost, path: "/api/v1/project", response: `{"id":"p1","name":"App"}`},
 		{name: "edit project", args: []string{"edit-project", "--project-id=p1", "--name=New"}, method: http.MethodPost, path: "/api/v1/project/p1", response: cliProjectJSON},
 		{name: "remove project", args: []string{"remove-project", "--project-id=p1"}, method: http.MethodDelete, path: "/api/v1/project/p1", status: http.StatusNoContent},
-		{name: "list languages", args: []string{"list-languages", "--in-language=cs_CZ"}, method: http.MethodGet, path: "/api/v1/language", query: "inLanguage=cs_CZ", response: `[]`},
+		{name: "list languages", args: []string{"list-languages", "--in-language=cs-CZ"}, method: http.MethodGet, path: "/api/v1/language", query: "inLanguage=cs-CZ", response: `[]`},
 		{name: "list project languages", args: []string{"list-project-languages", "--project-id=p1"}, method: http.MethodGet, path: "/api/v1/project/p1/language", response: `[]`},
-		{name: "add project language", args: []string{"add-project-language", "--project-id=p1", "--language=cs_CZ"}, method: http.MethodPost, path: "/api/v1/project/p1/language/cs_CZ", response: `[]`},
-		{name: "remove project language", args: []string{"remove-project-language", "--project-id=p1", "--language=cs_CZ"}, method: http.MethodDelete, path: "/api/v1/project/p1/language/cs_CZ", response: `[]`},
+		{name: "add project language", args: []string{"add-project-language", "--project-id=p1", "--language=cs-CZ"}, method: http.MethodPost, path: "/api/v1/project/p1/language/cs-CZ", response: `[]`},
+		{name: "remove project language", args: []string{"remove-project-language", "--project-id=p1", "--language=cs-CZ"}, method: http.MethodDelete, path: "/api/v1/project/p1/language/cs-CZ", response: `[]`},
 		{name: "list project members", args: []string{"list-project-members", "--project-id=p1"}, method: http.MethodGet, path: "/api/v1/project/p1/member", response: `[]`},
 		{name: "set project member role", args: []string{"set-project-member-role", "--project-id=p1", "--user-id=u1", "--role=translator"}, method: http.MethodPost, path: "/api/v1/project/p1/member/u1", response: `[]`},
 		{name: "remove project member", args: []string{"remove-project-member", "--project-id=p1", "--user-id=u1"}, method: http.MethodDelete, path: "/api/v1/project/p1/member/u1", response: `[]`},

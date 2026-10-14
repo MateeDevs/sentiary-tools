@@ -25,7 +25,7 @@ func TestSearchStringsKeepsTranslationMatches(t *testing.T) {
 				"items": [{
 					"id": "term-id",
 					"name": "welcome_message",
-					"translations": [{"languageId": "cs_CZ", "text": "Ahoj", "updated": ""}],
+					"translations": [{"languageId": "cs-CZ", "text": "Ahoj", "updated": ""}],
 					"updated": ""
 				}],
 				"pagination": {"size": 10, "cursor": "2", "next": "3", "previous": "1"}
@@ -40,9 +40,9 @@ func TestSearchStringsKeepsTranslationMatches(t *testing.T) {
 		Query:              "Ahoj",
 		Size:               10,
 		Cursor:             "2",
-		IncludeLanguageIDs: []string{"cs_CZ"},
+		IncludeLanguageIDs: []string{"cs-CZ"},
 		Filter:             "TRANSLATED",
-		FilterLanguage:     "cs_CZ",
+		FilterLanguage:     "cs-CZ",
 		Order:              "UPDATED_DESC",
 	})
 	if err != nil {
@@ -60,9 +60,9 @@ func TestSearchStringsKeepsTranslationMatches(t *testing.T) {
 		"query":           "Ahoj",
 		"size":            "10",
 		"cursor":          "2",
-		"includeLanguage": "cs_CZ",
+		"includeLanguage": "cs-CZ",
 		"filter":          "TRANSLATED",
-		"filterLanguage":  "cs_CZ",
+		"filterLanguage":  "cs-CZ",
 		"order":           "UPDATED_DESC",
 	}
 	for name, want := range checks {

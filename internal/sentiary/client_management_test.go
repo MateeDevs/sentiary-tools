@@ -24,10 +24,10 @@ func TestManagementOperationsUseAPIContracts(t *testing.T) {
 		{method: http.MethodGet, path: "/api/v1/project/p1", response: projectWithMembershipJSON},
 		{method: http.MethodPost, path: "/api/v1/project/p1", bodyContains: `"name":"Renamed"`, response: projectWithMembershipJSON},
 		{method: http.MethodDelete, path: "/api/v1/project/p1", status: http.StatusNoContent},
-		{method: http.MethodGet, path: "/api/v1/language", query: "inLanguage=cs_CZ", response: languagesJSON},
-		{method: http.MethodGet, path: "/api/v1/project/p1/language", query: "inLanguage=cs_CZ", response: languagesJSON},
-		{method: http.MethodPost, path: "/api/v1/project/p1/language/de_DE", query: "inLanguage=cs_CZ", response: languagesJSON},
-		{method: http.MethodDelete, path: "/api/v1/project/p1/language/de_DE", query: "inLanguage=cs_CZ", response: languagesJSON},
+		{method: http.MethodGet, path: "/api/v1/language", query: "inLanguage=cs-CZ", response: languagesJSON},
+		{method: http.MethodGet, path: "/api/v1/project/p1/language", query: "inLanguage=cs-CZ", response: languagesJSON},
+		{method: http.MethodPost, path: "/api/v1/project/p1/language/de-DE", query: "inLanguage=cs-CZ", response: languagesJSON},
+		{method: http.MethodDelete, path: "/api/v1/project/p1/language/de-DE", query: "inLanguage=cs-CZ", response: languagesJSON},
 		{method: http.MethodGet, path: "/api/v1/project/p1/member", response: membersJSON},
 		{method: http.MethodPost, path: "/api/v1/project/p1/member/u1", bodyContains: `"role":"administrator"`, response: membersJSON},
 		{method: http.MethodDelete, path: "/api/v1/project/p1/member/u1", response: `[]`},
@@ -43,6 +43,12 @@ func TestManagementOperationsUseAPIContracts(t *testing.T) {
 	httpClient := &http.Client{Transport: roundTripFunc(func(request *http.Request) (*http.Response, error) {
 		if requestIndex >= len(requests) {
 			t.Fatalf("Unexpected request: %s %s", request.Method, request.URL)
+		}
+		if request.Header.Get("Authorization") != "Ribbon test-key" {
+			t.Error("Request does not contain the user key in the Ribbon header")
+		}
+		if request.URL.Query().Has("apiKey") {
+			t.Error("Request contains an API key in the URL")
 		}
 		expected := requests[requestIndex]
 		requestIndex++
@@ -88,13 +94,13 @@ func TestManagementOperationsUseAPIContracts(t *testing.T) {
 	checkCall(t, err)
 	_, err = client.RemoveProject(ctx, ProjectInput{ProjectID: "p1"})
 	checkCall(t, err)
-	_, err = client.ListLanguages(ctx, ListLanguagesInput{InLanguage: "cs_CZ"})
+	_, err = client.ListLanguages(ctx, ListLanguagesInput{InLanguage: "cs-CZ"})
 	checkCall(t, err)
-	_, err = client.ListProjectLanguages(ctx, ListProjectLanguagesInput{ProjectID: "p1", InLanguage: "cs_CZ"})
+	_, err = client.ListProjectLanguages(ctx, ListProjectLanguagesInput{ProjectID: "p1", InLanguage: "cs-CZ"})
 	checkCall(t, err)
-	_, err = client.AddProjectLanguage(ctx, ProjectLanguageInput{ProjectID: "p1", LanguageID: "de_DE", InLanguage: "cs_CZ"})
+	_, err = client.AddProjectLanguage(ctx, ProjectLanguageInput{ProjectID: "p1", LanguageID: "de-DE", InLanguage: "cs-CZ"})
 	checkCall(t, err)
-	_, err = client.RemoveProjectLanguage(ctx, ProjectLanguageInput{ProjectID: "p1", LanguageID: "de_DE", InLanguage: "cs_CZ"})
+	_, err = client.RemoveProjectLanguage(ctx, ProjectLanguageInput{ProjectID: "p1", LanguageID: "de-DE", InLanguage: "cs-CZ"})
 	checkCall(t, err)
 	_, err = client.ListProjectMembers(ctx, ProjectInput{ProjectID: "p1"})
 	checkCall(t, err)
@@ -143,7 +149,7 @@ const projectWithMembershipJSON = `{
 	"membership":{"role":"administrator","permissions":["MODIFY_PROJECT"]}
 }`
 
-const languagesJSON = `[{"languageId":"cs_CZ","languageName":"Czech","localLanguageName":"Čeština","countryEmoji":"🇨🇿"}]`
+const languagesJSON = `[{"languageId":"cs-CZ","languageName":"Czech","localLanguageName":"Čeština","countryEmoji":"🇨🇿"}]`
 
 const membersJSON = `[{
 	"user":{"id":"u1","name":"User","emailAddress":"user@example.com","isAdmin":false},
