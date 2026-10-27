@@ -10,7 +10,9 @@ COPY examples ./examples
 RUN zensical build --strict
 
 FROM nginx:stable-alpine AS docs
+RUN apk add --no-cache ca-certificates
 COPY --from=docs-build /docs/site /usr/share/nginx/html
+COPY docs-nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 
 FROM golang:1.25-alpine AS build

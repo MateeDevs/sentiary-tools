@@ -51,3 +51,16 @@ HTTPS, navigation, search, assets, and reference pages after the build finishes.
 The final Dockerfile target remains the MCP runtime, so builds without a target preserve
 existing MCP behavior. The staging CLI workflow only uploads build artifacts; it does not
 create releases. Gradle plugin 2.0 remains unreleased.
+
+### API reference
+
+The [API section](api/index.md) embeds Swagger UI 5.31.0, matching the deployed backend's UI.
+Its read-only reference loads `/api/openapi.yaml` from the docs domain. `docs-nginx.conf`
+proxies only that exact path to the staging backend's `/swagger/documentation.yaml`, verifies
+upstream TLS, and strips credentials and cookies. The backend resource
+`backend/app/src/main/resources/openapi/documentation.yaml` remains the authoritative schema;
+the docs repository keeps no duplicate. A backend deployment updates the reference automatically.
+
+`zensical serve` previews the static reference page but does not run this nginx proxy. Preview
+the schema integration through the `docs` Docker target or the deployed docs application.
+Verify the proxied schema matches the backend schema and the reference assets load after deployment.

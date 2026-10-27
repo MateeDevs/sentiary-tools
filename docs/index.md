@@ -16,4 +16,6 @@ records the actual DSL, tested versions, checks, and remaining release steps.
 
 Use [CLI reference](cli/reference.md) for all commands and options, [configuration reference](configuration/reference.md) for TOML fields, and [integration protocol](integration/protocol.md) only when building an integration.
 
-[Build and maintain this site](maintenance.md). Public hosting is outside this repository change.
+Use the [REST API reference](api/index.md) to explore the deployed staging endpoints and download the OpenAPI schema.
+
+[Build and maintain this site](maintenance.md).

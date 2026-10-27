@@ -7,6 +7,8 @@ on:
       - "examples/**"
       - "zensical.toml"
       - "requirements-docs.txt"
+      - "Dockerfile"
+      - "docs-nginx.conf"
       - ".github/workflows/docs.yml"
   push:
     paths:
@@ -14,6 +16,8 @@ on:
       - "examples/**"
       - "zensical.toml"
       - "requirements-docs.txt"
+      - "Dockerfile"
+      - "docs-nginx.conf"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 

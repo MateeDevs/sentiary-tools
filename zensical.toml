@@ -1,7 +1,7 @@
 [project]
 site_url = "https://docs.staging.sentiary.coolify.matee.cz/"
 site_name = "Sentiary documentation"
-site_description = "CLI, configuration, examples, and Gradle migration for Sentiary"
+site_description = "API reference, CLI, configuration, examples, and Gradle migration for Sentiary"
 docs_dir = "docs"
 site_dir = "site"
 nav = [
@@ -14,6 +14,7 @@ nav = [
     { "Command reference" = "cli/reference.md" },
     { "Integration protocol" = "integration/protocol.md" },
   ] },
+  { "API" = [{ "REST API reference" = "api/index.md" }] },
   { "Configuration" = [
     { "TOML reference" = "configuration/reference.md" },
     { "Downloads and cache" = "configuration/downloads.md" },
