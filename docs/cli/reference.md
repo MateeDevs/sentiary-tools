@@ -502,4 +502,3 @@ sentiary-cli import --format=json --language=cs --input=strings.json
 ```
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
-
