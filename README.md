@@ -1,145 +1,50 @@
-# Sentiary Tools
+<p align="center">
+  <img src="docs/content/assets/logo.svg" width="144" height="144" alt="Sentiary logo">
+</p>
 
-This repository contains the Sentiary CLI, hosted MCP service, and Gradle settings plugin.
+<h1 align="center">Sentiary Tools</h1>
 
-- `sentiary-cli` provides direct terminal commands.
-- `sentiary-mcp` provides a hosted streamable HTTP MCP service.
-- `plugins/sentiary/` provides the `com.sentiary.gradle` plugin and delegates downloads to the CLI.
+<p align="center">
+  Localization tools for your terminal, builds, and AI assistants.
+</p>
 
-The CLI and MCP frontends use the API contract and client in `go/internal/sentiary`.
+<p align="center">
+  <a href="https://github.com/MateeDevs/sentiary-tools/actions/workflows/staging.yml"><img src="https://github.com/MateeDevs/sentiary-tools/actions/workflows/staging.yml/badge.svg?branch=staging" alt="CLI checks"></a>
+  <a href="https://github.com/MateeDevs/sentiary-tools/actions/workflows/staging-plugin.yml"><img src="https://github.com/MateeDevs/sentiary-tools/actions/workflows/staging-plugin.yml/badge.svg?branch=staging" alt="Gradle checks"></a>
+  <a href="https://github.com/MateeDevs/sentiary-tools/actions/workflows/docs.yml"><img src="https://github.com/MateeDevs/sentiary-tools/actions/workflows/docs.yml/badge.svg?branch=staging" alt="Documentation checks"></a>
+  <a href="https://github.com/MateeDevs/sentiary-tools/releases"><img src="https://img.shields.io/github/v/release/MateeDevs/sentiary-tools?color=2196F3" alt="Latest release"></a>
+</p>
 
-## CLI documentation
+<p align="center">
+  <a href="https://docs.staging.sentiary.coolify.matee.cz/">Documentation</a> ·
+  <a href="docs/content/getting-started/installation.md">Install</a> ·
+  <a href="docs/content/getting-started/quickstart.md">Quickstart</a> ·
+  <a href="contributing/development.md">Contribute</a>
+</p>
 
-See the [documentation site sources](docs/content/index.md) for [installation](docs/content/getting-started/installation.md), the [complete command reference](docs/content/cli/reference.md), [configured downloads](docs/content/configuration/reference.md), and [mobile downloads](docs/content/cli/mobile.md).
+## From translations to your app
 
-Preview and build instructions are in [documentation maintenance](contributing/maintenance.md). The site uses Zensical 0.0.72 and builds a static CI artifact. [Gradle plugin 2.0 documentation](docs/content/gradle/index.md) covers the current settings plugin.
+- **One configuration.** Download Android, Compose Multiplatform, and Xcode resources with a TOML config.
+- **Part of your build.** Generate and stage translations with the Gradle settings plugin.
+- **Ready offline.** Restore a previously downloaded export set without a network connection.
+- **Made for automation.** Manage projects, languages, and translations from the CLI or through hosted MCP.
 
-The CLI sends account keys in the `Authorization: Bearer <key>` header. Project operations
-require membership and role permissions; project keys cannot manage projects or languages.
-Older API deployments accept account keys only on batch and string routes. Deploy the
-account-key backend fix and its Firestore index before using management commands.
+## Get started
 
-Use language IDs from `list-languages`, such as `en-US`, `cs-CZ`, and `sk-SK`.
-Add each language to the project before import and use its exact ID. An absent project
-language returns 404; underscore forms such as `cs_CZ` are not interchangeable.
-
-
-## Hosted MCP
-
-The hosted frontend reads the user API key when it creates an MCP session. Each session gets a separate API client.
-
-The hosted frontend reads the key from the first available source:
-
-1. `X-Sentiary-User-Api-Key: <key>`
-2. `Authorization: Bearer <key>`
-3. `SENTIARY_USER_API_KEY` in the service environment
-
-The `Authorization` header can also contain a bare API key.
-
-Example MCP client configuration:
-
-```json
-{
-  "mcpServers": {
-    "sentiary": {
-      "type": "http",
-      "url": "https://mcp.example.com/",
-      "headers": {
-        "Authorization": "Bearer user-api-key"
-      }
-    }
-  }
-}
-```
-
-The hosted frontend uses port `8080` by default. Set `PORT` to use a different port.
-
-The service exposes MCP at `/` and its health check at `/healthz`.
-
-## Build
-
-Build both frontends:
+[Install the CLI](docs/content/getting-started/installation.md), then configure your project and download translations:
 
 ```sh
-mkdir -p bin
-go -C go build -o ../bin/sentiary-cli ./cmd/sentiary-cli
-go -C go build -o ../bin/sentiary-mcp ./cmd/sentiary-mcp
+sentiary-cli init
+sentiary-cli pull --dry-run
+sentiary-cli pull
 ```
 
-Run Go checks and plugin integration fixtures from the repository root:
+## Explore
 
-```sh
-go -C go test ./...
-go -C go vet ./...
-SENTIARY_TEST_CLI="$PWD/bin/sentiary-cli" ./gradlew :sentiary:test :sentiary:ktlintCheck :sentiary:validatePlugins
-```
+| Tool | Guide |
+| --- | --- |
+| CLI | [Commands](docs/content/cli/reference.md) · [Configuration](docs/content/configuration/reference.md) · [Mobile apps](docs/content/cli/mobile.md) |
+| Gradle plugin | [Setup](docs/content/gradle/index.md) · [Android and Compose](docs/content/gradle/guides.md) |
+| AI assistants | [Hosted MCP](go/README.md#hosted-mcp) · [CLI skill](.agents/skills/sentiary-cli/SKILL.md) · [MCP skill](.agents/skills/sentiary-mcp/SKILL.md) |
 
-## Docker
-
-Build and run the hosted frontend:
-
-```sh
-docker build -f go/Dockerfile -t sentiary-mcp .
-docker run --rm -p 8080:8080 sentiary-mcp
-```
-
-Clients can send their own API keys. The container does not need a shared API key.
-
-## MCP tools
-
-Project tools:
-
-- `list_projects`
-- `get_project`
-- `create_project`
-- `edit_project`
-- `remove_project`
-
-Language tools:
-
-- `list_supported_languages`
-- `list_project_languages`
-- `add_project_language`
-- `remove_project_language`
-
-Member tools:
-
-- `list_project_members`
-- `set_project_member_role`
-- `remove_project_member`
-
-Invitation tools:
-
-- `list_invitations`
-- `create_invitation`
-- `accept_invitation`
-- `decline_invitation`
-- `list_project_invitations`
-- `remove_project_invitation`
-
-String tools:
-
-- `list_project_strings`
-- `search_project_strings`
-- `get_project_string`
-- `get_project_string_by_key`
-- `add_project_string`
-- `edit_project_string`
-- `remove_project_string`
-- `set_project_string_translation`
-- `remove_project_string_translation`
-
-Batch tools:
-
-- `get_project_strings_info`
-- `export_project_strings`
-- `import_project_strings`
-
-The batch tools support `json`, `android`, `apple`, and `compose` formats.
-
-## Agent skill
-
-The repository includes two agent skills:
-
-- [`sentiary-cli`](https://github.com/MateeDevs/sentiary-mcp-server/tree/main/.agents/skills/sentiary-cli) manages Sentiary through the CLI.
-- [`sentiary-mcp`](https://github.com/MateeDevs/sentiary-mcp-server/tree/main/.agents/skills/sentiary-mcp) manages Sentiary through MCP.
+[Development](contributing/development.md) · [Documentation maintenance](contributing/maintenance.md) · [Troubleshooting](docs/content/troubleshooting.md)
