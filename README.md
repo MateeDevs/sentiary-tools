@@ -4,15 +4,15 @@ This repository contains the Sentiary CLI, hosted MCP service, and Gradle settin
 
 - `sentiary-cli` provides direct terminal commands.
 - `sentiary-mcp` provides a hosted streamable HTTP MCP service.
-- `sentiary/` provides the `com.sentiary.gradle` plugin and delegates downloads to the CLI.
+- `plugins/sentiary/` provides the `com.sentiary.gradle` plugin and delegates downloads to the CLI.
 
-The CLI and MCP frontends use the API contract and client in `internal/sentiary`.
+The CLI and MCP frontends use the API contract and client in `go/internal/sentiary`.
 
 ## CLI documentation
 
-See the [documentation site sources](docs/index.md) for [installation](docs/getting-started/installation.md), the [complete command reference](docs/cli/reference.md), [configured downloads](docs/configuration/reference.md), and [mobile downloads](docs/cli/mobile.md).
+See the [documentation site sources](docs/content/index.md) for [installation](docs/content/getting-started/installation.md), the [complete command reference](docs/content/cli/reference.md), [configured downloads](docs/content/configuration/reference.md), and [mobile downloads](docs/content/cli/mobile.md).
 
-Preview and build instructions are in [documentation maintenance](repository-docs/maintenance.md). The site uses Zensical 0.0.72 and builds a static CI artifact. [Gradle plugin 2.0 documentation](docs/gradle/index.md) covers the current settings plugin.
+Preview and build instructions are in [documentation maintenance](contributing/maintenance.md). The site uses Zensical 0.0.72 and builds a static CI artifact. [Gradle plugin 2.0 documentation](docs/content/gradle/index.md) covers the current settings plugin.
 
 The CLI sends account keys in the `Authorization: Bearer <key>` header. Project operations
 require membership and role permissions; project keys cannot manage projects or languages.
@@ -62,8 +62,16 @@ Build both frontends:
 
 ```sh
 mkdir -p bin
-go build -o bin/sentiary-cli ./cmd/sentiary-cli
-go build -o bin/sentiary-mcp ./cmd/sentiary-mcp
+go -C go build -o ../bin/sentiary-cli ./cmd/sentiary-cli
+go -C go build -o ../bin/sentiary-mcp ./cmd/sentiary-mcp
+```
+
+Run Go checks and plugin integration fixtures from the repository root:
+
+```sh
+go -C go test ./...
+go -C go vet ./...
+SENTIARY_TEST_CLI="$PWD/bin/sentiary-cli" ./gradlew :sentiary:test :sentiary:ktlintCheck :sentiary:validatePlugins
 ```
 
 ## Docker
@@ -71,7 +79,7 @@ go build -o bin/sentiary-mcp ./cmd/sentiary-mcp
 Build and run the hosted frontend:
 
 ```sh
-docker build -t sentiary-mcp .
+docker build -f go/Dockerfile -t sentiary-mcp .
 docker run --rm -p 8080:8080 sentiary-mcp
 ```
 

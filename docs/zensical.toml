@@ -1,0 +1,165 @@
+[project]
+site_url = "https://docs.staging.sentiary.coolify.matee.cz/"
+site_name = "Sentiary documentation"
+site_description = "Get started with Sentiary 2.0: CLI, configuration, Gradle, and API guides"
+docs_dir = "content"
+site_dir = "site"
+repo_url = "https://github.com/MateeDevs/sentiary-tools"
+repo_name = "MateeDevs/sentiary-tools"
+edit_uri = "edit/staging/docs/content/"
+extra_css = ["assets/brand.css"]
+nav = [
+  { "Get started" = [
+    { "Overview" = "index.md" },
+    { "Installation" = "getting-started/installation.md" },
+    { "First download" = "getting-started/quickstart.md" },
+    { "Migration from 1.x" = "migration.md" },
+    { "Troubleshooting" = "troubleshooting.md" },
+    { "Browse by topic" = "topics.md" },
+  ] },
+  { "CLI" = [
+    { "Android, Compose, and Xcode" = "cli/mobile.md" },
+    { "Command reference" = "cli/reference.md" },
+  ] },
+  { "Configuration" = [
+    { "TOML reference" = "configuration/reference.md" },
+    { "Languages and multiple projects" = "configuration/languages.md" },
+    { "Downloads and offline use" = "configuration/downloads.md" },
+  ] },
+  { "Gradle" = [
+    { "Setup and reference" = "gradle/index.md" },
+    { "Android and Compose builds" = "gradle/guides.md" },
+  ] },
+  { "API" = [{ "Overview and authentication" = "api/index.md" }] },
+]
+
+[project.theme]
+custom_dir = "overrides"
+language = "en"
+logo = "assets/logo.svg"
+favicon = "assets/favicon.ico"
+features = [
+  "navigation.tabs", "navigation.sections", "navigation.top", "navigation.path",
+  "content.code.copy", "content.tabs.link", "content.action.edit", "content.action.view", "content.action.copy",
+  "search.highlight", "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+primary = "custom"
+accent = "blue"
+toggle.icon = "material/theme-light-dark"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "custom"
+accent = "blue"
+toggle.icon = "material/weather-sunny"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "custom"
+accent = "blue"
+toggle.icon = "material/weather-night"
+toggle.name = "Switch to system preference"
+
+[project.theme.icon]
+repo = "fontawesome/brands/github"
+
+[project.theme.icon.tag]
+cli = "material/console"
+configuration = "material/cog"
+gradle = "material/puzzle"
+android = "material/android"
+compose = "material/layers"
+ios = "material/apple"
+offline = "material/cloud-off-outline"
+api = "material/api"
+migration = "material/swap-horizontal"
+
+[project.extra.tags]
+CLI = "cli"
+Configuration = "configuration"
+Gradle = "gradle"
+Android = "android"
+Compose = "compose"
+iOS = "ios"
+Offline = "offline"
+API = "api"
+Migration = "migration"
+
+[project.plugins.llmstxt]
+full_output = "llms-full.txt"
+markdown_description = """
+Sentiary manages localization terms and translations. Use the CLI to download translations,
+configure projects and outputs in TOML, or integrate generated resources into Gradle builds.
+
+The sections below cover getting started, the complete CLI, configuration and offline use,
+Gradle integration, API authentication, and migration and troubleshooting.
+For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
+"""
+
+[project.plugins.llmstxt.sections]
+"Get started" = [
+  { "index.md" = "Overview of Sentiary and its documentation." },
+  { "getting-started/installation.md" = "Install, verify, and upgrade the CLI on macOS, Linux, and Windows." },
+  { "getting-started/quickstart.md" = "Configure credentials and download your first translations." },
+]
+"CLI" = [
+  { "cli/reference.md" = "Complete command and flag reference, defaults, and examples." },
+  { "cli/mobile.md" = "Android, Compose Multiplatform, and Xcode examples." },
+]
+"Configuration and offline use" = [
+  { "configuration/reference.md" = "Every TOML field, supported format, and validation rule." },
+  { "configuration/languages.md" = "Language selection, locale mappings, aliases, and multiple projects." },
+  { "configuration/downloads.md" = "Download ownership, caching, offline use, and failure recovery." },
+]
+"Gradle" = [
+  { "gradle/index.md" = "Plugin setup, every settings field and property, tasks, and requirements." },
+  { "gradle/guides.md" = "Android and Compose resource integration and CI examples." },
+]
+"API" = [
+  { "api/index.md" = "REST API overview, authentication, and the authoritative OpenAPI schema." },
+]
+"Migration and troubleshooting" = [
+  { "migration.md" = "Migrate from Gradle plugin 1.x to CLI and Gradle 2.0." },
+  { "troubleshooting.md" = "Diagnose installation, configuration, download, and build failures." },
+]
+
+[project.plugins.tags]
+
+[project.plugins.redirects.redirect_maps]
+"examples/index.md" = "getting-started/quickstart.md"
+"examples/mobile.md" = "cli/mobile.md"
+"examples/advanced.md" = "configuration/languages.md"
+"examples/gradle.md" = "gradle/guides.md"
+"examples/recovery.md#restore-deleted-generated-files" = "configuration/downloads.md#restore-deleted-generated-files"
+"examples/recovery.md" = "configuration/downloads.md#ci-caching"
+"maintenance.md" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/maintenance.md"
+"integration/protocol.md" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/integration-protocol.md"
+"getting-started/installation.md#build-from-source" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/maintenance.md#build-from-source"
+"getting-started/installation.md#macos-and-linux" = "getting-started/installation.md#install"
+"getting-started/installation.md#windows-powershell" = "getting-started/installation.md#install"
+"configuration/downloads.md#concurrency-and-write-guarantees" = "configuration/downloads.md#concurrent-pulls-and-write-failures"
+"configuration/downloads.md#conditional-requests-and-completed-sets" = "configuration/downloads.md#concurrent-pulls-and-write-failures"
+"gradle/index.md#versions-configuration-cache-and-isolated-projects" = "gradle/index.md#requirements"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+md_in_html = {}
+pymdownx.details = {}
+pymdownx.superfences = {}
+pymdownx.highlight = { anchor_linenums = true }
+pymdownx.tabbed = { alternate_style = true }
+pymdownx.emoji.emoji_index = "zensical.extensions.emoji.twemoji"
+pymdownx.emoji.emoji_generator = "zensical.extensions.emoji.to_svg"
+toc = { permalink = true }
+
+[project.validation]
+invalid_links = true
+invalid_link_anchors = true

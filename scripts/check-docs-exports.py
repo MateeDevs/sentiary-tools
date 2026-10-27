@@ -62,9 +62,10 @@ def export_path(source):
 
 
 def main():
-    project = tomllib.loads(Path("zensical.toml").read_text())["project"]
+    config = Path(__file__).resolve().parents[1] / "docs/zensical.toml"
+    project = tomllib.loads(config.read_text())["project"]
     plugin = project["plugins"]["llmstxt"]
-    site = Path(project["site_dir"])
+    site = (config.parent / project["site_dir"]).resolve()
     base = project["site_url"].rstrip("/") + "/"
     require("base_url" not in plugin, "Export URLs must follow site_url")
     index = read_output(site / "llms.txt")

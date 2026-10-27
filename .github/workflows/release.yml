@@ -22,7 +22,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
           cache: true
 
       - name: Resolve version
@@ -32,7 +33,7 @@ jobs:
           echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Test
-        run: go test ./...
+        run: go -C go test ./...
 
   build:
     name: Build ${{ matrix.goos }} ${{ matrix.goarch }}
@@ -69,7 +70,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
           cache: true
 
       - name: Build CLI and MCP
@@ -83,13 +85,13 @@ jobs:
           mkdir -p dist
           cli_binary="sentiary-cli-${GOOS}-${GOARCH}${{ matrix.extension }}"
           mcp_binary="sentiary-mcp-server-${GOOS}-${GOARCH}${{ matrix.extension }}"
-          go build -trimpath \
-            -ldflags="-s -w -X github.com/MateeDevs/sentiary-tools/internal/buildinfo.Version=${VERSION}" \
-            -o "dist/${cli_binary}" \
+          go -C go build -trimpath \
+            -ldflags="-s -w -X github.com/MateeDevs/sentiary-tools/go/internal/buildinfo.Version=${VERSION}" \
+            -o "../dist/${cli_binary}" \
             ./cmd/sentiary-cli
-          go build -trimpath \
-            -ldflags="-s -w -X github.com/MateeDevs/sentiary-tools/internal/buildinfo.Version=${VERSION}" \
-            -o "dist/${mcp_binary}" \
+          go -C go build -trimpath \
+            -ldflags="-s -w -X github.com/MateeDevs/sentiary-tools/go/internal/buildinfo.Version=${VERSION}" \
+            -o "../dist/${mcp_binary}" \
             ./cmd/sentiary-mcp
 
       - name: Package downloads
@@ -144,13 +146,13 @@ jobs:
             Install the latest `sentiary-cli` release:
 
             ```sh
-            curl -fsSL https://raw.githubusercontent.com/MateeDevs/sentiary-tools/main/install.sh | sh
+            curl -fsSL https://raw.githubusercontent.com/MateeDevs/sentiary-tools/main/go/install.sh | sh
             ```
 
             On Windows, run this command in PowerShell:
 
             ```powershell
-            irm https://raw.githubusercontent.com/MateeDevs/sentiary-tools/main/install.ps1 | iex
+            irm https://raw.githubusercontent.com/MateeDevs/sentiary-tools/main/go/install.ps1 | iex
             ```
 
             The installers support AMD64 and ARM64 on macOS, Linux, and Windows.

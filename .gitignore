@@ -17,3 +17,7 @@ local.properties
 .idea/
 *.iml
 .DS_Store
+
+# Go module local binaries
+/go/sentiary-cli
+/go/sentiary-mcp

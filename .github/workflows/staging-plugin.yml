@@ -17,9 +17,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
       - name: Build integration CLI
-        run: go build -o "$RUNNER_TEMP/sentiary-cli" ./cmd/sentiary-cli
+        run: go -C go build -o "$RUNNER_TEMP/sentiary-cli" ./cmd/sentiary-cli
       - name: Check plugin and integration fixtures
         env:
           SENTIARY_TEST_CLI: ${{ runner.temp }}/sentiary-cli
@@ -28,6 +29,6 @@ jobs:
         with:
           name: sentiary-gradle-plugin-staging
           path: |
-            sentiary/build/libs/
-            sentiary/build/reports/
+            plugins/sentiary/build/libs/
+            plugins/sentiary/build/reports/
           if-no-files-found: error

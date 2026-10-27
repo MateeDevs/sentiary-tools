@@ -23,3 +23,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "sentiary-tools"
 include(":sentiary")
+project(":sentiary").projectDir = file("plugins/sentiary")
