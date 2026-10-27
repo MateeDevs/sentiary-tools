@@ -77,6 +77,6 @@ The implementation uses isolated lifecycle actions and task execution for CLI/co
 
 For Isolated Projects with the matrix Compose version, set `org.jetbrains.compose.hot.reload.disable=true`. The fixtures also set `kotlin.internal.collectFUSMetrics=false` to avoid a Kotlin statistics build-service classloader conflict. Use the [canonical evaluation properties](../examples/gradle-evaluation.properties) as a starting point and replace its executable placeholder.
 
-Before release, complete the backend export-cache rollout/migration through 5, verify authenticated export/state protocol 1, publish compatible CLI `v2.0.0` binaries and `SHA256SUMS`, verify those assets, then publish the plugin. Keep the unreleased label until release verification is complete.
+Before release, complete the backend export-cache rollout/migration through 6, verify authenticated export/state protocol 1, publish compatible CLI `v2.0.0` binaries and `SHA256SUMS`, verify those assets, then publish the plugin. Keep the unreleased label until release verification is complete.
 
 Current limitations include one binding per source set/kind/module, Android application/library plugins only, no Android test-source bindings, no generic/combined resource adapter, no public managed-checksum override, and framework API compatibility tied to the adapters above. The [integration protocol](../integration/protocol.md) remains a separate machine interface.
