@@ -31,8 +31,7 @@ The hosted frontend reads the key from the first available source:
 
 1. `X-Sentiary-User-Api-Key: <key>`
 2. `Authorization: Bearer <key>`
-3. `Authorization: Bearer <key>`
-4. `SENTIARY_USER_API_KEY` in the service environment
+3. `SENTIARY_USER_API_KEY` in the service environment
 
 The `Authorization` header can also contain a bare API key.
 
