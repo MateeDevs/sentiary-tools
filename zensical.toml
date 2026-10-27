@@ -1,0 +1,42 @@
+[project]
+site_url = "https://docs.staging.sentiary.coolify.matee.cz/"
+site_name = "Sentiary documentation"
+site_description = "CLI, configuration, examples, and Gradle migration for Sentiary"
+docs_dir = "docs"
+site_dir = "site"
+nav = [
+  { "Getting Started" = [
+    { "Overview" = "index.md" },
+    { "Installation" = "getting-started/installation.md" },
+    { "First download" = "getting-started/quickstart.md" },
+  ] },
+  { "CLI" = [
+    { "Command reference" = "cli/reference.md" },
+    { "Integration protocol" = "integration/protocol.md" },
+  ] },
+  { "Configuration" = [
+    { "TOML reference" = "configuration/reference.md" },
+    { "Downloads and cache" = "configuration/downloads.md" },
+  ] },
+  { "Gradle Plugin" = [{ "2.0 — unreleased" = "gradle/index.md" }] },
+  { "Examples" = [
+    { "Canonical examples" = "examples/index.md" },
+    { "Android, Compose, Xcode" = "examples/mobile.md" },
+    { "Multiple projects and modules" = "examples/advanced.md" },
+    { "Gradle 2.0 walkthroughs" = "examples/gradle.md" },
+    { "CI and offline recovery" = "examples/recovery.md" },
+  ] },
+  { "Migration" = "migration.md" },
+  { "Troubleshooting" = [
+    { "Common problems" = "troubleshooting.md" },
+    { "Documentation maintenance" = "maintenance.md" },
+  ] },
+]
+
+[project.theme]
+language = "en"
+features = ["navigation.tabs", "navigation.sections", "navigation.top", "content.code.copy", "search.highlight"]
+
+[project.validation]
+invalid_links = true
+invalid_link_anchors = true

@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
 
 permissions:
   contents: write
@@ -29,8 +29,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          short_sha="${GITHUB_SHA::7}"
-          echo "version=v$(date -u +%Y.%m.%d)-${short_sha}" >> "$GITHUB_OUTPUT"
+          echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Test
         run: go test ./...
@@ -109,8 +108,7 @@ jobs:
         with:
           name: release-${{ matrix.goos }}-${{ matrix.goarch }}
           path: |
-            dist/*.tar.gz
-            dist/*.exe
+            dist/sentiary-*
           if-no-files-found: error
 
   release:
@@ -128,6 +126,12 @@ jobs:
           path: dist
           merge-multiple: true
 
+      - name: Generate SHA-256 manifest
+        shell: bash
+        run: |
+          cd dist
+          shasum -a 256 sentiary-* > SHA256SUMS
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
@@ -140,13 +144,13 @@ jobs:
             Install the latest `sentiary-cli` release:
 
             ```sh
-            curl -fsSL https://raw.githubusercontent.com/MateeDevs/sentiary-mcp-server/main/install.sh | sh
+            curl -fsSL https://raw.githubusercontent.com/MateeDevs/sentiary-tools/main/install.sh | sh
             ```
 
             On Windows, run this command in PowerShell:
 
             ```powershell
-            irm https://raw.githubusercontent.com/MateeDevs/sentiary-mcp-server/main/install.ps1 | iex
+            irm https://raw.githubusercontent.com/MateeDevs/sentiary-tools/main/install.ps1 | iex
             ```
 
             The installers support AMD64 and ARM64 on macOS, Linux, and Windows.
@@ -161,10 +165,10 @@ jobs:
 
             ## Agent skills
 
-            - [Sentiary CLI skill](https://github.com/MateeDevs/sentiary-mcp-server/tree/main/.agents/skills/sentiary-cli)
-            - [Sentiary MCP skill](https://github.com/MateeDevs/sentiary-mcp-server/tree/main/.agents/skills/sentiary-mcp)
+            - [Sentiary CLI skill](https://github.com/MateeDevs/sentiary-tools/tree/main/.agents/skills/sentiary-cli)
+            - [Sentiary MCP skill](https://github.com/MateeDevs/sentiary-tools/tree/main/.agents/skills/sentiary-mcp)
           generate_release_notes: true
           make_latest: true
           files: |
-            dist/*.tar.gz
-            dist/*.exe
+            dist/sentiary-*
+            dist/SHA256SUMS

@@ -1,0 +1,28 @@
+config_version = 1
+
+[projects.app]
+id = "YOUR_APP_PROJECT_ID"
+languages = ["en", "cs"]
+
+[projects.library]
+id = "YOUR_LIBRARY_PROJECT_ID"
+languages = ["en", "cs"]
+
+[outputs.app_main]
+project = "app"
+format = "android"
+path = "app/build/generated/sentiary/main/{locale}/strings.xml"
+locale_map = { en = "values", cs = "values-cs" }
+
+[outputs.app_debug]
+project = "app"
+format = "android"
+languages = ["en"]
+path = "app/build/generated/sentiary/debug/{locale}/strings.xml"
+locale_map = { en = "values" }
+
+[outputs.library_main]
+project = "library"
+format = "android"
+path = "library/build/generated/sentiary/main/{locale}/strings.xml"
+locale_map = { en = "values", cs = "values-cs" }

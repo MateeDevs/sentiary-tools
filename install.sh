@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-REPO="MateeDevs/sentiary-mcp-server"
+REPO="MateeDevs/sentiary-tools"
 BINARY="sentiary-cli"
 
 os="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -30,7 +30,15 @@ esac
 
 asset="${BINARY}-${os}-${arch}"
 archive="${asset}.tar.gz"
-url="https://github.com/${REPO}/releases/latest/download/${archive}"
+release_version="${SENTIARY_VERSION:-${1:-}}"
+case "$release_version" in
+  *[!a-zA-Z0-9._-]*) echo "Invalid version" >&2; exit 1 ;;
+esac
+base_url="https://github.com/${REPO}/releases/latest/download"
+if [ -n "$release_version" ]; then
+  base_url="https://github.com/${REPO}/releases/download/${release_version}"
+fi
+url="${base_url}/${archive}"
 install_dir="${INSTALL_DIR:-}"
 
 if [ -z "$install_dir" ]; then
@@ -47,13 +55,26 @@ trap 'rm -rf "$tmp_dir"' EXIT INT TERM
 
 if command -v curl >/dev/null 2>&1; then
   curl -fsSL "$url" -o "$tmp_dir/$archive"
+  curl -fsSL "$base_url/SHA256SUMS" -o "$tmp_dir/SHA256SUMS"
 elif command -v wget >/dev/null 2>&1; then
   wget -q "$url" -O "$tmp_dir/$archive"
+  wget -q "$base_url/SHA256SUMS" -O "$tmp_dir/SHA256SUMS"
 else
   echo "curl or wget is required." >&2
   exit 1
 fi
 
+expected="$(awk -v asset="$archive" '$2 == asset { print $1 }' "$tmp_dir/SHA256SUMS")"
+if command -v sha256sum >/dev/null 2>&1; then
+  actual="$(sha256sum "$tmp_dir/$archive" | awk '{print $1}')"
+elif command -v shasum >/dev/null 2>&1; then
+  actual="$(shasum -a 256 "$tmp_dir/$archive" | awk '{print $1}')"
+else
+  echo "sha256sum or shasum is required" >&2; exit 1
+fi
+if [ -z "$expected" ] || [ "$actual" != "$expected" ]; then
+  echo "Archive checksum mismatch" >&2; exit 1
+fi
 tar -xzf "$tmp_dir/$archive" -C "$tmp_dir"
 
 if [ -f "$tmp_dir/$asset" ]; then

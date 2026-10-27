@@ -14,8 +14,12 @@ type Config struct {
 }
 
 func ConfigFromEnv() Config {
+	baseURL := strings.TrimRight(strings.TrimSpace(os.Getenv("SENTIARY_BASE_URL")), "/")
+	if baseURL == "" {
+		baseURL = defaultBaseURL
+	}
 	return Config{
-		BaseURL:          defaultBaseURL,
+		BaseURL:          baseURL,
 		APIKey:           firstEnv("SENTIARY_USER_API_KEY", ""),
 		DefaultProjectID: firstEnv("SENTIARY_PROJECT_ID", ""),
 	}

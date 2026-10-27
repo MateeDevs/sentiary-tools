@@ -1,5 +1,18 @@
 # syntax=docker/dockerfile:1
 
+FROM python:3.13-alpine AS docs-build
+WORKDIR /docs
+COPY requirements-docs.txt ./
+RUN pip install --no-cache-dir -r requirements-docs.txt
+COPY zensical.toml ./
+COPY docs ./docs
+COPY examples ./examples
+RUN zensical build --strict
+
+FROM nginx:stable-alpine AS docs
+COPY --from=docs-build /docs/site /usr/share/nginx/html
+EXPOSE 80
+
 FROM golang:1.25-alpine AS build
 WORKDIR /src
 

@@ -2,7 +2,11 @@ module github.com/MateeDevs/sentiary-tools
 
 go 1.25.5
 
-require github.com/modelcontextprotocol/go-sdk v1.6.1
+require (
+	github.com/gofrs/flock v0.12.1
+	github.com/modelcontextprotocol/go-sdk v1.6.1
+	github.com/pelletier/go-toml/v2 v2.2.4
+)
 
 require (
 	github.com/google/jsonschema-go v0.4.3 // indirect

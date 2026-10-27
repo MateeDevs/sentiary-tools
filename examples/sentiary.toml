@@ -1,0 +1,36 @@
+config_version = 1
+
+[projects.mobile]
+id = "replace-with-project-id"
+api_key = "replace-with-project-api-key"
+languages = ["en", "cs"]
+source_language = "en"
+include_empty = false
+
+[outputs.android]
+project = "mobile"
+format = "android"
+path = "android/app/build/generated/sentiary/{locale}/strings.xml"
+
+[outputs.android.locale_map]
+en = "values"
+cs = "values-cs"
+
+[outputs.compose]
+project = "mobile"
+format = "compose"
+path = "shared/build/generated/sentiary/composeResources/{locale}/strings.xml"
+
+[outputs.compose.locale_map]
+en = "values"
+cs = "values-cs"
+
+[outputs.ios]
+project = "mobile"
+format = "xcstrings"
+layout = "combined"
+path = "ios/Resources/Localizable.xcstrings"
+
+# Whole-file aliases are optional and apply only to per_language outputs.
+# [outputs.android.language_aliases]
+# "sk-SK" = "cs-CZ"

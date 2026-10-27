@@ -1,3 +1,10 @@
 /sentiary-cli
 /sentiary-mcp
 /bin/
+.sentiary/
+sentiary.local.toml
+
+# Documentation build artifacts
+.venv-docs/
+.cache/
+site/

@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/MateeDevs/sentiary-tools/internal/download"
 	"github.com/MateeDevs/sentiary-tools/internal/sentiary"
 )
 
@@ -29,22 +30,25 @@ func IsUsageError(err error) bool {
 }
 
 type App struct {
-	API       sentiary.API
-	Stdin     io.Reader
-	Stdout    io.Writer
-	Stderr    io.Writer
-	ReadFile  func(string) ([]byte, error)
-	WriteFile func(string, []byte, os.FileMode) error
+	DownloadServer string
+	Downloads      download.Repository
+	API            sentiary.API
+	Stdin          io.Reader
+	Stdout         io.Writer
+	Stderr         io.Writer
+	ReadFile       func(string) ([]byte, error)
+	WriteFile      func(string, []byte, os.FileMode) error
 }
 
 func New(api sentiary.API) *App {
 	return &App{
-		API:       api,
-		Stdin:     os.Stdin,
-		Stdout:    os.Stdout,
-		Stderr:    os.Stderr,
-		ReadFile:  os.ReadFile,
-		WriteFile: os.WriteFile,
+		API:            api,
+		DownloadServer: sentiary.ConfigFromEnv().BaseURL,
+		Stdin:          os.Stdin,
+		Stdout:         os.Stdout,
+		Stderr:         os.Stderr,
+		ReadFile:       os.ReadFile,
+		WriteFile:      os.WriteFile,
 	}
 }
 
@@ -115,6 +119,10 @@ func (app *App) Run(ctx context.Context, args []string) error {
 		err = app.runInfo(ctx, args[1:])
 	case "export":
 		err = app.runExport(ctx, args[1:])
+	case "init":
+		err = app.runInit(ctx, args[1:])
+	case "pull":
+		err = app.runPull(ctx, args[1:])
 	case "import":
 		err = app.runImport(ctx, args[1:])
 	default:
@@ -514,6 +522,8 @@ Commands:
   remove-translation      Remove a translation.
   info                    Get project string information.
   export                  Export project strings.
+  init                    Create a config for existing projects.
+  pull                    Download configured translation outputs.
   import                  Import project strings.
 
 Run sentiary-cli <command> --help for command options.`)

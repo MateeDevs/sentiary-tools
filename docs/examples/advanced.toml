@@ -1,0 +1,44 @@
+config_version = 1
+
+[projects.app]
+id = "YOUR_APP_PROJECT_ID"
+languages = "*"
+source_language = "en"
+include_empty = false
+
+[projects.web]
+id = "YOUR_WEB_PROJECT_ID"
+languages = ["en", "cs"]
+
+[outputs.module_a]
+project = "app"
+format = "android"
+languages = ["en", "cs", "en-GB", "en-AU"]
+path = "feature-a/build/generated/sentiary/{locale}/strings.xml"
+locale_map = { en = "values", cs = "values-cs", en-GB = "values-en-rGB", en-AU = "values-en-rAU" }
+language_aliases = { en-GB = "en", en-AU = "en-GB" }
+
+[outputs.module_b]
+project = "app"
+format = "json"
+path = "feature-b/build/generated/locales/{language}.json"
+
+[outputs.website]
+project = "web"
+format = "i18next"
+languages = ["cs"]
+path = "build/web/locales/{language}.json"
+
+[outputs.catalog]
+project = "app"
+format = "xcstrings"
+layout = "combined"
+languages = ["en", "cs"]
+source_language = "cs"
+include_empty = true
+path = "build/ios/Localizable.xcstrings"
+
+[outputs.sheet]
+project = "web"
+format = "xlsx"
+path = "build/reports/{language}.xlsx"

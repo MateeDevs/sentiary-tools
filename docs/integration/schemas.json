@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "handshake": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "integrationProtocols": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+      "required": [
+        "version",
+        "integrationProtocols"
+      ]
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "protocolVersion": {
+          "const": 1
+        },
+        "bindings": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "output": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "resourceRoot": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "output",
+                  "format",
+                  "resourceRoot"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "protocolVersion"
+      ],
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "protocolVersion": {
+          "const": 1
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "output": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "output",
+              "path",
+              "sha256"
+            ]
+          }
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "files"
+      ]
+    },
+    "preview": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "string"
+          },
+          "project": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "layout": {
+            "enum": [
+              "per_language",
+              "combined"
+            ]
+          },
+          "languageIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourceLanguageId": {
+            "type": "string"
+          },
+          "includeEmptyTranslations": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "output",
+          "project",
+          "format",
+          "layout",
+          "languageIds",
+          "includeEmptyTranslations",
+          "path"
+        ]
+      }
+    }
+  }
+}

@@ -1,7 +1,9 @@
+param([string]$Version = $env:SENTIARY_VERSION)
+
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-$repository = "MateeDevs/sentiary-mcp-server"
+$repository = "MateeDevs/sentiary-tools"
 $binary = "sentiary-cli"
 
 $processorArchitecture = if ($env:PROCESSOR_ARCHITEW6432) {
@@ -18,7 +20,9 @@ $architecture = switch ($processorArchitecture.ToUpperInvariant()) {
 }
 
 $asset = "$binary-windows-$architecture.exe"
-$url = "https://github.com/$repository/releases/latest/download/$asset"
+if ($Version -and $Version -notmatch '^[a-zA-Z0-9][a-zA-Z0-9._-]*$') { throw "Invalid version" }
+$baseUrl = if ($Version) { "https://github.com/$repository/releases/download/$Version" } else { "https://github.com/$repository/releases/latest/download" }
+$url = "$baseUrl/$asset"
 $installDirectory = if ($env:INSTALL_DIR) {
     $env:INSTALL_DIR
 } else {
@@ -30,6 +34,12 @@ $temporaryPath = Join-Path ([IO.Path]::GetTempPath()) "$([Guid]::NewGuid()).exe"
 try {
     New-Item -ItemType Directory -Force -Path $installDirectory | Out-Null
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $temporaryPath
+    $manifest = (Invoke-WebRequest -UseBasicParsing -Uri "$baseUrl/SHA256SUMS").Content
+    $checksumLines = @($manifest -split "`n" | Where-Object { $_ -match ("^[a-fA-F0-9]{64}\s+" + [regex]::Escape($asset) + "\s*$") })
+    if ($checksumLines.Count -ne 1) { throw "Missing or ambiguous checksum for $asset" }
+    $expected = ($checksumLines[0] -split '\s+')[0]
+    $actual = (Get-FileHash -Algorithm SHA256 -Path $temporaryPath).Hash
+    if ($actual -ine $expected) { throw "Binary checksum mismatch" }
     Move-Item -Force -Path $temporaryPath -Destination $installPath
 } finally {
     if (Test-Path $temporaryPath) {
