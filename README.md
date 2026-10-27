@@ -1,11 +1,12 @@
 # Sentiary Tools
 
-This project provides two frontends for the Sentiary REST API.
+This repository contains the Sentiary CLI, hosted MCP service, and Gradle settings plugin.
 
 - `sentiary-cli` provides direct terminal commands.
 - `sentiary-mcp` provides a hosted streamable HTTP MCP service.
+- `sentiary/` provides the `com.sentiary.gradle` plugin and delegates downloads to the CLI.
 
-Both frontends use the API contract and client in `internal/sentiary`.
+The CLI and MCP frontends use the API contract and client in `internal/sentiary`.
 
 ## CLI documentation
 

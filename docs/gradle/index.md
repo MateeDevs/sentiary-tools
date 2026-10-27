@@ -24,7 +24,7 @@ plugins {
 
 Create `sentiary.toml` with the [first download guide](../getting-started/quickstart.md), then follow the [Android and Compose guide](guides.md). Download the [mobile settings](../examples/gradle-mobile.settings.gradle.kts) to configure bindings.
 
-[Plugin source on GitHub](https://github.com/MateeDevs/sentiary-gradle-plugin)
+[Plugin source on GitHub](https://github.com/MateeDevs/sentiary-tools/tree/staging/sentiary)
 
 TOML owns project IDs, credentials, output formats/paths, language selection, aliases, and empty-value policy. The settings extension owns only resource consumption. There is no compatibility layer for the old `projectId`, `projectApiKey`, `exportPaths`, or naming callbacks.
 

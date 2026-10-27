@@ -29,7 +29,7 @@ The documentation workflow runs a strict build and uploads `sentiary-docs` as a 
 | `internal/fileoutput/store.go` | Ownership, cleanup, locks, adoption, partial-write guarantees |
 | `install.sh`, `install.ps1`, `.github/workflows/release.yml`, `go.mod` | [Installation](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/getting-started/installation.md), targets, checksum manifest and toolchain |
 | `internal/frontend/cli/integration.go`, preview/result structs in `pull.go` | [Protocol](https://github.com/MateeDevs/sentiary-tools/blob/staging/repository-docs/integration-protocol.md), downloadable schema bundle |
-| Adjacent `sentiary-gradle-plugin` build, extension, tasks, source and tests | [Gradle reference](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/gradle/index.md) and [migration](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/migration.md) |
+| `sentiary/` build, extension, tasks, source and tests | [Gradle reference](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/gradle/index.md) and [migration](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/migration.md) |
 
 When commands change, enumerate command registrations and run every command with `--help` without credentials. Compare flags, types, defaults, required validation, environment fallbacks, repeatability, and examples. Help alone does not expose validations or API-only restrictions. Check the source as well. Never run mutating command examples against an account just to check syntax.
 
@@ -37,7 +37,7 @@ Validate the canonical TOML using the existing `configfile.Load`/`LoadOffline` f
 
 Preview the home page, CLI tables, TOML reference, mobile examples, and protocol page at desktop and narrow widths. Check navigation, search, tables, code scrolling, and code-copy behavior. A strict build checks links and rendering, not the correctness of remote API behavior or app builds.
 
-The [Gradle guide](../docs/gradle/index.md) records the settings DSL, overrides, and supported versions. Recheck the adjacent plugin tests when the plugin or CLI changes. Keep release procedures and validation evidence in repository documentation, outside `docs/`.
+The [Gradle guide](../docs/gradle/index.md) records the settings DSL, overrides, and supported versions. Recheck the `sentiary/` plugin tests when the plugin or CLI changes. Keep release procedures and validation evidence in repository documentation, outside `docs/`.
 
 ## Staging hosting
 

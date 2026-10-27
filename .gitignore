@@ -8,3 +8,12 @@ sentiary.local.toml
 .venv-docs/
 .cache/
 site/
+
+# Gradle local state and build output
+.gradle/
+.kotlin/
+build/
+local.properties
+.idea/
+*.iml
+.DS_Store

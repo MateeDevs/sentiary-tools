@@ -1,0 +1,15 @@
+[versions]
+java = "21"
+kotlin = "2.2.0"
+pluginPublish = "2.0.0"
+gson = "2.13.2"
+junit = "5.13.4"
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+pluginPublish = { id = "com.gradle.plugin-publish", version.ref = "pluginPublish" }
+
+[libraries]
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.13.4" }
