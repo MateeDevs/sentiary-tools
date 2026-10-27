@@ -148,8 +148,8 @@ func TestRequestAPIKeyReachesSentiaryAPI(t *testing.T) {
 
 	select {
 	case got := <-apiKey:
-		if got != "Ribbon session-key" {
-			t.Fatalf("API authorization = %q, want %q", got, "Ribbon session-key")
+		if got != "Bearer session-key" {
+			t.Fatalf("API authorization = %q, want %q", got, "Bearer session-key")
 		}
 	case <-contextWithTimeout.Done():
 		t.Fatal("The Sentiary API did not receive a request")

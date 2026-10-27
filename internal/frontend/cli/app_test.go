@@ -55,7 +55,7 @@ func TestExportCommandWritesContent(t *testing.T) {
 	if got := requestURL.Query().Get("languageId"); got != "cs-CZ" {
 		t.Fatalf("Export language = %q", got)
 	}
-	if authorization != "Ribbon test-key" {
+	if authorization != "Bearer test-key" {
 		t.Fatalf("Authorization = %q", authorization)
 	}
 }

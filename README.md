@@ -13,7 +13,7 @@ See the [documentation site sources](docs/index.md) for [installation](docs/gett
 
 Preview and build instructions are in [documentation maintenance](docs/maintenance.md). The site uses Zensical 0.0.72 and builds a static CI artifact. [Gradle plugin 2.0 documentation](docs/gradle/index.md) remains marked unreleased.
 
-The CLI sends account keys in the `Authorization: Ribbon <key>` header. Project operations
+The CLI sends account keys in the `Authorization: Bearer <key>` header. Project operations
 require membership and role permissions; project keys cannot manage projects or languages.
 Older API deployments accept account keys only on batch and string routes. Deploy the
 account-key backend fix and its Firestore index before using management commands.
@@ -31,7 +31,7 @@ The hosted frontend reads the key from the first available source:
 
 1. `X-Sentiary-User-Api-Key: <key>`
 2. `Authorization: Bearer <key>`
-3. `Authorization: Ribbon <key>`
+3. `Authorization: Bearer <key>`
 4. `SENTIARY_USER_API_KEY` in the service environment
 
 The `Authorization` header can also contain a bare API key.

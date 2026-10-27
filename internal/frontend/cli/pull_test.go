@@ -77,7 +77,7 @@ func TestPullCombinedUsesOneExportRequestAndSavesExactBytes(t *testing.T) {
 		if request.URL.Query().Get("sourceLanguageId") != "en" || request.URL.Query().Get("format") != "xcstrings" {
 			t.Fatal("wrong combined options")
 		}
-		if request.Header.Get("Authorization") != "Ribbon private-project-key" {
+		if request.Header.Get("Authorization") != "Bearer private-project-key" {
 			t.Fatal("wrong credentials")
 		}
 		return textResponse(request, content), nil

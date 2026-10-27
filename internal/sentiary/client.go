@@ -471,7 +471,7 @@ func (c *Client) authorize(request *http.Request, _ authMode) error {
 	if apiKey == "" {
 		return errors.New("missing API key: set SENTIARY_USER_API_KEY")
 	}
-	request.Header.Set("Authorization", "Ribbon "+apiKey)
+	request.Header.Set("Authorization", "Bearer "+apiKey)
 	return nil
 }
 

@@ -44,8 +44,8 @@ func TestManagementOperationsUseAPIContracts(t *testing.T) {
 		if requestIndex >= len(requests) {
 			t.Fatalf("Unexpected request: %s %s", request.Method, request.URL)
 		}
-		if request.Header.Get("Authorization") != "Ribbon test-key" {
-			t.Error("Request does not contain the user key in the Ribbon header")
+		if request.Header.Get("Authorization") != "Bearer test-key" {
+			t.Error("Request does not contain the user key in the Bearer header")
 		}
 		if request.URL.Query().Has("apiKey") {
 			t.Error("Request contains an API key in the URL")

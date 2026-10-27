@@ -70,7 +70,7 @@ func TestSearchStringsKeepsTranslationMatches(t *testing.T) {
 			t.Errorf("Search parameter %s = %q, want %q", name, got, want)
 		}
 	}
-	if got := searchRequest.Header.Get("Authorization"); got != "Ribbon test-key" {
+	if got := searchRequest.Header.Get("Authorization"); got != "Bearer test-key" {
 		t.Fatalf("Authorization = %q", got)
 	}
 }
