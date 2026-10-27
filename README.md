@@ -13,6 +13,16 @@ See the [documentation site sources](docs/index.md) for [installation](docs/gett
 
 Preview and build instructions are in [documentation maintenance](docs/maintenance.md). The site uses Zensical 0.0.72 and builds a static CI artifact. [Gradle plugin 2.0 documentation](docs/gradle/index.md) remains marked unreleased.
 
+The CLI sends account keys in the `Authorization: Ribbon <key>` header. Project operations
+require membership and role permissions; project keys cannot manage projects or languages.
+Older API deployments accept account keys only on batch and string routes. Deploy the
+account-key backend fix and its Firestore index before using management commands.
+
+Use language IDs from `list-languages`, such as `en-US`, `cs-CZ`, and `sk-SK`.
+Add each language to the project before import and use its exact ID. An absent project
+language returns 404; underscore forms such as `cs_CZ` are not interchangeable.
+
+
 ## Hosted MCP
 
 The hosted frontend reads the user API key when it creates an MCP session. Each session gets a separate API client.

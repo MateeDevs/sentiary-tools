@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.13-alpine AS docs-build
+FROM python:3.13-slim AS docs-build
 WORKDIR /docs
 COPY requirements-docs.txt ./
 RUN pip install --no-cache-dir -r requirements-docs.txt
