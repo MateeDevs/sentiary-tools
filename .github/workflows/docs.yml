@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "docs/**"
+      - "overrides/**"
       - "examples/**"
       - "zensical.toml"
       - "requirements-docs.txt"
@@ -13,6 +14,7 @@ on:
   push:
     paths:
       - "docs/**"
+      - "overrides/**"
       - "examples/**"
       - "zensical.toml"
       - "requirements-docs.txt"

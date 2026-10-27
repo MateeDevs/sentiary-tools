@@ -1,42 +1,126 @@
 [project]
 site_url = "https://docs.staging.sentiary.coolify.matee.cz/"
 site_name = "Sentiary documentation"
-site_description = "API reference, CLI, configuration, examples, and Gradle migration for Sentiary"
+site_description = "Get started with Sentiary 2.0: CLI, configuration, Gradle, and API guides"
 docs_dir = "docs"
 site_dir = "site"
+repo_url = "https://github.com/MateeDevs/sentiary-tools"
+repo_name = "MateeDevs/sentiary-tools"
+edit_uri = "edit/staging/docs/"
+extra_css = ["assets/brand.css"]
 nav = [
-  { "Getting Started" = [
+  { "Get started" = [
     { "Overview" = "index.md" },
     { "Installation" = "getting-started/installation.md" },
     { "First download" = "getting-started/quickstart.md" },
+    { "Migration from 1.x" = "migration.md" },
+    { "Troubleshooting" = "troubleshooting.md" },
+    { "Browse by topic" = "topics.md" },
   ] },
   { "CLI" = [
+    { "Android, Compose, and Xcode" = "cli/mobile.md" },
     { "Command reference" = "cli/reference.md" },
-    { "Integration protocol" = "integration/protocol.md" },
   ] },
-  { "API" = [{ "REST API reference" = "api/index.md" }] },
   { "Configuration" = [
     { "TOML reference" = "configuration/reference.md" },
-    { "Downloads and cache" = "configuration/downloads.md" },
+    { "Languages and multiple projects" = "configuration/languages.md" },
+    { "Downloads and offline use" = "configuration/downloads.md" },
   ] },
-  { "Gradle Plugin" = [{ "2.0 — unreleased" = "gradle/index.md" }] },
-  { "Examples" = [
-    { "Canonical examples" = "examples/index.md" },
-    { "Android, Compose, Xcode" = "examples/mobile.md" },
-    { "Multiple projects and modules" = "examples/advanced.md" },
-    { "Gradle 2.0 walkthroughs" = "examples/gradle.md" },
-    { "CI and offline recovery" = "examples/recovery.md" },
+  { "Gradle" = [
+    { "Setup and reference" = "gradle/index.md" },
+    { "Android and Compose builds" = "gradle/guides.md" },
   ] },
-  { "Migration" = "migration.md" },
-  { "Troubleshooting" = [
-    { "Common problems" = "troubleshooting.md" },
-    { "Documentation maintenance" = "maintenance.md" },
-  ] },
+  { "API" = [{ "Overview and authentication" = "api/index.md" }] },
 ]
 
 [project.theme]
+custom_dir = "overrides"
 language = "en"
-features = ["navigation.tabs", "navigation.sections", "navigation.top", "content.code.copy", "search.highlight"]
+logo = "assets/logo.svg"
+favicon = "assets/favicon.ico"
+features = [
+  "navigation.tabs", "navigation.sections", "navigation.top", "navigation.path",
+  "content.code.copy", "content.tabs.link", "content.action.edit", "content.action.view",
+  "search.highlight", "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+primary = "custom"
+accent = "blue"
+toggle.icon = "material/theme-light-dark"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "custom"
+accent = "blue"
+toggle.icon = "material/weather-sunny"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "custom"
+accent = "blue"
+toggle.icon = "material/weather-night"
+toggle.name = "Switch to system preference"
+
+[project.theme.icon]
+repo = "fontawesome/brands/github"
+
+[project.theme.icon.tag]
+cli = "material/console"
+configuration = "material/cog"
+gradle = "material/puzzle"
+android = "material/android"
+compose = "material/layers"
+ios = "material/apple"
+offline = "material/cloud-off-outline"
+api = "material/api"
+migration = "material/swap-horizontal"
+
+[project.extra.tags]
+CLI = "cli"
+Configuration = "configuration"
+Gradle = "gradle"
+Android = "android"
+Compose = "compose"
+iOS = "ios"
+Offline = "offline"
+API = "api"
+Migration = "migration"
+
+[project.plugins.tags]
+
+[project.plugins.redirects.redirect_maps]
+"examples/index.md" = "getting-started/quickstart.md"
+"examples/mobile.md" = "cli/mobile.md"
+"examples/advanced.md" = "configuration/languages.md"
+"examples/gradle.md" = "gradle/guides.md"
+"examples/recovery.md#restore-deleted-generated-files" = "configuration/downloads.md#restore-deleted-generated-files"
+"examples/recovery.md" = "configuration/downloads.md#ci-caching"
+"maintenance.md" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/repository-docs/maintenance.md"
+"integration/protocol.md" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/repository-docs/integration-protocol.md"
+"getting-started/installation.md#build-from-source" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/repository-docs/maintenance.md#build-from-source"
+"getting-started/installation.md#macos-and-linux" = "getting-started/installation.md#install"
+"getting-started/installation.md#windows-powershell" = "getting-started/installation.md#install"
+"configuration/downloads.md#concurrency-and-write-guarantees" = "configuration/downloads.md#concurrent-pulls-and-write-failures"
+"configuration/downloads.md#conditional-requests-and-completed-sets" = "configuration/downloads.md#concurrent-pulls-and-write-failures"
+"gradle/index.md#versions-configuration-cache-and-isolated-projects" = "gradle/index.md#requirements"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+md_in_html = {}
+pymdownx.details = {}
+pymdownx.superfences = {}
+pymdownx.highlight = { anchor_linenums = true }
+pymdownx.tabbed = { alternate_style = true }
+pymdownx.emoji.emoji_index = "zensical.extensions.emoji.twemoji"
+pymdownx.emoji.emoji_generator = "zensical.extensions.emoji.to_svg"
+toc = { permalink = true }
 
 [project.validation]
 invalid_links = true

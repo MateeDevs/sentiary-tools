@@ -1,6 +1,16 @@
+---
+tags:
+  - Migration
+  - Gradle
+---
+
 # Migrate from Gradle plugin 1.x to 2.0
 
-**2.0 is unreleased.** The settings plugin is implemented and locally verified; publication and backend rollout remain separate. Keep the working 1.x integration until the compatible CLI and plugin are published, or validate from local source. See the [actual DSL and version matrix](gradle/index.md).
+```sh
+sentiary-cli pull --dry-run
+```
+
+Preview your converted configuration before replacing generated files. Gradle 2.0 uses a settings plugin and CLI-managed downloads. Follow the [setup and requirements](gradle/index.md).
 
 | 1.x concept | New workflow |
 | --- | --- |
@@ -20,7 +30,7 @@
 
 ## Prepare shared configuration
 
-Copy the [mobile example](examples/sentiary.toml) and replace IDs, languages, and paths. Convert every naming callback to an explicit destination rule. Use [advanced examples](examples/advanced.toml) for aliases, wildcard selection, output overrides, and multiple projects. Combined catalogs require a selected source language and cannot use aliases or locale mappings.
+Copy the [mobile example](examples/sentiary.toml) and replace IDs, languages, and paths. Convert every naming callback to an explicit destination rule. Use [advanced configuration](examples/advanced.toml) for aliases, wildcard selection, output overrides, and multiple projects. Combined catalogs require a selected source language and cannot use aliases or locale mappings.
 
 Move personal credentials out of Gradle scripts. Online TOML precedence is user environment key, local user key, then shared project key. `SENTIARY_PROJECT_API_KEY` is not a direct pull fallback, and legacy API commands do not read local TOML. Check which credential will win before migration.
 
@@ -36,7 +46,3 @@ Replace old module/convention-plugin application, old task dependencies, credent
 `exportPaths` with the [settings DSL](gradle/index.md#setup). Register each Android production source-set
 layer separately. Compose keeps conventional local resources plus explicit additional directories;
 do not register another `customDirectory` for a bound source set. No legacy downloader remains.
-
-The local matrix verifies multiple modules, staging collisions, Configuration Cache reuse, Isolated
-Projects, and explicit offline restoration. Keep the unreleased warning until CLI `v2.0.0` and plugin
-2.0 are published after the backend export-cache rollout.

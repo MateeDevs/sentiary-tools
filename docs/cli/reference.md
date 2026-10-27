@@ -1,4 +1,17 @@
+---
+tags:
+  - CLI
+---
+
 # CLI reference
+
+```sh
+sentiary-cli init
+sentiary-cli pull --dry-run
+sentiary-cli pull
+```
+
+Use [mobile downloads](mobile.md) for Android, Compose, and Xcode examples. The reference below covers every command and option.
 
 ## Invocation, credentials, and streams
 
@@ -21,7 +34,7 @@ Examples use placeholder IDs and credentials. Commands that create, edit, remove
 | `version`, `--version`, `-v` as command | Command; no version argument | Prints version; optional exact `--json` second argument only | `sentiary-cli version` |
 | `version --json` | Literal switch; optional, off | Not repeatable; no environment fallback | `sentiary-cli version --json` |
 
-The table for each command lists every registered option. Unless a row says otherwise, “No” required means optional; no environment fallback exists beyond the listed field. All non-`pull` formats use the legacy four-format list. `get` needs exactly one of `--string-id` or `--key`. For `add`, language is optional; when supplied it triggers a second request to create the initial translation. The current client ignores `--translation` if language is omitted. A translation failure can leave the new term created. For `edit`, nonempty values update fields; `--clear-description` / `--clear-context` explicitly clear them and take precedence over the corresponding text flags.
+The table for each command lists every registered option. Each row lists its type, requirement, default, and example. Options have no environment fallback unless stated. Scalar options use the last supplied value; `pull --output` accumulates selections. All non-`pull` formats use the legacy four-format list. `get` needs exactly one of `--string-id` or `--key`. For `add`, language is optional; when supplied it triggers a second request to create the initial translation. The current client ignores `--translation` if language is omitted. A translation failure can leave the new term created. For `edit`, nonempty values update fields; `--clear-description` / `--clear-context` explicitly clear them and take precedence over the corresponding text flags.
 
 ## list-projects
 
@@ -37,13 +50,13 @@ sentiary-cli list-projects
 
 Get a project and membership.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-
 ```sh
 sentiary-cli get-project
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -51,26 +64,26 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Create a project.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--name` | string | Yes | `""` | Nonblank string | Last value wins | None | `--name=welcome` |
-
 ```sh
 sentiary-cli create-project --name=welcome
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--name` | Nonblank string | string; Required; `""` | `--name=welcome` |
 
 ## edit-project
 
 Rename a project.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--name` | string | Yes | `""` | Nonblank string | Last value wins | None | `--name=welcome` |
-
 ```sh
 sentiary-cli edit-project --name=welcome
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--name` | Nonblank string | string; Required; `""` | `--name=welcome` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -78,13 +91,13 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Remove a project and its data.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-
 ```sh
 sentiary-cli remove-project
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -92,26 +105,26 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 List all supported languages.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--in-language` | string | No | `""` | Language ID for translated language names; empty uses authenticated user language | Last value wins | None | `--in-language=en` |
-
 ```sh
 sentiary-cli list-languages
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--in-language` | Language ID for translated language names; empty uses authenticated user language | string; Optional; `""` | `--in-language=en` |
 
 ## list-project-languages
 
 List project languages.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--in-language` | string | No | `""` | Language ID for translated language names; empty uses authenticated user language | Last value wins | None | `--in-language=en` |
-
 ```sh
 sentiary-cli list-project-languages
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--in-language` | Language ID for translated language names; empty uses authenticated user language | string; Optional; `""` | `--in-language=en` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -119,15 +132,15 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Add a language to a project.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--language` | string | Yes | `""` | Exact API language ID (BCP 47 for project language management) | Last value wins | None | `--language=cs` |
-| `--in-language` | string | No | `""` | Language ID for translated language names; empty uses authenticated user language | Last value wins | None | `--in-language=en` |
-
 ```sh
 sentiary-cli add-project-language --language=cs
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--language` | Exact API language ID (BCP 47 for project language management) | string; Required; `""` | `--language=cs` |
+| `--in-language` | Language ID for translated language names; empty uses authenticated user language | string; Optional; `""` | `--in-language=en` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -135,15 +148,15 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Remove a language and its translations.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--language` | string | Yes | `""` | Exact API language ID (BCP 47 for project language management) | Last value wins | None | `--language=cs` |
-| `--in-language` | string | No | `""` | Language ID for translated language names; empty uses authenticated user language | Last value wins | None | `--in-language=en` |
-
 ```sh
 sentiary-cli remove-project-language --language=cs
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--language` | Exact API language ID (BCP 47 for project language management) | string; Required; `""` | `--language=cs` |
+| `--in-language` | Language ID for translated language names; empty uses authenticated user language | string; Optional; `""` | `--in-language=en` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -151,13 +164,13 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 List project members.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-
 ```sh
 sentiary-cli list-project-members
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -165,15 +178,15 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Set a project member role.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--user-id` | string | Yes | `""` | Existing Sentiary user ID | Last value wins | None | `--user-id=USER_ID` |
-| `--role` | string | Yes | `""` | administrator, developer, translator | Last value wins | None | `--role=developer` |
-
 ```sh
 sentiary-cli set-project-member-role --user-id=USER_ID --role=developer
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--user-id` | Existing Sentiary user ID | string; Required; `""` | `--user-id=USER_ID` |
+| `--role` | administrator, developer, translator | string; Required; `""` | `--role=developer` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -181,14 +194,14 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Remove a project member.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--user-id` | string | Yes | `""` | Existing Sentiary user ID | Last value wins | None | `--user-id=USER_ID` |
-
 ```sh
 sentiary-cli remove-project-member --user-id=USER_ID
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--user-id` | Existing Sentiary user ID | string; Required; `""` | `--user-id=USER_ID` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -206,15 +219,15 @@ sentiary-cli list-invitations
 
 Invite a user to a project.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--user-email` | string | Yes | `""` | Email address | Last value wins | None | `--user-email=developer@example.com` |
-| `--role` | string | Yes | `""` | administrator, developer, translator | Last value wins | None | `--role=developer` |
-
 ```sh
 sentiary-cli create-invitation --user-email=developer@example.com --role=developer
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--user-email` | Email address | string; Required; `""` | `--user-email=developer@example.com` |
+| `--role` | administrator, developer, translator | string; Required; `""` | `--role=developer` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -222,37 +235,37 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Accept an invitation.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--invitation-id` | string | Yes | `""` | Existing invitation ID | Last value wins | None | `--invitation-id=INVITATION_ID` |
-
 ```sh
 sentiary-cli accept-invitation --invitation-id=INVITATION_ID
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--invitation-id` | Existing invitation ID | string; Required; `""` | `--invitation-id=INVITATION_ID` |
 
 ## decline-invitation
 
 Decline an invitation.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--invitation-id` | string | Yes | `""` | Existing invitation ID | Last value wins | None | `--invitation-id=INVITATION_ID` |
-
 ```sh
 sentiary-cli decline-invitation --invitation-id=INVITATION_ID
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--invitation-id` | Existing invitation ID | string; Required; `""` | `--invitation-id=INVITATION_ID` |
 
 ## list-project-invitations
 
 List project invitations.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-
 ```sh
 sentiary-cli list-project-invitations
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -260,14 +273,14 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Remove a project invitation.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--invitation-id` | string | Yes | `""` | Existing invitation ID | Last value wins | None | `--invitation-id=INVITATION_ID` |
-
 ```sh
 sentiary-cli remove-project-invitation --invitation-id=INVITATION_ID
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--invitation-id` | Existing invitation ID | string; Required; `""` | `--invitation-id=INVITATION_ID` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -275,19 +288,19 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 List project strings.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--size` | int | No | `0` | Integer; list sends only positive values, search normalizes nonpositive to 25 | Last value wins | None | `--size=25` |
-| `--cursor` | string | No | `""` | Opaque pagination cursor from prior response | Last value wins | None | `--cursor=CURSOR` |
-| `--include-language` | string | No | `""` | Comma-separated language IDs; trims items and omits empty ones | Last value wins | None | `--include-language=en,cs` |
-| `--filter` | string | No | `""` | ALL, TRANSLATED, NOT_TRANSLATED; passed to API | Last value wins | None | `--filter=NOT_TRANSLATED` |
-| `--filter-language` | string | No | `""` | API language ID used by filter | Last value wins | None | `--filter-language=cs` |
-| `--order` | string | No | `""` | UPDATED_ASC or UPDATED_DESC; passed to API | Last value wins | None | `--order=UPDATED_DESC` |
-
 ```sh
 sentiary-cli list --size=25 --include-language=en,cs --filter=NOT_TRANSLATED --filter-language=cs --order=UPDATED_DESC
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--size` | Integer; list sends only positive values, search normalizes nonpositive to 25 | int; Optional; `0` | `--size=25` |
+| `--cursor` | Opaque pagination cursor from prior response | string; Optional; `""` | `--cursor=CURSOR` |
+| `--include-language` | Comma-separated language IDs; trims items and omits empty ones | string; Optional; `""` | `--include-language=en,cs` |
+| `--filter` | ALL, TRANSLATED, NOT_TRANSLATED; passed to API | string; Optional; `""` | `--filter=NOT_TRANSLATED` |
+| `--filter-language` | API language ID used by filter | string; Optional; `""` | `--filter-language=cs` |
+| `--order` | UPDATED_ASC or UPDATED_DESC; passed to API | string; Optional; `""` | `--order=UPDATED_DESC` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -297,20 +310,20 @@ Use `pagination.next` from the JSON response as the next `--cursor`; the CLI doe
 
 Search project strings.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--query` | string | Yes | `""` | Nonblank search text | Last value wins | None | `--query=welcome` |
-| `--size` | int | No | `25` | Integer; list sends only positive values, search normalizes nonpositive to 25 | Last value wins | None | `--size=25` |
-| `--cursor` | string | No | `""` | Opaque pagination cursor from prior response | Last value wins | None | `--cursor=CURSOR` |
-| `--include-language` | string | No | `""` | Comma-separated language IDs; trims items and omits empty ones | Last value wins | None | `--include-language=en,cs` |
-| `--filter` | string | No | `""` | ALL, TRANSLATED, NOT_TRANSLATED; passed to API | Last value wins | None | `--filter=NOT_TRANSLATED` |
-| `--filter-language` | string | No | `""` | API language ID used by filter | Last value wins | None | `--filter-language=cs` |
-| `--order` | string | No | `""` | UPDATED_ASC or UPDATED_DESC; passed to API | Last value wins | None | `--order=UPDATED_DESC` |
-
 ```sh
 sentiary-cli search --query=welcome --size=25
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--query` | Nonblank search text | string; Required; `""` | `--query=welcome` |
+| `--size` | Integer; list sends only positive values, search normalizes nonpositive to 25 | int; Optional; `25` | `--size=25` |
+| `--cursor` | Opaque pagination cursor from prior response | string; Optional; `""` | `--cursor=CURSOR` |
+| `--include-language` | Comma-separated language IDs; trims items and omits empty ones | string; Optional; `""` | `--include-language=en,cs` |
+| `--filter` | ALL, TRANSLATED, NOT_TRANSLATED; passed to API | string; Optional; `""` | `--filter=NOT_TRANSLATED` |
+| `--filter-language` | API language ID used by filter | string; Optional; `""` | `--filter-language=cs` |
+| `--order` | UPDATED_ASC or UPDATED_DESC; passed to API | string; Optional; `""` | `--order=UPDATED_DESC` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -320,16 +333,16 @@ Use `pagination.next` from the JSON response as the next `--cursor`; the CLI doe
 
 Get a string by ID or key.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--string-id` | string | Alternative to key | `""` | Existing term ID | Last value wins | None | `--string-id=STRING_ID` |
-| `--key` | string | Alternative to string-id | `""` | Exact key, mutually exclusive with string-id | Last value wins | None | `--key=welcome` |
-| `--include-language` | string | No | `""` | Comma-separated language IDs; trims items and omits empty ones | Last value wins | None | `--include-language=en,cs` |
-
 ```sh
 sentiary-cli get --key=welcome --include-language=en,cs
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--string-id` | Existing term ID | string; Alternative to key; `""` | `--string-id=STRING_ID` |
+| `--key` | Exact key, mutually exclusive with string-id | string; Alternative to string-id; `""` | `--key=welcome` |
+| `--include-language` | Comma-separated language IDs; trims items and omits empty ones | string; Optional; `""` | `--include-language=en,cs` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -337,18 +350,18 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Add a string.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--name` | string | Yes | `""` | Nonblank string | Last value wins | None | `--name=welcome` |
-| `--description` | string | No | `""` | String; empty omits update in edit | Last value wins | None | `--description=Greeting` |
-| `--context` | string | No | `""` | String; empty omits update in edit | Last value wins | None | `--context=Home` |
-| `--language` | string | No; needed to apply initial translation | `""` | Exact API language ID (BCP 47 for project language management) | Last value wins | None | `--language=cs` |
-| `--translation` | string | No | `""` | Initial translation text; ignored without language | Last value wins | None | `--translation=Ahoj` |
-
 ```sh
 sentiary-cli add --name=welcome --language=cs --translation=Ahoj
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--name` | Nonblank string | string; Required; `""` | `--name=welcome` |
+| `--description` | String; empty omits update in edit | string; Optional; `""` | `--description=Greeting` |
+| `--context` | String; empty omits update in edit | string; Optional; `""` | `--context=Home` |
+| `--language` | Exact API language ID (BCP 47 for project language management) | string; No; needed to apply initial translation; `""` | `--language=cs` |
+| `--translation` | Initial translation text; ignored without language | string; Optional; `""` | `--translation=Ahoj` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -356,19 +369,19 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Edit a string.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--string-id` | string | Yes | `""` | Existing term ID | Last value wins | None | `--string-id=STRING_ID` |
-| `--name` | string | No | `""` | Nonempty string updates name; empty leaves unchanged | Last value wins | None | `--name=welcome` |
-| `--description` | string | No | `""` | String; empty omits update in edit | Last value wins | None | `--description=Greeting` |
-| `--context` | string | No | `""` | String; empty omits update in edit | Last value wins | None | `--context=Home` |
-| `--clear-description` | bool | No | `false` | true or false; true clears description | Last value wins | None | `--clear-description=true` |
-| `--clear-context` | bool | No | `false` | true or false; true clears context | Last value wins | None | `--clear-context=true` |
-
 ```sh
 sentiary-cli edit --string-id=STRING_ID --clear-description
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--string-id` | Existing term ID | string; Required; `""` | `--string-id=STRING_ID` |
+| `--name` | Nonempty string updates name; empty leaves unchanged | string; Optional; `""` | `--name=welcome` |
+| `--description` | String; empty omits update in edit | string; Optional; `""` | `--description=Greeting` |
+| `--context` | String; empty omits update in edit | string; Optional; `""` | `--context=Home` |
+| `--clear-description` | true or false; true clears description | bool; Optional; `false` | `--clear-description=true` |
+| `--clear-context` | true or false; true clears context | bool; Optional; `false` | `--clear-context=true` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -376,14 +389,14 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Remove a string.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--string-id` | string | Yes | `""` | Existing term ID | Last value wins | None | `--string-id=STRING_ID` |
-
 ```sh
 sentiary-cli remove --string-id=STRING_ID
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--string-id` | Existing term ID | string; Required; `""` | `--string-id=STRING_ID` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -391,16 +404,16 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Set a translation.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--string-id` | string | Yes | `""` | Existing term ID | Last value wins | None | `--string-id=STRING_ID` |
-| `--language` | string | Yes | `""` | Exact API language ID (BCP 47 for project language management) | Last value wins | None | `--language=cs` |
-| `--text` | string | No (defaults to empty) | `""` | Translation text, including empty string | Last value wins | None | `--text=Ahoj` |
-
 ```sh
 sentiary-cli set-translation --string-id=STRING_ID --language=cs --text=Ahoj
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--string-id` | Existing term ID | string; Required; `""` | `--string-id=STRING_ID` |
+| `--language` | Exact API language ID (BCP 47 for project language management) | string; Required; `""` | `--language=cs` |
+| `--text` | Translation text, including empty string | string; No (defaults to empty); `""` | `--text=Ahoj` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -408,15 +421,15 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Remove a translation.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--string-id` | string | Yes | `""` | Existing term ID | Last value wins | None | `--string-id=STRING_ID` |
-| `--language` | string | Yes | `""` | Exact API language ID (BCP 47 for project language management) | Last value wins | None | `--language=cs` |
-
 ```sh
 sentiary-cli remove-translation --string-id=STRING_ID --language=cs
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--string-id` | Existing term ID | string; Required; `""` | `--string-id=STRING_ID` |
+| `--language` | Exact API language ID (BCP 47 for project language management) | string; Required; `""` | `--language=cs` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -424,13 +437,13 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Get project string information.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-
 ```sh
 sentiary-cli info
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -438,17 +451,17 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Export project strings.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--format` | string | Yes | `""` | json, android, apple, compose (trimmed and case-normalized) | Last value wins | None | `--format=json` |
-| `--language` | string | Yes | `""` | Exact API language ID (BCP 47 for project language management) | Last value wins | None | `--language=cs` |
-| `--include-empty` | bool | No | `false` | true or false | Last value wins | None | `--include-empty=true` |
-| `--output` | string | No | `"-"` | File path or - for stdout | Last value wins | None | `--output=strings.json` |
-
 ```sh
 sentiary-cli export --format=json --language=cs --output=strings.json
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--format` | json, android, apple, compose (trimmed and case-normalized) | string; Required; `""` | `--format=json` |
+| `--language` | Exact API language ID (BCP 47 for project language management) | string; Required; `""` | `--language=cs` |
+| `--include-empty` | true or false | bool; Optional; `false` | `--include-empty=true` |
+| `--output` | File path or - for stdout | string; Optional; `"-"` | `--output=strings.json` |
 
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
 
@@ -456,49 +469,67 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 Create a config for existing projects.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--directory` | string | No | `"."` | Existing target directory for init | Last value wins | None | `--directory=.` |
-
 ```sh
 sentiary-cli init --directory=.
 ```
+
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--directory` | Existing target directory for init | string; Optional; `"."` | `--directory=.` |
 
 ## pull
 
 Download configured translation outputs.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--config` | string | No | `""` | Config file path; empty searches current directory and parents | Last value wins | None | `--config=sentiary.toml` |
-| `--offline` | bool | No | `false` | true or false; restore from one complete cached set | Last value wins | None | `--offline=true` |
-| `--cache-dir` | string | No | `""` | Directory path; empty selects environment/OS cache | Last value wins | SENTIARY_CACHE_DIR | `--cache-dir=/tmp/sentiary-cache` |
-| `--dry-run` | bool | No | `false` | true or false; emit preview without generated-file writes | Last value wins | None | `--dry-run=true` |
-| `--json` | bool | No | `false` | true or false; emit protocol result on successful non-preview pull | Last value wins | None | `--json=true` |
-| `--integration-request` | string | No | `""` | Protocol 1 JSON file path; cannot combine with output selection | Last value wins | None | `--integration-request=request.json` |
-| `--force` | bool | No | `false` | true or false; adopt existing files / discard edits | Last value wins | None | `--force=true` |
-| `--output` | string list | No | `all outputs` | Defined output name; omit for all; duplicate selections fail | Accumulates | None | `--output=android` |
-
 ```sh
 sentiary-cli pull --output=android --output=compose --dry-run
 ```
 
-For ownership, cache location, conditional requests, cleanup, and failure semantics, see [downloads](../configuration/downloads.md). For machine requests/results see [protocol](../integration/protocol.md). `--dry-run` takes preview output precedence over `--json`.
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--config` | Config file path; empty searches current directory and parents | string; Optional; `""` | `--config=sentiary.toml` |
+| `--offline` | true or false; restore from one complete cached set | bool; Optional; `false` | `--offline=true` |
+| `--cache-dir` | Directory path; empty selects environment/OS cache; fallback: `SENTIARY_CACHE_DIR` | string; Optional; `""` | `--cache-dir=/tmp/sentiary-cache` |
+| `--dry-run` | true or false; emit preview without generated-file writes | bool; Optional; `false` | `--dry-run=true` |
+| `--json` | true or false; emit protocol result on successful non-preview pull | bool; Optional; `false` | `--json=true` |
+| `--integration-request` | Protocol 1 JSON file path; cannot combine with output selection | string; Optional; `""` | `--integration-request=request.json` |
+| `--force` | true or false; adopt existing files / discard edits | bool; Optional; `false` | `--force=true` |
+| `--output` | Defined output name; omit for all; duplicate selections fail | string list; Optional; `all outputs` | `--output=android` |
+
+For ownership, cache location, conditional requests, cleanup, and failure semantics, see [downloads](../configuration/downloads.md). For machine requests/results see [protocol](https://github.com/MateeDevs/sentiary-tools/blob/staging/repository-docs/integration-protocol.md). `--dry-run` takes preview output precedence over `--json`.
 
 ## import
 
 Import project strings.
 
-| Option | Type | Required | Default | Accepted values / behavior | Repeatability | Environment fallback | Example |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `--project-id` | string | Required after fallback | `""` | Existing project ID | Last value wins | SENTIARY_PROJECT_ID | `--project-id=PROJECT_ID` |
-| `--format` | string | Yes | `""` | json, android, apple, compose (trimmed and case-normalized) | Last value wins | None | `--format=json` |
-| `--language` | string | Yes | `""` | Exact API language ID (BCP 47 for project language management) | Last value wins | None | `--language=cs` |
-| `--input` | string | No | `"-"` | File path or - for stdin | Last value wins | None | `--input=strings.json` |
-| `--override-existing` | bool | No | `false` | true or false; true permits replacing existing translations | Last value wins | None | `--override-existing=true` |
-
 ```sh
 sentiary-cli import --format=json --language=cs --input=strings.json
 ```
 
+| Option | Purpose and accepted values | Type / requirement / default | Example |
+| --- | --- | --- | --- |
+| `--project-id` | Existing project ID; fallback: `SENTIARY_PROJECT_ID` | string; Required after fallback; `""` | `--project-id=PROJECT_ID` |
+| `--format` | json, android, apple, compose (trimmed and case-normalized) | string; Required; `""` | `--format=json` |
+| `--language` | Exact API language ID (BCP 47 for project language management) | string; Required; `""` | `--language=cs` |
+| `--input` | File path or - for stdin | string; Optional; `"-"` | `--input=strings.json` |
+| `--override-existing` | true or false; true permits replacing existing translations | bool; Optional; `false` | `--override-existing=true` |
+
 The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` overrides it.
+
+## Environment variables
+
+| Variable | Purpose and default | Example |
+| --- | --- | --- |
+| `SENTIARY_USER_API_KEY` | Account credential; unset by default. Required for API commands; highest-priority credential for online pulls. | `export SENTIARY_USER_API_KEY='YOUR_USER_API_KEY'` |
+| `SENTIARY_PROJECT_ID` | Project fallback for API commands; no default. | `export SENTIARY_PROJECT_ID='PROJECT_ID'` |
+| `SENTIARY_BASE_URL` | API server; defaults to `https://api.sentiary.com`. | `export SENTIARY_BASE_URL='https://api.staging.sentiary.coolify.matee.cz'` |
+| `SENTIARY_CACHE_DIR` | Export cache directory; defaults to the [OS cache path](../configuration/downloads.md#cache-location-and-identity). | `export SENTIARY_CACHE_DIR='.ci-cache/sentiary'` |
+| `SENTIARY_PROJECT_API_KEY` | Optional key offered by `init`; no default and no direct `pull` fallback. | `export SENTIARY_PROJECT_API_KEY='PROJECT_KEY'` |
+
+Installer-only `INSTALL_DIR` and `SENTIARY_VERSION` are covered in [installation](../getting-started/installation.md).
+
+## JSON output for scripts
+
+`version --json` reports the CLI version and supported integration protocol versions. `pull --json` returns a versioned list of generated files and checksums on success. `pull --dry-run` returns a preview array, including when combined with `--json`. Check the exit status before reading JSON; errors go to stderr.
+
+`--integration-request` accepts a JSON file selecting outputs and validating resource roots. It cannot be combined with `--output`. Most CLI users do not need this option. Integration authors should use the [complete protocol](https://github.com/MateeDevs/sentiary-tools/blob/staging/repository-docs/integration-protocol.md) and [JSON Schema bundle](../integration/schemas.json).

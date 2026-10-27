@@ -1,8 +1,20 @@
+---
+tags:
+  - Android
+  - Compose
+  - iOS
+---
+
 # Android, KMP Compose, and Xcode
 
-Download the [mobile configuration](sentiary.toml) as `sentiary.toml`. It defines one project, explicit `en`/`cs` languages, and three named outputs. Replace its project ID and project-key placeholder, or remove `api_key` and provide `SENTIARY_USER_API_KEY` instead.
+```sh
+sentiary-cli pull --output android --output compose --output ios --dry-run
+sentiary-cli pull --output android --output compose --output ios
+```
 
-For automatic staging with the unreleased 2.0 settings plugin, use the [Gradle walkthrough](gradle.md) with this same TOML. The instructions below describe manual CLI orchestration.
+Download the [mobile configuration](../examples/sentiary.toml) as `sentiary.toml`. It defines one project, explicit `en`/`cs` languages, and three named outputs. Replace its project ID and project-key placeholder, or remove `api_key` and provide `SENTIARY_USER_API_KEY` instead.
+
+For automatic staging, use the [Gradle guide](../gradle/guides.md) with this same TOML. The instructions below use the CLI before each application build.
 
 ## Android
 
@@ -45,7 +57,7 @@ compose.resources {
 }
 ```
 
-Run the CLI before the Compose resource preparation/build tasks. Confirm this API against your installed Compose version; this manual snippet is not a declaration of Gradle plugin 2.0 compatibility. The [Compose resource documentation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-resources-setup.html) describes custom resource directories.
+Run the CLI before the Compose resource preparation/build tasks. Confirm this API against your installed Compose version; see the [Gradle requirements](../gradle/index.md#requirements) for plugin compatibility. The [Compose resource documentation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-resources-setup.html) describes custom resource directories.
 
 ## Combined Xcode catalog
 

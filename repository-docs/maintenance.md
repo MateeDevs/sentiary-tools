@@ -19,17 +19,17 @@ The documentation workflow runs a strict build and uploads `sentiary-docs` as a 
 
 | Source | Site coverage / maintenance action |
 | --- | --- |
-| `internal/frontend/cli/app.go`, `management.go` | [Every command and flag](cli/reference.md); include helper-registered flags |
+| `internal/frontend/cli/app.go`, `management.go` | [Every command and flag](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/cli/reference.md); include helper-registered flags |
 | `internal/frontend/cli/init.go`, `pull.go` | Wizard and pull behavior; shared option table in CLI reference |
 | `cmd/sentiary-cli/main.go`, `internal/buildinfo` | Version forms, handshake, exit codes |
 | `internal/sentiary/config.go`, `client.go`, `client_management.go`, `models.go` | Environment fallbacks, legacy format restrictions, required fields, accepted role/filter/order values |
-| `internal/configfile/config.go` | [Every TOML field](configuration/reference.md), inheritance, discovery, unknown-field rejection |
+| `internal/configfile/config.go` | [Every TOML field](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/configuration/reference.md), inheritance, discovery, unknown-field rejection |
 | `internal/download/plan.go` | Format inventory, language selection, alias and path validation |
 | `internal/download/snapshot.go`, `internal/exportcache/cache.go` | Completed sets, revisions, cache identity, offline and failure semantics |
 | `internal/fileoutput/store.go` | Ownership, cleanup, locks, adoption, partial-write guarantees |
-| `install.sh`, `install.ps1`, `.github/workflows/release.yml`, `go.mod` | [Installation](getting-started/installation.md), targets, checksum manifest and toolchain |
-| `internal/frontend/cli/integration.go`, preview/result structs in `pull.go` | [Protocol](integration/protocol.md), downloadable schema bundle |
-| Adjacent `sentiary-gradle-plugin` build, extension, tasks, source and tests | [Unreleased Gradle status](gradle/index.md) and [migration](migration.md) |
+| `install.sh`, `install.ps1`, `.github/workflows/release.yml`, `go.mod` | [Installation](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/getting-started/installation.md), targets, checksum manifest and toolchain |
+| `internal/frontend/cli/integration.go`, preview/result structs in `pull.go` | [Protocol](https://github.com/MateeDevs/sentiary-tools/blob/staging/repository-docs/integration-protocol.md), downloadable schema bundle |
+| Adjacent `sentiary-gradle-plugin` build, extension, tasks, source and tests | [Gradle reference](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/gradle/index.md) and [migration](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/migration.md) |
 
 When commands change, enumerate command registrations and run every command with `--help` without credentials. Compare flags, types, defaults, required validation, environment fallbacks, repeatability, and examples. Help alone does not expose validations or API-only restrictions. Check the source as well. Never run mutating command examples against an account just to check syntax.
 
@@ -37,9 +37,7 @@ Validate the canonical TOML using the existing `configfile.Load`/`LoadOffline` f
 
 Preview the home page, CLI tables, TOML reference, mobile examples, and protocol page at desktop and narrow widths. Check navigation, search, tables, code scrolling, and code-copy behavior. A strict build checks links and rendering, not the correctness of remote API behavior or app builds.
 
-The [Gradle guide](gradle/index.md) now records the actual settings DSL, overrides, local TestKit results,
-and version matrix. Recheck those tests when the plugin or CLI changes. Keep the unreleased warning
-until compatible CLI/plugin assets are published, and keep backend rollout status separate from local tests.
+The [Gradle guide](../docs/gradle/index.md) records the settings DSL, overrides, and supported versions. Recheck the adjacent plugin tests when the plugin or CLI changes. Keep release procedures and validation evidence in repository documentation, outside `docs/`.
 
 ## Staging hosting
 
@@ -50,11 +48,11 @@ Use the existing staging server and destination. Deploy through the Coolify CLI 
 HTTPS, navigation, search, assets, and reference pages after the build finishes.
 The final Dockerfile target remains the MCP runtime, so builds without a target preserve
 existing MCP behavior. The staging CLI workflow only uploads build artifacts; it does not
-create releases. Gradle plugin 2.0 remains unreleased.
+create releases.
 
 ### API reference
 
-The [API section](api/index.md) links to Swagger UI 5.31.0, matching the deployed backend's UI.
+The [API section](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/api/index.md) links to Swagger UI 5.31.0, matching the deployed backend's UI.
 Its read-only reference loads `/api/openapi.yaml` from the docs domain. `docs-nginx.conf`
 proxies only that exact path to the staging backend's `/swagger/documentation.yaml`, verifies
 upstream TLS, and strips credentials and cookies. The backend resource
@@ -64,3 +62,24 @@ the docs repository keeps no duplicate. A backend deployment updates the referen
 `zensical serve` previews the static reference page but does not run this nginx proxy. Preview
 the schema integration through the `docs` Docker target or the deployed docs application.
 Verify the proxied schema matches the backend schema and the reference assets load after deployment.
+
+## Build from source
+
+Use the Go version required by `go.mod` (currently `go 1.25.5`) or a compatible newer toolchain:
+
+```sh
+git clone https://github.com/MateeDevs/sentiary-tools.git
+cd sentiary-tools
+go build -o bin/sentiary-cli ./cmd/sentiary-cli
+./bin/sentiary-cli version --json
+# Or install to GOBIN, or GOPATH/bin when GOBIN is unset:
+go install ./cmd/sentiary-cli
+```
+
+On Windows the built executable needs a `.exe` suffix. Add `GOBIN` or the Go workspace's `bin` directory to PATH when using `go install`. A local build normally reports `dev`; release builds report their release tag.
+
+## Repository references
+
+- [CLI integration protocol](integration-protocol.md)
+- [Download and cache internals](download-internals.md)
+- [Gradle release operations](gradle-release.md)

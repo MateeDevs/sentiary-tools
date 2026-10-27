@@ -9,9 +9,9 @@ Both frontends use the API contract and client in `internal/sentiary`.
 
 ## CLI documentation
 
-See the [documentation site sources](docs/index.md) for [installation](docs/getting-started/installation.md), the [complete command reference](docs/cli/reference.md), [configured downloads](docs/configuration/reference.md), and [examples](docs/examples/index.md).
+See the [documentation site sources](docs/index.md) for [installation](docs/getting-started/installation.md), the [complete command reference](docs/cli/reference.md), [configured downloads](docs/configuration/reference.md), and [mobile downloads](docs/cli/mobile.md).
 
-Preview and build instructions are in [documentation maintenance](docs/maintenance.md). The site uses Zensical 0.0.72 and builds a static CI artifact. [Gradle plugin 2.0 documentation](docs/gradle/index.md) remains marked unreleased.
+Preview and build instructions are in [documentation maintenance](repository-docs/maintenance.md). The site uses Zensical 0.0.72 and builds a static CI artifact. [Gradle plugin 2.0 documentation](docs/gradle/index.md) covers the current settings plugin.
 
 The CLI sends account keys in the `Authorization: Bearer <key>` header. Project operations
 require membership and role permissions; project keys cannot manage projects or languages.

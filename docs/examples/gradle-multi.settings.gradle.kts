@@ -1,6 +1,4 @@
-// Unreleased Gradle plugin 2.0: replace this path with the plugin source checkout.
 pluginManagement {
-    includeBuild("PATH_TO_PLUGIN_SOURCE")
     repositories {
         google()
         mavenCentral()
@@ -8,7 +6,7 @@ pluginManagement {
     }
 }
 plugins {
-    id("com.sentiary.gradle")
+    id("com.sentiary.gradle") version "2.0.0"
 }
 rootProject.name = "sentiary-multi-example"
 include(":app", ":library")

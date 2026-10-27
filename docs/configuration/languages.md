@@ -1,6 +1,16 @@
+---
+tags:
+  - Configuration
+---
+
 # Generic exports and multiple projects/modules
 
-Download [advanced TOML](advanced.toml) and save it as `sentiary.toml`. Replace both project IDs and supply a user key. It contains no credentials.
+```sh
+sentiary-cli pull --output module_a --output module_b --dry-run
+sentiary-cli pull --output module_a --output module_b
+```
+
+Download [advanced TOML](../examples/advanced.toml) and save it as `sentiary.toml`. Replace both project IDs and supply a user key. It contains no credentials.
 
 ## Wildcards and locale mappings
 
@@ -19,7 +29,7 @@ sentiary-cli pull --output module_a
 
 ## Multiple Gradle modules
 
-`module_a` writes under `feature-a/build/generated/sentiary`; register that resource root in module `feature-a` using the Android setup in the [mobile guide](mobile.md#android). `module_b` writes JSON under `feature-b/build/generated/locales`; configure that module's consumer to load those files as its application requires. A `.json` extension does not make it an Android or Compose resource.
+`module_a` writes under `feature-a/build/generated/sentiary`; register that resource root in module `feature-a` using the Android setup in the [mobile guide](../cli/mobile.md#android). `module_b` writes JSON under `feature-b/build/generated/locales`; configure that module's consumer to load those files as its application requires. A `.json` extension does not make it an Android or Compose resource.
 
 Run one CLI command before both module builds:
 
@@ -27,7 +37,7 @@ Run one CLI command before both module builds:
 sentiary-cli pull --output module_a --output module_b
 ```
 
-This is manual orchestration. The implemented, unreleased Gradle 2.0 settings plugin can replace manual orchestration for [Android/Compose bindings](../gradle/index.md#setup). Keep output paths distinct across modules and avoid two configs managing the same destinations.
+This is manual orchestration. The Gradle 2.0 settings plugin can replace manual orchestration for [Android/Compose bindings](../gradle/index.md#setup). Keep output paths distinct across modules and avoid two configs managing the same destinations.
 
 ## Multiple remote projects and generic formats
 

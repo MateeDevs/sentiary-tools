@@ -1,3 +1,9 @@
+---
+tags:
+  - CLI
+  - Configuration
+---
+
 # First configured download
 
 Start with an existing Sentiary project ID and its language IDs. The current `init` wizard accepts those IDs locally; it does not browse or create remote projects.
@@ -11,7 +17,7 @@ The directory must already exist. The wizard asks for project aliases, IDs, lang
 
 The defaults produce Android/Compose paths under `build/sentiary/`, or a combined `Localizable.xcstrings`. Generic formats require an explicit path. The preview redacts project keys and requires a final `y` before writing. Saving a project key from `SENTIARY_PROJECT_API_KEY` in shared TOML or a user key from `SENTIARY_USER_API_KEY` in local TOML requires explicit opt-in. The default uses environment credentials. New config files use mode `0600` where supported. Ignore entries for `sentiary.local.toml` and `.sentiary/` are offered by default.
 
-Alternatively, copy a [canonical example](../examples/index.md), replace project IDs, and edit languages and paths. Do not commit personal credentials. The local supplement supports only `user_api_key`.
+Alternatively, copy a [mobile configuration](../examples/sentiary.toml), replace project IDs, and edit languages and paths. Do not commit personal credentials. The local supplement supports only `user_api_key`.
 
 ```sh
 sentiary-cli pull --dry-run
@@ -27,4 +33,4 @@ A pull downloads and verifies the full selection, publishes a completed cache se
 sentiary-cli pull --offline
 ```
 
-Offline mode restores the newest single completed set covering the request. It needs no credentials or network, but needs a previous successful online pull and intact cache objects. See [offline recovery](../examples/recovery.md).
+Offline mode restores the newest single completed set covering the request. It needs no credentials or network, but needs a previous successful online pull and intact cache objects. See [offline recovery](../configuration/downloads.md#restore-deleted-generated-files).

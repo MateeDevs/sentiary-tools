@@ -6,6 +6,7 @@ COPY requirements-docs.txt ./
 RUN pip install --no-cache-dir -r requirements-docs.txt
 COPY zensical.toml ./
 COPY docs ./docs
+COPY overrides ./overrides
 COPY examples ./examples
 RUN zensical build --strict
 

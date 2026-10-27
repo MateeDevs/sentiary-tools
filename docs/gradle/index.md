@@ -1,12 +1,30 @@
-# Gradle plugin 2.0 — unreleased
+---
+tags:
+  - Gradle
+---
 
-**Unreleased; verify against the completed implementation before release.** The adjacent plugin working tree now declares `2.0.0` and implements `SentiaryPlugin : Plugin<Settings>`. This reference follows that source. Local test reports were inspected for this documentation change; they record successful checks, while publication remains separate.
+# Gradle plugin 2.0
 
 ## Setup
 
-Apply the plugin once in the root `settings.gradle.kts`, rather than module `build.gradle.kts`. For a local source checkout, use `pluginManagement { includeBuild("PATH_TO_PLUGIN_SOURCE") }` before the plugins block and apply `id("com.sentiary.gradle")`. Replace the placeholder with the sibling plugin checkout. See the [canonical mobile settings](../examples/gradle-mobile.settings.gradle.kts).
+Apply the plugin once in root `settings.gradle.kts`:
 
-After publication, the release form will be `id("com.sentiary.gradle") version "2.0.0"` in the settings plugins block with `gradlePluginPortal()` available. That version is unreleased here; do not assume it can be resolved remotely today.
+```kotlin
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+plugins {
+    id("com.sentiary.gradle") version "2.0.0"
+}
+```
+
+Create `sentiary.toml` with the [first download guide](../getting-started/quickstart.md), then follow the [Android and Compose guide](guides.md). Download the [mobile settings](../examples/gradle-mobile.settings.gradle.kts) to configure bindings.
+
+[Plugin source on GitHub](https://github.com/MateeDevs/sentiary-gradle-plugin)
 
 TOML owns project IDs, credentials, output formats/paths, language selection, aliases, and empty-value policy. The settings extension owns only resource consumption. There is no compatibility layer for the old `projectId`, `projectApiKey`, `exportPaths`, or naming callbacks.
 
@@ -14,14 +32,14 @@ TOML owns project IDs, credentials, output formats/paths, language selection, al
 
 The settings `sentiary` extension has two named containers: `android { create("NAME") { ... } }` and `compose { create("NAME") { ... } }`. Container kind supplies protocol format `android` or `compose`; the named output must use that format and `per_language` layout. A generic or combined Xcode output cannot be bound as Android/Compose resources.
 
-| Field | Type | Required | Default | Behavior / accepted values |
-| --- | --- | --- | --- | --- |
-| Binding name (`create`) | string | Yes | None | Name within its container; identifies errors, not an output selection by itself |
-| `modulePath` | string | Yes | Empty (invalid) | Absolute Gradle project path beginning with `:`, referring to an included module |
-| `output` | string | Yes | Empty (invalid) | Nonblank named TOML output, validated by CLI |
-| `sourceSet` | string | No | `main` | Matches `[A-Za-z][A-Za-z0-9_]*`; use `commonMain` explicitly for KMP Compose |
-| `resourceRoot` | string | Yes | Empty (invalid) | Relative to build root, canonicalized; generated files must be strictly inside this root |
-| `localDirectories` | list of strings | No | Empty list | Compose-only extra local resource roots, relative to build root; Android requires empty list |
+| Field | Type | Required | Default | Behavior / accepted values | Example |
+| --- | --- | --- | --- | --- | --- |
+| Binding name (`create`) | string | Yes | None | Name within its container; identifies errors, not an output selection by itself | `create("app")` |
+| `modulePath` | string | Yes | Empty (invalid) | Absolute Gradle project path beginning with `:`, referring to an included module | `modulePath = ":app"` |
+| `output` | string | Yes | Empty (invalid) | Nonblank named TOML output, validated by CLI | `output = "android"` |
+| `sourceSet` | string | No | `main` | Matches `[A-Za-z][A-Za-z0-9_]*`; use `commonMain` explicitly for KMP Compose | `sourceSet = "commonMain"` |
+| `resourceRoot` | string | Yes | Empty (invalid) | Relative to build root, canonicalized; generated files must be strictly inside this root | `resourceRoot = "app/build/generated/sentiary"` |
+| `localDirectories` | list of strings | No | Empty list | Compose-only extra local resource roots, relative to build root; Android requires empty list | `localDirectories = listOf("shared/extraComposeResources")` |
 
 There is at most one binding for each `(modulePath, kind, sourceSet)`. The same output may be selected by more than one binding if each root contains its files. Additional binding fields, format overrides, variant selectors, or language/credential overrides do not exist.
 
@@ -36,7 +54,7 @@ These are Gradle project properties, supplied with `-P` or `gradle.properties`. 
 | Property | Type | Required | Default | Behavior / example |
 | --- | --- | --- | --- | --- |
 | `sentiary.config` | string path | No | Empty | CLI discovery from build root; `-Psentiary.config=config/sentiary.toml` uses that path |
-| `sentiary.cliVersion` | string release tag | No | `v2.0.0` | Managed version; `[A-Za-z0-9][A-Za-z0-9._-]*`; use an actual compatible release when available |
+| `sentiary.cliVersion` | string release tag | No | `v2.0.0` | Managed version; `[A-Za-z0-9][A-Za-z0-9._-]*`; e.g. `-Psentiary.cliVersion=v2.0.0` |
 | `sentiary.cliExecutable` | string path | No | Empty | Overrides managed CLI installation; absolute path or relative to build root, e.g. `-Psentiary.cliExecutable=/path/to/sentiary-cli` |
 
 An executable override takes precedence over `cliVersion` and bypasses managed-download checksum verification, but still undergoes protocol negotiation. There is no public checksum, installer URL, or CLI-install-cache directory override. `SENTIARY_USER_API_KEY`, local credentials, `SENTIARY_CACHE_DIR`, and `SENTIARY_BASE_URL` are inherited by the CLI process. The export cache is separate from the managed binary cache. TOML destinations remain relative to the config directory even when `sentiary.config` points below the build root; binding roots remain relative to the build root.
@@ -45,7 +63,7 @@ An executable override takes precedence over `cliVersion` and bypasses managed-d
 
 | Task | Behavior |
 | --- | --- |
-| Root `:sentiaryPull` | Runs version handshake, invokes `pull --json`, validates the envelope, saves `.gradle/sentiary/result.json` |
+| Root `:sentiaryPull` | Runs version handshake, invokes the CLI, and downloads the selected outputs |
 | `sentiaryStageAndroid<SourceSet>` in bound module | Depends on root pull; validates checksums/root containment; stages generated and source-set local resources |
 | `sentiaryStageCompose<SourceSet>` in bound module | Depends on root pull; stages generated, conventional, and extra Compose roots |
 
@@ -63,20 +81,27 @@ Generated checksums and resource-root containment are checked before replacement
 
 ## Managed CLI and offline builds
 
-The managed installer supports macOS, Linux, and Windows on AMD64/ARM64. It downloads raw `sentiary-cli-<os>-<arch>[.exe]` release assets and `SHA256SUMS` from `MateeDevs/sentiary-tools`. It requires exactly one matching checksum line, verifies SHA-256, sets executable permissions on Unix, and atomically replaces binary and manifest files. Downloads use 30-second connection/read timeouts. A per-version/platform file lock coordinates installation.
+The plugin installs the CLI for macOS, Linux, and Windows on AMD64/ARM64. It verifies the release's `SHA256SUMS` before installation and checks cached binaries before reuse.
 
 Managed binaries live in `GRADLE_USER_HOME/caches/sentiary/cli/<version>/<platform>/`. A cached binary is checked against its saved checksum manifest before reuse. With Gradle `--offline`, a missing/corrupt managed binary fails instead of downloading; use an intact primed binary or `sentiary.cliExecutable`.
 
-Gradle `--offline` forwards CLI `--offline`. It also needs a complete matching export-cache set. After deleting generated files, the pull task restores them, then staging runs again. Prime both caches online first. No automatic online-error-to-offline fallback exists. See [CI and offline recovery](../examples/recovery.md).
+Gradle `--offline` forwards CLI `--offline`. It also needs a complete matching export-cache set. After deleting generated files, the pull task restores them, then staging runs again. Prime both caches online first. No automatic online-error-to-offline fallback exists. See [CI and offline recovery](../configuration/downloads.md#ci-caching).
 
-## Versions, Configuration Cache, and Isolated Projects
+## Requirements
 
-The source enforces **Gradle 9.1.0 or newer** and builds with **Java 21** and Kotlin 2.2.0. Source fixtures use AGP 9.0.0 (compile SDK 36), Kotlin 2.3.20, and Compose Multiplatform 1.10.3. These are the local consumer test matrix; no broader compatibility range is promised.
+| Component | Version |
+| --- | --- |
+| Gradle | 9.1.0 or newer |
+| Java | 21 |
+| Android Gradle Plugin | 9.0.0 (compile SDK 36) |
+| Kotlin for consuming projects | 2.3.20 |
+| Compose Multiplatform | 1.10.3 |
+| Sentiary CLI | 2.0, integration protocol 1 |
 
-The implementation uses isolated lifecycle actions and task execution for CLI/config work. Test fixtures request Configuration Cache, Isolated Projects (`-Dorg.gradle.unsafe.isolated-projects=true`), and parallel execution. The existing local XML reports dated October 27, 2026 record 14 passing tests (7 distribution tests and 7 plugin tests), with no failures, errors, or skips. They include Android app/library resource tasks, two KMP Compose modules, Configuration Cache reuse, parallel Isolated Projects, collision rejection, incompatible protocol rejection, and an actual-CLI local-server fixture that checks online freshness and offline restoration. This documentation run inspected those reports; it did not rerun the plugin suite.
+Use this supported framework combination; other framework versions are not covered by this guide. Configuration Cache and Isolated Projects are supported. Online pulls still run to check freshness when Gradle reuses configuration.
 
-For Isolated Projects with the matrix Compose version, set `org.jetbrains.compose.hot.reload.disable=true`. The fixtures also set `kotlin.internal.collectFUSMetrics=false` to avoid a Kotlin statistics build-service classloader conflict. Use the [canonical evaluation properties](../examples/gradle-evaluation.properties) as a starting point and replace its executable placeholder.
+For Isolated Projects with Compose 1.10.3, set `org.jetbrains.compose.hot.reload.disable=true`. Set `kotlin.internal.collectFUSMetrics=false` to avoid a Kotlin statistics build-service classloader conflict. Both are framework properties, not Sentiary extension fields. Download the [Gradle properties example](../examples/gradle-evaluation.properties).
 
-Before release, complete the backend export-cache rollout/migration through 6, verify authenticated export/state protocol 1, publish compatible CLI `v2.0.0` binaries and `SHA256SUMS`, verify those assets, then publish the plugin. Keep the unreleased label until release verification is complete.
+## Limitations
 
-Current limitations include one binding per source set/kind/module, Android application/library plugins only, no Android test-source bindings, no generic/combined resource adapter, no public managed-checksum override, and framework API compatibility tied to the adapters above. The [integration protocol](../integration/protocol.md) remains a separate machine interface.
+There is one binding per source set/kind/module. Android supports application/library plugins and production source sets only. There is no generic/combined resource adapter or public managed-checksum override. See [migration](../migration.md) for removed 1.x options and [offline use](../configuration/downloads.md) for recovery requirements.
