@@ -16,10 +16,10 @@
 </p>
 
 <p align="center">
-  <a href="https://docs.staging.sentiary.coolify.matee.cz/">Documentation</a> ·
-  <a href="docs/content/getting-started/installation.md">Install</a> ·
-  <a href="docs/content/getting-started/quickstart.md">Quickstart</a> ·
-  <a href="contributing/development.md">Contribute</a>
+  <a href="https://docs.sentiary.com/">Documentation</a> ·
+  <a href="https://docs.sentiary.com/getting-started/installation/">Install</a> ·
+  <a href="https://docs.sentiary.com/getting-started/quickstart/">Quickstart</a> ·
+  <a href="https://docs.sentiary.com/contributing/development/">Contribute</a>
 </p>
 
 ## From translations to your app
@@ -31,7 +31,7 @@
 
 ## Get started
 
-[Install the CLI](docs/content/getting-started/installation.md), then configure your project and download translations:
+[Install the CLI](https://docs.sentiary.com/getting-started/installation/), then configure your project and download translations:
 
 ```sh
 sentiary-cli init
@@ -43,8 +43,8 @@ sentiary-cli pull
 
 | Tool | Guide |
 | --- | --- |
-| CLI | [Commands](docs/content/cli/reference.md) · [Configuration](docs/content/configuration/reference.md) · [Mobile apps](docs/content/cli/mobile.md) |
-| Gradle plugin | [Setup](docs/content/gradle/index.md) · [Android and Compose](docs/content/gradle/guides.md) |
-| AI assistants | [Hosted MCP](go/README.md#hosted-mcp) · [CLI skill](.agents/skills/sentiary-cli/SKILL.md) · [MCP skill](.agents/skills/sentiary-mcp/SKILL.md) |
+| CLI | [Commands](https://docs.sentiary.com/cli/reference/) · [Configuration](https://docs.sentiary.com/configuration/reference/) · [Mobile apps](https://docs.sentiary.com/cli/mobile/) |
+| Gradle plugin | [Setup](https://docs.sentiary.com/gradle/) · [Android and Compose](https://docs.sentiary.com/gradle/guides/) |
+| AI assistants | [Hosted MCP](https://docs.sentiary.com/mcp/#hosted-mcp) · [CLI skill](.agents/skills/sentiary-cli/SKILL.md) · [MCP skill](.agents/skills/sentiary-mcp/SKILL.md) |
 
-[Development](contributing/development.md) · [Documentation maintenance](contributing/maintenance.md) · [Troubleshooting](docs/content/troubleshooting.md)
+[Development](https://docs.sentiary.com/contributing/development/) · [Documentation maintenance](https://docs.sentiary.com/contributing/documentation/) · [Troubleshooting](https://docs.sentiary.com/troubleshooting/)

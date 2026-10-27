@@ -5,13 +5,13 @@ on:
     paths:
       - "docs/**"
       - "go/examples/**"
-      - "scripts/check-docs-exports.py"
+      - "scripts/*docs*.py"
       - ".github/workflows/docs.yml"
   push:
     paths:
       - "docs/**"
       - "go/examples/**"
-      - "scripts/check-docs-exports.py"
+      - "scripts/*docs*.py"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -21,6 +21,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [production, staging]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -29,10 +32,9 @@ jobs:
           cache: pip
           cache-dependency-path: docs/requirements.txt
       - run: python -m pip install -r docs/requirements.txt
-      - run: zensical build --strict --config-file docs/zensical.toml
-      - run: python scripts/check-docs-exports.py
+      - run: python scripts/build-docs.py --environment ${{ matrix.environment }}
       - uses: actions/upload-artifact@v4
         with:
-          name: sentiary-docs
+          name: sentiary-docs-${{ matrix.environment }}
           path: docs/site/
           if-no-files-found: error

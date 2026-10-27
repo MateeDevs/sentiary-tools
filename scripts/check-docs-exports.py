@@ -1,5 +1,6 @@
 """Check the built llmstxt outputs without contacting external services."""
 
+import argparse
 from html.parser import HTMLParser
 from pathlib import Path
 import re
@@ -62,7 +63,9 @@ def export_path(source):
 
 
 def main():
-    config = Path(__file__).resolve().parents[1] / "docs/zensical.toml"
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config-file", type=Path, default=Path(__file__).resolve().parents[1] / "docs/zensical.toml")
+    config = parser.parse_args().config_file.resolve()
     project = tomllib.loads(config.read_text())["project"]
     plugin = project["plugins"]["llmstxt"]
     site = (config.parent / project["site_dir"]).resolve()

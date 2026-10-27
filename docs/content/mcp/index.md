@@ -1,24 +1,4 @@
-# CLI and hosted MCP
-
-The Go module provides `sentiary-cli` for terminal workflows and `sentiary-mcp` for AI assistants.
-Both frontends share the API client in `internal/sentiary`.
-
-See the [CLI documentation](../docs/content/cli/reference.md),
-[installation guide](../docs/content/getting-started/installation.md), and
-[development guide](../contributing/development.md).
-
-## API keys and languages
-
-The CLI sends account keys in the `Authorization: Bearer <key>` header. Project operations
-require membership and role permissions; project keys cannot manage projects or languages.
-Older API deployments accept account keys only on batch and string routes. Deploy the
-account-key backend fix and its Firestore index before using management commands.
-
-Use language IDs from `list-languages`, such as `en-US`, `cs-CZ`, and `sk-SK`.
-Add each language to the project before import and use its exact ID. An absent project
-language returns 404; underscore forms such as `cs_CZ` are not interchangeable.
-
-## Hosted MCP
+# Hosted MCP
 
 The hosted frontend reads the user API key when it creates an MCP session. Each session gets a separate API client.
 
@@ -50,7 +30,7 @@ The hosted frontend uses port `8080` by default. Set `PORT` to use a different p
 
 The service exposes MCP at `/` and its health check at `/healthz`.
 
-## Docker
+## Self-host with Docker
 
 From the repository root, build and run the hosted frontend:
 

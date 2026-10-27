@@ -1,8 +1,8 @@
 # CLI integration protocol
 
-This machine interface is separate from ordinary CLI commands and the backend export/state protocol. The [Gradle settings plugin](../docs/content/gradle/index.md) uses it for resource bindings.
+This machine interface is separate from ordinary CLI commands and the backend export/state protocol. The [Gradle settings plugin](../gradle/index.md) uses it for resource bindings.
 
-Download the [JSON Schema bundle](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/content/integration/schemas.json) for handshake, request, result, and preview shapes. Use a reference such as `schemas.json#/$defs/request`, `#/$defs/result`, `#/$defs/preview`, or `#/$defs/handshake` to select a shape from the bundle. The bundle describes emitted/accepted structure; semantic restrictions below also apply. Paths and digests in examples are illustrative.
+Download the [JSON Schema bundle](schemas.json) for handshake, request, result, and preview shapes. Use a reference such as `schemas.json#/$defs/request`, `#/$defs/result`, `#/$defs/preview`, or `#/$defs/handshake` to select a shape from the bundle. The bundle describes emitted/accepted structure; semantic restrictions below also apply. Paths and digests in examples are illustrative.
 
 ## Version handshake
 

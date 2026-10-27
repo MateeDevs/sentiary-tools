@@ -67,6 +67,6 @@ Download the asset and `SHA256SUMS` from the **same release**. On Linux, use `sh
 
 Rerun the installer to replace the binary with the latest release, or specify an existing tag for a reproducible upgrade/downgrade. It does not migrate your TOML, generated files, or cache. Check which binary your shell resolves (`command -v sentiary-cli` or `Get-Command sentiary-cli`) if the reported version is unexpected.
 
-`version`, `--version`, and `-v` print the version. `version --json` prints the version and supported integration protocols. See [protocol negotiation](https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/integration-protocol.md#version-handshake).
+`version`, `--version`, and `-v` print the version. `version --json` prints the version and supported integration protocols. See [protocol negotiation](../integration/protocol.md#version-handshake).
 
-For local development, see [building the CLI from source](https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/maintenance.md#build-from-source).
+For local development, see [building the CLI from source](../contributing/documentation.md#build-from-source).

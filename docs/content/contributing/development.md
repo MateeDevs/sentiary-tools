@@ -1,7 +1,7 @@
 # Development
 
 Run commands from the `sentiary-tools` repository root. Use the Go version in
-[`go/go.mod`](../go/go.mod) and JDK 21 for the Gradle plugin.
+[`go/go.mod`](https://github.com/MateeDevs/sentiary-tools/blob/main/go/go.mod) and JDK 21 for the Gradle plugin.
 Plugin integration fixtures also need Python 3 and Android SDK platform 36.
 
 ## Repository layout
@@ -11,7 +11,7 @@ Plugin integration fixtures also need Python 3 and Android SDK platform 36.
 | `go/` | CLI, hosted MCP service, shared API client, and installers |
 | `plugins/sentiary/` | Gradle settings plugin, available as `:sentiary` |
 | `docs/` | Documentation site configuration and public guides in `content/` |
-| `contributing/` | Development, maintenance, and release guides |
+| `docs/content/contributing/` | Development, maintenance, and release guides |
 
 ## Build and check
 
@@ -36,8 +36,8 @@ same checkout before running the plugin checks.
 
 ## Further reading
 
-- [CLI and hosted MCP](../go/README.md): authentication, server configuration, Docker, and tool reference.
-- [Documentation maintenance](maintenance.md): preview, strict build, Markdown exports, and hosting.
-- [Gradle development and releases](gradle-release.md): integration matrix, consumer builds, and publication.
-- [CLI integration protocol](integration-protocol.md): the Gradle-to-CLI machine interface.
-- [Download internals](download-internals.md): caching, ownership, and concurrency.
+- [CLI and hosted MCP](../mcp/index.md): authentication, server configuration, Docker, and tool reference.
+- [Documentation maintenance](documentation.md): preview, strict build, Markdown exports, and hosting.
+- [Gradle development and releases](releases.md): integration matrix, consumer builds, and publication.
+- [CLI integration protocol](../integration/protocol.md): the Gradle-to-CLI machine interface.
+- [Download internals](../configuration/internals.md): caching, ownership, and concurrency.

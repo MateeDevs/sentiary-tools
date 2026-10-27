@@ -15,3 +15,6 @@ bin
 *.test
 coverage.out
 **/.DS_Store
+
+docs/.zensical-build.toml
+docs/.nginx-build.conf

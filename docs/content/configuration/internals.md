@@ -1,6 +1,6 @@
 # Download and cache internals
 
-User-facing guarantees and recovery steps live in [downloads and offline use](../docs/content/configuration/downloads.md).
+User-facing guarantees and recovery steps live in [downloads and offline use](downloads.md).
 
 ## Concurrency and write guarantees
 

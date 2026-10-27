@@ -496,7 +496,7 @@ sentiary-cli pull --output=android --output=compose --dry-run
 | `--force` | true or false; adopt existing files / discard edits | bool; Optional; `false` | `--force=true` |
 | `--output` | Defined output name; omit for all; duplicate selections fail | string list; Optional; `all outputs` | `--output=android` |
 
-For ownership, cache location, conditional requests, cleanup, and failure semantics, see [downloads](../configuration/downloads.md). For machine requests/results see [protocol](https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/integration-protocol.md). `--dry-run` takes preview output precedence over `--json`.
+For ownership, cache location, conditional requests, cleanup, and failure semantics, see [downloads](../configuration/downloads.md). For machine requests/results see [protocol](../integration/protocol.md). `--dry-run` takes preview output precedence over `--json`.
 
 ## import
 
@@ -532,4 +532,4 @@ Installer-only `INSTALL_DIR` and `SENTIARY_VERSION` are covered in [installation
 
 `version --json` reports the CLI version and supported integration protocol versions. `pull --json` returns a versioned list of generated files and checksums on success. `pull --dry-run` returns a preview array, including when combined with `--json`. Check the exit status before reading JSON; errors go to stderr.
 
-`--integration-request` accepts a JSON file selecting outputs and validating resource roots. It cannot be combined with `--output`. Most CLI users do not need this option. Integration authors should use the [complete protocol](https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/integration-protocol.md) and [JSON Schema bundle](../integration/schemas.json).
+`--integration-request` accepts a JSON file selecting outputs and validating resource roots. It cannot be combined with `--output`. Most CLI users do not need this option. Integration authors should use the [complete protocol](../integration/protocol.md) and [JSON Schema bundle](../integration/schemas.json).

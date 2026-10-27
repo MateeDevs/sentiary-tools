@@ -1,12 +1,12 @@
 [project]
-site_url = "https://docs.staging.sentiary.coolify.matee.cz/"
+site_url = "https://docs.sentiary.com/"
 site_name = "Sentiary documentation"
-site_description = "Get started with Sentiary 2.0: CLI, configuration, Gradle, and API guides"
+site_description = "Get started with Sentiary 2.0: CLI, MCP, configuration, Gradle, and API guides"
 docs_dir = "content"
 site_dir = "site"
 repo_url = "https://github.com/MateeDevs/sentiary-tools"
 repo_name = "MateeDevs/sentiary-tools"
-edit_uri = "edit/staging/docs/content/"
+edit_uri = "edit/main/docs/content/"
 extra_css = ["assets/brand.css"]
 nav = [
   { "Get started" = [
@@ -30,7 +30,17 @@ nav = [
     { "Setup and reference" = "gradle/index.md" },
     { "Android and Compose builds" = "gradle/guides.md" },
   ] },
+  { "MCP" = [{ "Hosted service and tools" = "mcp/index.md" }] },
   { "API" = [{ "Overview and authentication" = "api/index.md" }] },
+  { "Integration" = [
+    { "CLI protocol" = "integration/protocol.md" },
+    { "Download internals" = "configuration/internals.md" },
+  ] },
+  { "Contributing" = [
+    { "Development" = "contributing/development.md" },
+    { "Documentation" = "contributing/documentation.md" },
+    { "Releases" = "contributing/releases.md" },
+  ] },
 ]
 
 [project.theme]
@@ -130,6 +140,12 @@ For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
   { "troubleshooting.md" = "Diagnose installation, configuration, download, and build failures." },
 ]
 
+"MCP and integration" = [
+  { "mcp/index.md" = "Hosted MCP authentication, deployment, and complete tool inventory." },
+  { "integration/protocol.md" = "CLI handshake, request, result, and preview contracts." },
+  { "configuration/internals.md" = "Download concurrency, conditional requests, and cache identity." },
+]
+
 [project.plugins.tags]
 
 [project.plugins.redirects.redirect_maps]
@@ -139,9 +155,8 @@ For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
 "examples/gradle.md" = "gradle/guides.md"
 "examples/recovery.md#restore-deleted-generated-files" = "configuration/downloads.md#restore-deleted-generated-files"
 "examples/recovery.md" = "configuration/downloads.md#ci-caching"
-"maintenance.md" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/maintenance.md"
-"integration/protocol.md" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/integration-protocol.md"
-"getting-started/installation.md#build-from-source" = "https://github.com/MateeDevs/sentiary-tools/blob/staging/contributing/maintenance.md#build-from-source"
+"maintenance.md" = "contributing/documentation.md"
+"getting-started/installation.md#build-from-source" = "contributing/documentation.md#build-from-source"
 "getting-started/installation.md#macos-and-linux" = "getting-started/installation.md#install"
 "getting-started/installation.md#windows-powershell" = "getting-started/installation.md#install"
 "configuration/downloads.md#concurrency-and-write-guarantees" = "configuration/downloads.md#concurrent-pulls-and-write-failures"

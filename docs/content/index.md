@@ -16,6 +16,12 @@ Manage translations in Sentiary and deliver them to your application with CLI an
 
     [Set up Gradle](gradle/index.md)
 
+-   :material-robot: **Connect an AI assistant**
+
+    Manage projects, languages, and translations through hosted MCP.
+
+    [Set up MCP](mcp/index.md)
+
 -   :material-api: **Explore the API**
 
     Find authentication requirements, endpoints, and request and response schemas.
@@ -32,6 +38,6 @@ sentiary-cli pull
 
 Start with an existing Sentiary project and its language IDs. Follow the [first download guide](getting-started/quickstart.md) for credentials and generated-file ownership.
 
-[Browse by topic](topics/index.html) · [Migrate from Gradle 1.x](migration.md) · [Troubleshooting](troubleshooting.md)
+[Contribute](contributing/development/index.html) · [Browse by topic](topics/index.html) · [Migrate from Gradle 1.x](migration.md) · [Troubleshooting](troubleshooting.md)
 
 For AI tools: [llms.txt](llms.txt) · [Full documentation](llms-full.txt)
