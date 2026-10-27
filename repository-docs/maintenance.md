@@ -9,11 +9,28 @@ python -m pip install -r requirements-docs.txt
 zensical serve
 # In a separate invocation, build static output:
 zensical build --strict
+python scripts/check-docs-exports.py
 ```
 
 On Windows activate with `.venv-docs\Scripts\Activate.ps1`. The config is `zensical.toml`, sources are `docs/`, and output is `site/`. Preview defaults to localhost port 8000. See Zensical's [preview](https://zensical.org/docs/usage/preview/) and [strict build](https://zensical.org/docs/usage/build/) reference. Broken internal links and anchors are enabled in configuration; strict mode fails on warnings. The staging site uses `https://docs.staging.sentiary.coolify.matee.cz/` as its canonical URL.
 
-The documentation workflow runs a strict build and uploads `sentiary-docs` as a static artifact. It has read-only repository permissions and no deploy job. Download and serve the artifact with an HTTP server to inspect it; search requires a served site.
+The documentation workflow runs a strict build, checks the generated text exports, and uploads `sentiary-docs` as a static artifact. It has read-only repository permissions and no deploy job. Download and serve the artifact with an HTTP server to inspect it; search requires a served site.
+
+## AI documentation exports
+
+The native `llmstxt` plugin generates `llms.txt`, `llms-full.txt`, and Markdown copies
+of the public pages explicitly listed in `zensical.toml`. Update that selection when adding
+user guides. Keep topic indexes, redirects, repository documentation, and Scalar HTML out
+of the selection. Links follow `site_url`; do not set a separate `base_url`.
+The API guide links to the existing `/api/openapi.yaml` proxy without copying the schema.
+
+The home page links to both text exports. Selected pages offer **Copy as Markdown**.
+Use explicit HTML links for pages excluded from the Markdown selection (for example,
+`topics/index.html`); Zensical otherwise rewrites directory links to missing Markdown exports.
+The checker verifies page selection and order, local link targets, full-output coverage,
+copy actions, and preservation of code blocks, tables, and collapsed content.
+The CI artifact and `docs` Docker target include all generated files in `site/`.
+nginx serves `.txt` as `text/plain` and `.md` as `text/markdown`, both with UTF-8.
 
 ## Source inventory and coverage
 

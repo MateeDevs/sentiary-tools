@@ -9,7 +9,7 @@ Explore endpoints, request parameters, responses, and models from the deployed s
 
 [Open API reference](reference.html){ .md-button .md-button--primary }
 
-[Download the OpenAPI schema](https://docs.staging.sentiary.coolify.matee.cz/api/openapi.yaml)
+[Download the OpenAPI schema](openapi.yaml)
 
 The API base URL is `https://api.staging.sentiary.coolify.matee.cz/api/v1`.
 The reference is read-only. Use your API client to make requests.

@@ -40,7 +40,7 @@ logo = "assets/logo.svg"
 favicon = "assets/favicon.ico"
 features = [
   "navigation.tabs", "navigation.sections", "navigation.top", "navigation.path",
-  "content.code.copy", "content.tabs.link", "content.action.edit", "content.action.view",
+  "content.code.copy", "content.tabs.link", "content.action.edit", "content.action.view", "content.action.copy",
   "search.highlight", "toc.follow",
 ]
 
@@ -91,6 +91,44 @@ iOS = "ios"
 Offline = "offline"
 API = "api"
 Migration = "migration"
+
+[project.plugins.llmstxt]
+full_output = "llms-full.txt"
+markdown_description = """
+Sentiary manages localization terms and translations. Use the CLI to download translations,
+configure projects and outputs in TOML, or integrate generated resources into Gradle builds.
+
+The sections below cover getting started, the complete CLI, configuration and offline use,
+Gradle integration, API authentication, and migration and troubleshooting.
+For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
+"""
+
+[project.plugins.llmstxt.sections]
+"Get started" = [
+  { "index.md" = "Overview of Sentiary and its documentation." },
+  { "getting-started/installation.md" = "Install, verify, and upgrade the CLI on macOS, Linux, and Windows." },
+  { "getting-started/quickstart.md" = "Configure credentials and download your first translations." },
+]
+"CLI" = [
+  { "cli/reference.md" = "Complete command and flag reference, defaults, and examples." },
+  { "cli/mobile.md" = "Android, Compose Multiplatform, and Xcode examples." },
+]
+"Configuration and offline use" = [
+  { "configuration/reference.md" = "Every TOML field, supported format, and validation rule." },
+  { "configuration/languages.md" = "Language selection, locale mappings, aliases, and multiple projects." },
+  { "configuration/downloads.md" = "Download ownership, caching, offline use, and failure recovery." },
+]
+"Gradle" = [
+  { "gradle/index.md" = "Plugin setup, every settings field and property, tasks, and requirements." },
+  { "gradle/guides.md" = "Android and Compose resource integration and CI examples." },
+]
+"API" = [
+  { "api/index.md" = "REST API overview, authentication, and the authoritative OpenAPI schema." },
+]
+"Migration and troubleshooting" = [
+  { "migration.md" = "Migrate from Gradle plugin 1.x to CLI and Gradle 2.0." },
+  { "troubleshooting.md" = "Diagnose installation, configuration, download, and build failures." },
+]
 
 [project.plugins.tags]
 
