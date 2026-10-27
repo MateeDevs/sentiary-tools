@@ -52,8 +52,10 @@ create releases.
 
 ### API reference
 
-The [API section](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/api/index.md) links to Swagger UI 5.31.0, matching the deployed backend's UI.
-Its read-only reference loads `/api/openapi.yaml` from the docs domain. `docs-nginx.conf`
+The [API section](https://github.com/MateeDevs/sentiary-tools/blob/staging/docs/api/index.md) links to Scalar API Reference, using the pinned `@scalar/api-reference` 1.76.0 standalone browser bundle.
+The CDN script has a SHA-384 integrity hash; update the version and hash together when upgrading.
+`hideTestRequestButton` and `hideClientButton` keep the reference read-only. Developer tools and external font loading are disabled.
+The reference loads `/api/openapi.yaml` from the docs domain. `docs-nginx.conf`
 proxies only that exact path to the staging backend's `/swagger/documentation.yaml`, verifies
 upstream TLS, and strips credentials and cookies. The backend resource
 `backend/app/src/main/resources/openapi/documentation.yaml` remains the authoritative schema;

@@ -5,7 +5,7 @@ tags:
 
 # REST API reference
 
-Explore endpoints, request parameters, responses, and models from the deployed staging API.
+Explore endpoints, request parameters, responses, and models from the deployed staging API with Scalar API Reference.
 
 [Open API reference](reference.html){ .md-button .md-button--primary }
 
