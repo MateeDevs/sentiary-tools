@@ -9,6 +9,7 @@ Plugin integration fixtures also need Python 3 and Android SDK platform 36.
 | Directory | Contents |
 | --- | --- |
 | `go/` | CLI, hosted MCP service, shared API client, and installers |
+| `plugins/` | Gradle build, wrapper, and version catalog |
 | `plugins/sentiary/` | Gradle settings plugin, available as `:sentiary` |
 | `docs/` | Documentation site configuration and public guides in `content/` |
 | `docs/content/contributing/` | Development, maintenance, and release guides |
@@ -28,8 +29,10 @@ Run Go checks and plugin integration fixtures from the repository root:
 ```sh
 go -C go test ./...
 go -C go vet ./...
-SENTIARY_TEST_CLI="$PWD/bin/sentiary-cli" ./gradlew :sentiary:test :sentiary:ktlintCheck :sentiary:validatePlugins
+SENTIARY_TEST_CLI="$PWD/bin/sentiary-cli" ./plugins/gradlew -p plugins :sentiary:test :sentiary:ktlintCheck :sentiary:validatePlugins
 ```
+
+The Gradle build root is `plugins/`. From that directory, use `./gradlew :sentiary:test`; from the repository root, pass `-p plugins` as shown above.
 
 `SENTIARY_TEST_CLI` enables the actual-CLI integration fixture. Build the CLI from the
 same checkout before running the plugin checks.

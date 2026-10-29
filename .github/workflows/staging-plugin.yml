@@ -22,6 +22,7 @@ jobs:
       - name: Build integration CLI
         run: go -C go build -o "$RUNNER_TEMP/sentiary-cli" ./cmd/sentiary-cli
       - name: Check plugin and integration fixtures
+        working-directory: plugins
         env:
           SENTIARY_TEST_CLI: ${{ runner.temp }}/sentiary-cli
         run: ./gradlew :sentiary:test :sentiary:ktlintCheck :sentiary:validatePlugins :sentiary:assemble

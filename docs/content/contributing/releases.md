@@ -18,11 +18,11 @@ Current limitations include one binding per source set/kind/module, Android appl
 
 Follow the [development guide](development.md) to build the CLI and run the plugin integration checks.
 
-To exercise the source in a consumer, include the monorepo root in `settings.gradle.kts`:
+To exercise the source in a consumer, include the plugin build in `settings.gradle.kts`:
 
 ```kotlin
 pluginManagement {
-    includeBuild("../sentiary-tools")
+    includeBuild("../sentiary-tools/plugins")
     repositories { gradlePluginPortal(); google(); mavenCentral() }
 }
 plugins { id("com.sentiary.gradle") }
@@ -31,10 +31,10 @@ plugins { id("com.sentiary.gradle") }
 The implementation coordinates are `com.sentiary:sentiary:2.0.0` (previous artifact:
 `com.sentiary:gradle-plugin`). The plugin marker remains
 `com.sentiary.gradle:com.sentiary.gradle.gradle.plugin:2.0.0` and references the new
-implementation. Generate both POMs locally without publishing:
+implementation. From the repository root, generate both POMs locally without publishing:
 
 ```sh
-./gradlew :sentiary:generatePomFileForPluginMavenPublication :sentiary:generatePomFileForSentiaryPluginMarkerMavenPublication
+./plugins/gradlew -p plugins :sentiary:generatePomFileForPluginMavenPublication :sentiary:generatePomFileForSentiaryPluginMarkerMavenPublication
 ```
 
 ## Import provenance
@@ -43,6 +43,6 @@ The plugin was copied without history from
 [`MateeDevs/sentiary-gradle-plugin`](https://github.com/MateeDevs/sentiary-gradle-plugin),
 branch `staging`, commit `7d4902adfc6a37519fe11f7315bd16a29d577c27`.
 Only tracked files were imported. `gradle-plugin/` became `plugins/sentiary/`; the wrapper,
-version catalog, and shared Gradle configuration live at the repository root.
+version catalog, and shared Gradle configuration live in `plugins/`.
 The original plugin license is retained at `plugins/sentiary/LICENSE`.
 Plugin ID, implementation class, packages, and version `2.0.0` are unchanged.
