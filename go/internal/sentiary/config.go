@@ -14,15 +14,20 @@ type Config struct {
 }
 
 func ConfigFromEnv() Config {
+	return Config{
+		BaseURL:          BaseURLFromEnv(),
+		APIKey:           firstEnv("SENTIARY_USER_API_KEY", ""),
+		DefaultProjectID: firstEnv("SENTIARY_PROJECT_ID", ""),
+	}
+}
+
+// BaseURLFromEnv reads operational configuration without evaluating credentials.
+func BaseURLFromEnv() string {
 	baseURL := strings.TrimRight(strings.TrimSpace(os.Getenv("SENTIARY_BASE_URL")), "/")
 	if baseURL == "" {
 		baseURL = defaultBaseURL
 	}
-	return Config{
-		BaseURL:          baseURL,
-		APIKey:           firstEnv("SENTIARY_USER_API_KEY", ""),
-		DefaultProjectID: firstEnv("SENTIARY_PROJECT_ID", ""),
-	}
+	return baseURL
 }
 
 func firstEnv(keys ...string) string {

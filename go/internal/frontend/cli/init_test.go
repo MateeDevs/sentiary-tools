@@ -67,7 +67,8 @@ func TestInitCredentialsRedactedAndIgnorePreserved(t *testing.T) {
 	if string(ignore) != "existing\nsentiary.local.toml\n.sentiary/\n" {
 		t.Fatalf("ignore changed: %s", ignore)
 	}
-	cfg, err := configfile.Load("", directory, "")
+	// The init environment remains valid for the wizard, but would conflict in pull.
+	cfg, err := configfile.Load("", directory, func(string) string { return "" })
 	if err != nil || cfg.Projects["app"].APIKey != "secret-personal" {
 		t.Fatalf("local credential: %v", err)
 	}

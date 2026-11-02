@@ -35,6 +35,7 @@ path = "generated/Localizable.xcstrings"
 func pullApp(t *testing.T, config string, transport roundTripFunc) (*App, string, *bytes.Buffer) {
 	t.Helper()
 	t.Setenv("SENTIARY_USER_API_KEY", "")
+	t.Setenv("SENTIARY_PROJECT_API_KEY", "")
 	t.Setenv("SENTIARY_CACHE_DIR", t.TempDir())
 	directory, err := filepath.EvalSymlinks(t.TempDir())
 	if err != nil {
@@ -47,7 +48,7 @@ func pullApp(t *testing.T, config string, transport roundTripFunc) (*App, string
 	app := New(newTestAPI(transport))
 	app.Downloads = sentiary.NewDownloadRepository(sentiary.Config{BaseURL: "https://example.test"}, &http.Client{Transport: roundTripFunc(func(request *http.Request) (*http.Response, error) {
 		if strings.HasSuffix(request.URL.Path, "/export/state") {
-			return jsonResponse(request, `{"protocolVersion":1,"projectGeneration":"g","dataRevision":"1","exporterVersion":"v","languages":["en","cs"]}`), nil
+			return jsonResponse(request, `{"protocolVersion":1,"projectGeneration":"g","dataRevision":"1","exporterVersion":"v","languages":["en","cs"],"capabilities":["resource-export-v1"]}`), nil
 		}
 		response, err := transport(request)
 		if err == nil && response.StatusCode == 200 {

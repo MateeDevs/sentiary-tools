@@ -11,6 +11,7 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 
+	"github.com/MateeDevs/sentiary-tools/go/internal/credentials"
 	"github.com/MateeDevs/sentiary-tools/go/internal/download"
 )
 
@@ -22,17 +23,21 @@ type defaults struct {
 
 type project struct {
 	ID     string `toml:"id"`
-	APIKey string `toml:"api_key"`
+	APIKey any    `toml:"api_key"`
 	defaults
 }
 
 type output struct {
-	Project         string             `toml:"project"`
-	Format          string             `toml:"format"`
-	Layout          download.Layout    `toml:"layout"`
-	Path            string             `toml:"path"`
-	LocaleMap       *map[string]string `toml:"locale_map"`
-	LanguageAliases map[string]string  `toml:"language_aliases"`
+	KeysFile         *string            `toml:"keys_file"`
+	RequiredKeysFile *string            `toml:"required_keys_file"`
+	PluralBasesFile  *string            `toml:"plural_bases_file"`
+	Contexts         []string           `toml:"contexts"`
+	Project          string             `toml:"project"`
+	Format           string             `toml:"format"`
+	Layout           download.Layout    `toml:"layout"`
+	Path             string             `toml:"path"`
+	LocaleMap        *map[string]string `toml:"locale_map"`
+	LanguageAliases  map[string]string  `toml:"language_aliases"`
 	defaults
 }
 
@@ -44,16 +49,16 @@ type document struct {
 
 // Load discovers a shared config and reads the credentials-only local supplement.
 // Decode errors deliberately omit source snippets, which may contain API keys.
-func Load(filename, directory, userAPIKey string) (download.Config, error) {
-	return load(filename, directory, userAPIKey, false)
+func Load(filename, directory string, getenv func(string) string) (download.Config, error) {
+	return load(filename, directory, getenv, false)
 }
 
 // LoadOffline ignores local credentials and permits projects without an API key.
 func LoadOffline(filename, directory string) (download.Config, error) {
-	return load(filename, directory, "", true)
+	return load(filename, directory, nil, true)
 }
 
-func load(filename, directory, userAPIKey string, offline bool) (download.Config, error) {
+func load(filename, directory string, getenv func(string) string, offline bool) (download.Config, error) {
 	path, err := discover(filename, directory)
 	if err != nil {
 		return download.Config{}, err
@@ -69,35 +74,21 @@ func load(filename, directory, userAPIKey string, offline bool) (download.Config
 	if err != nil {
 		return download.Config{}, err
 	}
-	var local struct {
-		UserAPIKey string `toml:"user_api_key"`
-	}
-	localPath := filepath.Join(root, "sentiary.local.toml")
-	if err := func() error {
-		if offline {
-			return nil
-		}
-		return decode(localPath, &local)
-	}(); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return download.Config{}, err
-	}
-	key := strings.TrimSpace(userAPIKey)
-	if key == "" {
-		key = strings.TrimSpace(local.UserAPIKey)
-	}
 	config := download.Config{Name: filepath.Base(path), Directory: root, Projects: map[string]download.Project{}, Outputs: map[string]download.Output{}}
+	declarations := map[string]credentials.Project{}
 	for alias, project := range doc.Projects {
 		if strings.TrimSpace(alias) == "" || strings.TrimSpace(project.ID) == "" {
 			return download.Config{}, fmt.Errorf("projects need a nonempty alias and id")
 		}
-		apiKey := key
-		if apiKey == "" {
-			apiKey = strings.TrimSpace(project.APIKey)
+		declaration, err := credentialDeclaration(project.APIKey)
+		if err != nil {
+			return download.Config{}, fmt.Errorf("project %q: %w", alias, err)
 		}
-		if apiKey == "" && !offline {
-			return download.Config{}, fmt.Errorf("project %q: provide api_key or SENTIARY_USER_API_KEY", alias)
-		}
-		config.Projects[alias] = download.Project{ID: project.ID, APIKey: apiKey}
+		declarations[alias] = declaration
+		config.Projects[alias] = download.Project{ID: project.ID}
+	}
+	if err := credentials.Validate(declarations); err != nil {
+		return download.Config{}, err
 	}
 	if len(doc.Outputs) == 0 {
 		return download.Config{}, fmt.Errorf("config must define at least one output")
@@ -158,12 +149,58 @@ func load(filename, directory, userAPIKey string, offline bool) (download.Config
 		if raw.LocaleMap != nil {
 			localeMap = *raw.LocaleMap
 		}
-		config.Outputs[name] = download.Output{Project: raw.Project, Format: raw.Format, Layout: layout,
+		keys, err := readExportList(root, raw.KeysFile)
+		if err != nil {
+			return download.Config{}, fmt.Errorf("output %q: %w", name, err)
+		}
+		required, err := readExportList(root, raw.RequiredKeysFile)
+		if err != nil {
+			return download.Config{}, fmt.Errorf("output %q: %w", name, err)
+		}
+		plurals, err := readExportList(root, raw.PluralBasesFile)
+		if err != nil {
+			return download.Config{}, fmt.Errorf("output %q: %w", name, err)
+		}
+		options := download.ExportOptions{Contexts: raw.Contexts, RequiredKeys: required, PluralBases: plurals}
+		if raw.KeysFile != nil {
+			options.Keys = &keys
+		}
+		config.Outputs[name] = download.Output{Project: raw.Project, Format: raw.Format, Layout: layout, Options: options,
 			Languages: ids, AllLanguages: all, SourceLanguage: sourceLanguage, IncludeEmpty: includeEmpty != nil && *includeEmpty,
 			Path: raw.Path, LocaleMap: localeMap, LanguageAliases: raw.LanguageAliases}
 		if err := download.ValidateOutput(config.Outputs[name]); err != nil {
 			return download.Config{}, fmt.Errorf("output %q: %w", name, err)
 		}
+	}
+	if offline {
+		return config, nil
+	}
+	var local struct {
+		UserAPIKey string `toml:"user_api_key"`
+	}
+	if err := decode(filepath.Join(root, "sentiary.local.toml"), &local); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return download.Config{}, err
+	}
+	sources := credentials.Sources{
+		UserEnvironment:    getenv(credentials.UserEnvironment),
+		ProjectEnvironment: getenv(credentials.ProjectEnvironment),
+		LocalUser:          local.UserAPIKey,
+		References:         map[string]string{},
+	}
+	for _, declaration := range declarations {
+		if declaration.EnvironmentVariable != nil {
+			name := *declaration.EnvironmentVariable
+			sources.References[name] = getenv(name)
+		}
+	}
+	resolved, err := credentials.Resolve(declarations, sources)
+	if err != nil {
+		return download.Config{}, err
+	}
+	for alias, key := range resolved {
+		project := config.Projects[alias]
+		project.APIKey = key
+		config.Projects[alias] = project
 	}
 	return config, nil
 }

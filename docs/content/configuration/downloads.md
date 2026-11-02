@@ -44,9 +44,20 @@ Precedence: `--cache-dir`, then `SENTIARY_CACHE_DIR`, then the OS cache director
 
 Cached exports are scoped to the server, project, format, layout, languages, source language, and empty-translation policy. Moving a checkout or renaming outputs can reuse exports. Sets do not expire automatically. Protect cached translation content like generated files; it contains no API keys.
 
+Credential values and source names are not part of export identity. Rotating a key
+or switching between inline, user, or project environment credentials preserves
+matching cached exports. [Project environment credentials](reference.md#project-environment-credentials-unreleased)
+are currently unreleased; the existing CLI 2.0 credential rules still apply to released binaries.
+
 ## Offline restoration
 
 `pull --offline` makes no network calls and needs no credentials. It finds the newest single completed set covering the requested exports, including a selected subset. It does not combine several sets. Wildcard expansion uses that set's saved project languages. Every selected object's checksum must verify before writes. Completion time and age are printed to stderr.
+
+The new credential resolver is completely bypassed offline: credential environment
+variables may be absent or conflicting, referenced variables need not exist, and
+even an invalid local credential supplement is ignored. Shared TOML still validates,
+including `api_key` string/reference-table types and valid `env` names. Operational
+cache/base-URL settings are not credential variables and still apply.
 
 Deleting `build/` does not invalidate a cache set. Restore it with the same config and cache location. Changing format, selected languages, source language, or empty-value policy may require another online pull. Offline mode does not establish current access or freshness.
 

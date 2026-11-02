@@ -32,7 +32,42 @@ Preview your converted configuration before replacing generated files. Gradle 2.
 
 Copy the [mobile example](examples/sentiary.toml) and replace IDs, languages, and paths. Convert every naming callback to an explicit destination rule. Use [advanced configuration](examples/advanced.toml) for aliases, wildcard selection, output overrides, and multiple projects. Combined catalogs require a selected source language and cannot use aliases or locale mappings.
 
-Move personal credentials out of Gradle scripts. Online TOML precedence is user environment key, local user key, then shared project key. `SENTIARY_PROJECT_API_KEY` is not a direct pull fallback, and legacy API commands do not read local TOML. Check which credential will win before migration.
+Move personal credentials out of Gradle scripts. In CLI `v2.0.0`, online TOML
+precedence is user environment key, local user key, then shared project key;
+`SENTIARY_PROJECT_API_KEY` is ignored by pull. The unreleased changes below add
+project environment sources. Legacy API commands still do not read local TOML.
+Check which credential will win before migration.
+
+## Project credentials (unreleased)
+
+No released CLI version supports `api_key = { env = "NAME" }` yet; `v2.0.0`
+accepts only string values for `api_key`.
+Use a [source build](contributing/development.md#build-and-check) and the
+[Gradle executable override](gradle/index.md#project-credentials-unreleased) for
+evaluation. When this feature is released, pin the first supporting release tag
+explicitly; protocol 1 alone does not identify credential-field support.
+
+**Behavior change:** a nonblank `SENTIARY_PROJECT_API_KEY`, previously ignored by
+pull, now overrides inline project keys in a single-project config. Remove stale
+CI/Gradle environment variables before upgrading. The shorthand conflicts with
+nonblank user environment/local credentials and with an `api_key` environment reference; it always
+fails for multiple declared projects, regardless of selected outputs. Blank values
+are ignored. The wizard and legacy API command credential rules do not change.
+
+Prefer per-project `api_key = { env = "NAME" }` references for multiple projects.
+Replace the literal `api_key` value rather than adding a second definition. Explicit
+references override global user credentials and fail without fallback when missing
+or blank. Projects without references retain existing user/local/inline priority.
+See the [complete credential rules](configuration/reference.md#project-environment-credentials-unreleased)
+and [multi-project example](examples/project-credentials.toml).
+
+Plain string values remain literal, including strings containing `${NAME}` or
+reference-looking text.
+
+Offline restore skips credential lookup and ignores local/value conflicts, but
+still rejects invalid shared declarations. Key rotation and source changes do not
+change export-cache identity. No new credential-bearing config file or Gradle
+extension is required.
 
 ## Review generated-file ownership
 

@@ -12,6 +12,7 @@ import (
 
 // State identifies one project's export semantics. Revision is decimal, never a JSON number.
 type State struct {
+	Capabilities      []string `json:"capabilities,omitempty"`
 	ProtocolVersion   int      `json:"protocolVersion"`
 	ProjectGeneration string   `json:"projectGeneration"`
 	DataRevision      string   `json:"dataRevision"`
@@ -57,10 +58,13 @@ type Request struct {
 	Languages      []string
 	SourceLanguage string
 	IncludeEmpty   bool
+	Options        *ExportOptions `json:",omitempty"`
 }
 
 func RequestFor(config Config, file File) Request {
-	return Request{config.Projects[file.Project].ID, file.Format, file.Layout, slices.Sorted(slices.Values(file.Languages)), file.SourceLanguage, file.IncludeEmpty}
+	return Request{ProjectID: config.Projects[file.Project].ID, Format: file.Format, Layout: file.Layout,
+		Languages: slices.Sorted(slices.Values(file.Languages)), SourceLanguage: file.SourceLanguage, IncludeEmpty: file.IncludeEmpty,
+		Options: file.Options.Canonical()}
 }
 func Digest(data []byte) string { sum := sha256.Sum256(data); return hex.EncodeToString(sum[:]) }
 func (r Request) ID() string    { data, _ := json.Marshal(r); return Digest(data) }
@@ -126,8 +130,9 @@ func selectionID(config Config) string {
 		if output.Layout == PerLanguage {
 			source = ""
 		}
-		requests = append(requests, (Request{config.Projects[output.Project].ID, output.Format, output.Layout,
-			slices.Sorted(slices.Values(languages)), source, output.IncludeEmpty}).ID())
+		requests = append(requests, (Request{ProjectID: config.Projects[output.Project].ID, Format: output.Format, Layout: output.Layout,
+			Languages: slices.Sorted(slices.Values(languages)), SourceLanguage: source, IncludeEmpty: output.IncludeEmpty,
+			Options: output.Options.Canonical()}).ID())
 	}
 	slices.Sort(requests)
 	data, _ := json.Marshal(slices.Compact(requests))
@@ -168,6 +173,11 @@ func FetchSnapshot(ctx context.Context, config Config, selected []string, reposi
 			}
 			if err := state.Validate(); err != nil {
 				return nil, err
+			}
+			for _, output := range outputs {
+				if !output.Options.IsDefault() && !slices.Contains(state.Capabilities, ResourceExportCapability) {
+					return nil, fmt.Errorf("server does not support %s", ResourceExportCapability)
+				}
 			}
 			part := config
 			part.Outputs = outputs

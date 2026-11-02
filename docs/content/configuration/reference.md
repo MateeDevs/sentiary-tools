@@ -31,7 +31,7 @@ All TOML fields are listed below. Unknown fields, invalid TOML, and unsupported 
 | Field | Type | Required | Default / behavior | Example |
 | --- | --- | --- | --- | --- |
 | `id` | string | Yes | Nonempty existing Sentiary project ID | `id = "PROJECT_ID"` |
-| `api_key` | string | Online if no user key | Empty when omitted; project credential; lower priority than either user-key source | `api_key = "PROJECT_KEY"` |
+| `api_key` | string or table | No | Literal credential fallback, or explicit environment reference (unreleased); reference table must contain only a string `env` field | `api_key = "PROJECT_KEY"` or `api_key = { env = "SENTIARY_MOBILE_API_KEY" }` |
 | `languages` | array of strings or string `"*"` | Unless each output supplies it | Nonempty unique IDs, or all project languages | `languages = ["en", "cs"]` |
 | `source_language` | string | For combined output unless overridden | No default | `source_language = "en"` |
 | `include_empty` | boolean | No | `false` | `include_empty = false` |
@@ -49,6 +49,10 @@ All TOML fields are listed below. Unknown fields, invalid TOML, and unsupported 
 | `include_empty` | boolean | No | Replaces project value, including explicit `false` | `include_empty = false` |
 | `locale_map` | table of string values | When path contains `{locale}` | Empty map; target language ID to path component; no automatic mapping | `locale_map = { en = "values" }` |
 | `language_aliases` | table of string values | No | Empty map; target ID to source language ID; chains allowed | `language_aliases = { en-GB = "en" }` |
+| `keys_file` | string | No | UTF-8 exact-key selection file; an empty file explicitly selects no keys | `keys_file = "localization/keys.txt"` |
+| `contexts` | array of strings | No | Exact, case-sensitive contexts; union with selected keys | `contexts = ["checkout"]` |
+| `required_keys_file` | string | No | Selected keys that need nonblank translations in every target language | `required_keys_file = "localization/required.txt"` |
+| `plural_bases_file` | string | No | Opt-in plural bases for Android/Compose XML only | `plural_bases_file = "localization/plurals.txt"` |
 
 `languages`, `source_language`, and `include_empty` inherit independently from the project. No list or map merging occurs. `locale_map` and `language_aliases` belong only to outputs. Missing languages fail; an empty array is not shorthand for all languages.
 
@@ -97,19 +101,131 @@ Only `xcstrings` supports `combined`. That layout creates one catalog for all se
 
 `include_empty = false` omits empty translations. For combined catalogs, `true` includes empty localizations with state `new`; it does not invent fallback text. `pull` preserves downloaded bytes, including binary spreadsheet/Gettext exports. Legacy `export` and `import` accept only `json`, `android`, `apple`, and `compose`.
 
+## Selection, required translations, and plurals
+
+These four options belong to each output, not the project. List paths resolve
+relative to the directory containing `sentiary.toml`, not the current working
+directory. Multiple outputs may reuse one list. Files use UTF-8, one literal key
+per line. Surrounding whitespace is trimmed and blank lines are ignored. There
+are no comments or escapes: `#example` is a literal key. Duplicate entries fail
+with a file and line number. Missing or invalid files also fail offline pulls.
+Each list accepts up to 10,000 unique items of at most 1,024 UTF-8 bytes, without
+NUL. List files are limited to 10,260,000 bytes, including whitespace and line endings.
+
+Exact keys and contexts form a union. Without selectors, the full catalog is
+exported. An explicitly empty `keys_file` is not shorthand for the full catalog;
+contexts can still select terms. Unknown keys, contexts, or plural bases and an
+empty term selection fail. Contexts must not be blank and are case-sensitive.
+Terms without a context can be selected by key. Required keys do not expand the
+selection. They must exist, be selected, and have nonblank translations in every
+target language. `include_empty = true` does not weaken this rule. Empty required
+and plural files are valid and declare nothing.
+
+For example, in an Android or Compose output:
+
+```toml
+keys_file = "localization/selected.txt"
+contexts = ["checkout"]
+required_keys_file = "localization/required.txt"
+plural_bases_file = "localization/plurals.txt"
+```
+
+Put `truck_count` in the plural list and use catalog terms `truck_count.one`,
+`truck_count.other`, and optionally `.zero`, `.two`, `.few`, or `.many`. Select
+and require the base `truck_count`, never an individual quantity. A context that
+selects any member selects the entire group. The entire prefix is reserved:
+`truck_count.description` is an error, as is a plain `truck_count` string.
+Names must match `[a-z_][a-z0-9_]*`; exporters do not rename resources.
+
+Each emitted group needs nonblank `other`. Empty optional groups are omitted
+with `include_empty = false`; nonempty groups without usable `other` fail.
+With `include_empty = true`, an empty `other` still fails. Required plurals need
+`other` in every language, not identical quantity sets. No language fallback or
+cross-quantity argument compatibility check is performed. Compose numbers
+unambiguous unnumbered placeholders while preserving argument types and explicit
+positions. Mixed numbered/unnumbered or relative format arguments fail. The
+application passes the count for quantity selection separately from format arguments.
+Structured plural import and Apple plural assembly remain unsupported.
+
+The CLI requires the backend capability `resource-export-v1`, separate from the
+Gradle integration protocol. It posts evaluated list values, never local paths.
+Older servers fail rather than silently returning the full catalog. Cache identity
+includes list contents, selection presence, contexts, required keys, and plural
+bases, but not list paths or order. Existing cache entries without these options
+remain readable. Offline pulls restore exact matching server bytes and cannot
+regenerate new selections from old full-catalog exports. A server validation
+failure prevents replacement of every destination in the pull; filesystem failures
+during sequential replacement still can leave partial changes.
+
 ## Local supplement and credentials
 
 `sentiary.local.toml` is read beside the selected shared config, even when that config has another filename. It accepts one optional field, `user_api_key` (string, default empty), for example `user_api_key = "YOUR_USER_API_KEY"`. Copy the [local credential template](../examples/local-credentials.toml) to that filename and replace its placeholder; keep it out of source control. Unknown fields fail. It cannot override projects, outputs, server, or paths.
 
-Online credentials for every project are selected in this order:
+### Project environment credentials (unreleased)
 
-1. Nonblank `SENTIARY_USER_API_KEY`.
-2. Nonblank local `user_api_key`.
-3. That project's nonblank `api_key`.
+CLI `v2.0.0` accepts only string `api_key` values and ignores `SENTIARY_PROJECT_API_KEY`
+for `pull`. **No released version contains this change yet.** Use a source build
+until the first supporting release is published. See [migration notes](../migration.md#project-credentials-unreleased)
+and the [Gradle executable override](../gradle/index.md#project-credentials-unreleased).
 
-An invalid selected key fails without falling back to another. All configured projects require credentials during online config loading, including projects with no selected output. `SENTIARY_PROJECT_API_KEY` is an `init` input only; `pull` does not read it directly. `SENTIARY_PROJECT_ID` applies to legacy API commands, not TOML project IDs. Legacy API commands do not load TOML or local credentials.
+Download the [multi-project credential example](../examples/project-credentials.toml).
+Each project can choose a literal string or an environment reference:
 
-Offline loading ignores the local supplement entirely and permits missing credentials. Cache data contains translation content even though it contains no keys. Ignore `sentiary.local.toml` and `.sentiary/` in version control. Shared `api_key` retains the project's existing permissions; it is not a download-only key.
+```toml
+# Literal value (keep real secrets out of committed files):
+api_key = "the-actual-api-key"
+```
+
+```toml
+# Environment reference instead of the literal value:
+api_key = { env = "SENTIARY_MOBILE_API_KEY" }
+```
+
+Strings are always literal: `api_key = "${VARIABLE}"` does not interpolate.
+Only a reference table triggers lookup. It must contain exactly one field, `env`,
+whose value is a literal variable name, not general TOML interpolation. The name
+must be nonempty and match `[A-Za-z_][A-Za-z0-9_]*` without surrounding whitespace.
+The referenced value is trimmed; a missing, empty, or whitespace-only value fails
+online without falling back to a user credential. A project reference takes
+precedence over global user sources; their presence alone is not a conflict.
+Unknown table fields, missing/non-string `env`, other `api_key` types, and duplicate
+`api_key` definitions are structural errors.
+
+For exactly one declared project, `SENTIARY_PROJECT_API_KEY` is a shorthand that
+overrides inline `api_key`. A nonblank shorthand conflicts with either nonblank
+`SENTIARY_USER_API_KEY`, local `user_api_key`, or a project `api_key = { env = "..." }` reference.
+It always fails with multiple declared projects, even when `--output` selects only
+one project's outputs. Whitespace-only shorthand values are absent.
+
+After validating shared configuration, online credentials are selected as follows:
+
+1. If nonblank, validate and use the single-project `SENTIARY_PROJECT_API_KEY` shorthand.
+2. Otherwise, projects with a reference table require the value of that exact `env` variable.
+3. Projects without a reference retain the existing precedence:
+
+    1. Nonblank `SENTIARY_USER_API_KEY`.
+    2. Nonblank local `user_api_key`.
+    3. That project's nonblank inline `api_key`.
+
+An invalid selected key fails without trying alternative sources. All declared
+projects require usable credentials online, including those with no selected
+output. Source conflicts fail before export requests or destination replacement.
+The credential and server determine permissions, not the environment variable's
+name. Keys supplied through a user-named variable do not acquire user permissions.
+The wizard's existing use of `SENTIARY_PROJECT_API_KEY` is unchanged.
+`SENTIARY_PROJECT_ID` applies to legacy API commands, not TOML project IDs. Legacy
+commands do not load TOML/local credentials or gain these new pull mechanisms.
+
+Offline loading never evaluates credential environment variables and ignores the
+local supplement entirely, including malformed TOML. Referenced variables need
+not exist, and environment/local-value conflicts do not block restoration. Shared
+structure, including valid variable names and the strict `api_key` value/table shape,
+still validates. Operational variables such as `SENTIARY_BASE_URL` and
+`SENTIARY_CACHE_DIR` still apply. Neither keys nor their source names enter cache
+identity; key rotation or changing sources does not invalidate cached exports.
+Resolved keys are never written back to TOML, preview output, or cache metadata.
+Ignore `sentiary.local.toml` and `.sentiary/` in version control. Shared `api_key`
+retains the project's existing permissions; it is not a download-only key.
 
 ## Validation failures
 

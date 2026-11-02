@@ -14,6 +14,24 @@ Version 2.0.0 was published after the backend export-cache rollout and migration
 
 Current limitations include one binding per source set/kind/module, Android application/library plugins only, no Android test-source bindings, no generic/combined resource adapter, no public managed-checksum override, and framework API compatibility tied to the adapters above. The [integration protocol](../integration/protocol.md) remains a separate machine interface.
 
+## Unreleased CLI notes: project credentials
+
+- Extend `projects.NAME.api_key` to accept a literal string or `{ env = "NAME" }`
+  for explicit, independently resolved project environment credentials. Strings
+  never interpolate; empty/missing referenced values fail without user-key fallback.
+- Configured pull now honors nonblank `SENTIARY_PROJECT_API_KEY` for exactly one
+  declared project. This previously ignored variable can now cause conflicts with
+  user environment/local credentials, explicit references, or multi-project configs.
+- Offline pull does not read credential variables or the local supplement;
+  shared source declarations still validate. Credentials/source names stay outside
+  export-cache identity and plugin task properties.
+- `init` and legacy API command credential selection are unchanged.
+
+No release includes this feature yet. Before publishing, record the actual first
+supporting CLI tag in configuration, migration, and Gradle documentation; verify
+its assets before recommending managed `sentiary.cliVersion` installation. Do not
+claim that the existing `v2.0.0` binaries support these fields.
+
 ## Monorepo development
 
 Follow the [development guide](development.md) to build the CLI and run the plugin integration checks.

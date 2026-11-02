@@ -43,7 +43,7 @@ type App struct {
 func New(api sentiary.API) *App {
 	return &App{
 		API:            api,
-		DownloadServer: sentiary.ConfigFromEnv().BaseURL,
+		DownloadServer: sentiary.BaseURLFromEnv(),
 		Stdin:          os.Stdin,
 		Stdout:         os.Stdout,
 		Stderr:         os.Stderr,

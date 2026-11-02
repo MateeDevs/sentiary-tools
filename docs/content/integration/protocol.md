@@ -16,6 +16,13 @@ sentiary-cli version --json
 
 `version` is a string; `integrationProtocols` is an array of supported integer versions. The current executable advertises `[1]`. Negotiate support before running a request; do not infer it solely from a release version. `--version --json` and `-v --json` also work. Extra version arguments return usage exit 2.
 
+Protocol 1 does not prove backend resource-export support. Outputs using selection,
+required translations, or plural bases require the independent backend
+`resource-export-v1` capability. The CLI checks export/state capabilities and the
+POST response acknowledgment. The Gradle plugin still binds and stages final
+server bytes; it does not evaluate selectors or assemble plurals. See the
+[configuration reference](../configuration/reference.md#selection-required-translations-and-plurals).
+
 ## Request
 
 ```json

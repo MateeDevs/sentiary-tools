@@ -48,7 +48,7 @@ func (r *snapshotRepo) ConditionalExport(_ context.Context, _ Project, f File, e
 	return ExportResponse{Content: []byte{0, 255, 1}, ETag: `W/"tag"`, State: r.state, NotModified: etag != ""}, nil
 }
 func newSnapshotRepo() *snapshotRepo {
-	return &snapshotRepo{state: State{1, "generation", "1", "version", []string{"en", "cs"}}}
+	return &snapshotRepo{state: State{ProtocolVersion: 1, ProjectGeneration: "generation", DataRevision: "1", ExporterVersion: "version", Languages: []string{"en", "cs"}}}
 }
 
 func TestUnchangedOnlineUsesETagAndRestoresBinary(t *testing.T) {

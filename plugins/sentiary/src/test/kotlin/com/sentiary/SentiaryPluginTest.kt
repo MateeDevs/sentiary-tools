@@ -240,26 +240,76 @@ class SentiaryPluginTest {
     }
 
     @Test fun `real CLI verifies online again after reuse and restores resources offline`() {
+        realCliResources(resourceOptions = false)
+    }
+
+    @Test fun `real CLI stages selected plurals unchanged with configuration cache and offline restoration`() {
+        realCliResources(resourceOptions = true)
+    }
+
+    @Test fun `real CLI resolves global project credentials after configuration cache reuse`() {
+        realCliResources(resourceOptions = false, credentialMode = "global")
+    }
+
+    @Test fun `real CLI resolves separate project references after configuration cache reuse`() {
+        realCliResources(resourceOptions = false, credentialMode = "references")
+    }
+
+    private fun realCliResources(
+        resourceOptions: Boolean,
+        credentialMode: String = "inline",
+    ) {
         val executable = File(System.getProperty("sentiary.test.cli", ""))
         org.junit.jupiter.api.Assumptions
             .assumeTrue(executable.isFile, "Set SENTIARY_TEST_CLI to a protocol 1 CLI binary")
         composeFixture(executable)
+        write("keys.txt", "remote\ntruck_count\n")
+        write("required.txt", "truck_count\n")
+        write("plurals.txt", "truck_count\n")
+        val options = if (resourceOptions) {
+            """
+            keys_file = "keys.txt"
+            required_keys_file = "required.txt"
+            plural_bases_file = "plurals.txt"
+            """.trimIndent()
+        } else {
+            ""
+        }
+        val projectCredential = if (credentialMode == "references") {
+            "api_key = { env = \"FIXTURE_MOBILE_KEY\" }"
+        } else {
+            "api_key = \"fixture-key\""
+        }
+        val secondProject = if (credentialMode == "references") {
+            """
+            [projects.second]
+            id = "fixture-second"
+            api_key = { env = "FIXTURE_SECOND_KEY" }
+            languages = ["en"]
+            """.trimIndent()
+        } else {
+            ""
+        }
+        val secondAlias = if (credentialMode == "references") "second" else "app"
         write(
             "sentiary.toml",
             """
             config_version = 1
             [projects.app]
             id = "fixture"
-            api_key = "fixture-key"
+            $projectCredential
             languages = ["en"]
+            $secondProject
             [outputs.one]
             project = "app"
             format = "compose"
             path = "generated/one/values/strings.xml"
+            $options
             [outputs.two]
-            project = "app"
+            project = "$secondAlias"
             format = "compose"
             path = "generated/two/values/strings.xml"
+            $options
             [outputs.unbound]
             project = "app"
             format = "json"
@@ -270,19 +320,33 @@ class SentiaryPluginTest {
             .AtomicInteger()
         val exportRequests = java.util.concurrent.atomic
             .AtomicInteger()
+        val expectedKey = java.util.concurrent.atomic
+            .AtomicReference(if (credentialMode == "inline") "fixture-key" else "fixture-environment-secret")
         val server = com.sun.net.httpserver.HttpServer
             .create(java.net.InetSocketAddress("127.0.0.1", 0), 0)
         server.createContext("/") { exchange ->
-            assertEquals("Bearer fixture-key", exchange.requestHeaders.getFirst("Authorization"))
+            val key = if (exchange.requestURI.path.contains("fixture-second")) {
+                "fixture-second-secret"
+            } else {
+                expectedKey.get()
+            }
+            assertTrue(exchange.requestHeaders.getFirst("Authorization") == "Bearer $key", "Incorrect project authorization")
             if (exchange.requestURI.path.endsWith("/state")) {
                 stateRequests.incrementAndGet()
                 val bytes = """
-                    {"protocolVersion":1,"projectGeneration":"fixture","dataRevision":"1","exporterVersion":"v1","languages":["en"]}
+                    {"protocolVersion":1,"projectGeneration":"fixture","dataRevision":"1","exporterVersion":"v1","languages":["en"],"capabilities":["resource-export-v1"]}
                 """.trimIndent()
                     .toByteArray()
                 exchange.sendResponseHeaders(200, bytes.size.toLong())
                 exchange.responseBody.use { it.write(bytes) }
             } else {
+                if (resourceOptions) {
+                    assertEquals("POST", exchange.requestMethod)
+                    assertTrue(exchange.requestURI.path.endsWith("/export/resources"))
+                    val request = exchange.requestBody.use { it.readBytes().decodeToString() }
+                    assertTrue(request.contains("\"pluralBases\":[\"truck_count\"]"), request)
+                    exchange.responseHeaders.add("X-Sentiary-Export-Capability", "resource-export-v1")
+                }
                 exportRequests.incrementAndGet()
                 exchange.responseHeaders.add("ETag", "W/\"fixture\"")
                 exchange.responseHeaders.add("X-Sentiary-Project-Generation", "fixture")
@@ -292,7 +356,12 @@ class SentiaryPluginTest {
                     exchange.sendResponseHeaders(304, -1)
                     exchange.close()
                 } else {
-                    val bytes = "<resources><string name=\"remote\">Actual CLI</string></resources>".toByteArray()
+                    val plural = if (resourceOptions) {
+                        "<plurals name=\"truck_count\"><item quantity=\"one\">One truck</item><item quantity=\"other\">%1\$d trucks</item></plurals>"
+                    } else {
+                        ""
+                    }
+                    val bytes = "<resources><string name=\"remote\">Actual CLI</string>$plural</resources>".toByteArray()
                     exchange.sendResponseHeaders(200, bytes.size.toLong())
                     exchange.responseBody.use { it.write(bytes) }
                 }
@@ -303,25 +372,59 @@ class SentiaryPluginTest {
             System.getenv() +
                 mapOf(
                     "SENTIARY_USER_API_KEY" to "",
+                    "SENTIARY_PROJECT_API_KEY" to if (credentialMode == "global") "fixture-environment-secret" else "",
+                    "FIXTURE_MOBILE_KEY" to "fixture-environment-secret",
+                    "FIXTURE_SECOND_KEY" to "fixture-second-secret",
                     "SENTIARY_BASE_URL" to "http://127.0.0.1:${server.address.port}",
                     "SENTIARY_CACHE_DIR" to directory.resolve("cache").path,
                 )
         val tasks = arrayOf(":one:prepareComposeResourcesTaskForCommonMain", ":two:prepareComposeResourcesTaskForCommonMain")
+        val projectCount = if (credentialMode == "references") 2 else 1
         try {
             val first = runner(*tasks).withEnvironment(environment).build()
             assertEquals(1, first.tasks.count { it.path == ":sentiaryPull" })
-            assertEquals(1, stateRequests.get())
-            assertEquals(1, exportRequests.get())
-            val repeated = runner(*tasks).withEnvironment(environment).build()
+            assertEquals(projectCount, stateRequests.get())
+            assertEquals(projectCount, exportRequests.get())
+            val repeatedEnvironment = if (credentialMode == "inline") {
+                environment
+            } else {
+                expectedKey.set("rotated-fixture-secret")
+                val variable = if (credentialMode == "global") "SENTIARY_PROJECT_API_KEY" else "FIXTURE_MOBILE_KEY"
+                environment + (variable to "rotated-fixture-secret")
+            }
+            val repeated = runner(*tasks).withEnvironment(repeatedEnvironment).build()
             assertTrue(repeated.output.contains("Reusing configuration cache"), repeated.output)
-            assertEquals(2, stateRequests.get())
-            assertEquals(2, exportRequests.get())
+            assertEquals(projectCount * 2, stateRequests.get())
+            assertEquals(projectCount * 2, exportRequests.get())
+            assertTrue(!first.output.contains("fixture-environment-secret"))
+            assertTrue(!repeated.output.contains("rotated-fixture-secret"))
+            directory.resolve(".gradle/configuration-cache").walkTopDown().filter(File::isFile).forEach { file ->
+                val state = file.readBytes().toString(Charsets.ISO_8859_1)
+                assertTrue(!state.contains("fixture-environment-secret"))
+                assertTrue(!state.contains("fixture-second-secret"))
+                assertTrue(!state.contains("rotated-fixture-secret"))
+            }
             assertTrue(!directory.resolve("unbound").exists())
             directory.resolve("generated").deleteRecursively()
             server.stop(0)
-            runner(*tasks, "--offline").withEnvironment(environment).build()
+            val offlineEnvironment = environment + mapOf(
+                "SENTIARY_PROJECT_API_KEY" to "offline-conflict-secret",
+                "SENTIARY_USER_API_KEY" to "offline-conflict-user-secret",
+                "FIXTURE_MOBILE_KEY" to "",
+                "FIXTURE_SECOND_KEY" to "",
+            )
+            runner(*tasks, "--offline").withEnvironment(offlineEnvironment).build()
             assertTrue(directory.resolve("generated/one/values/strings.xml").readText().contains("Actual CLI"))
             assertTrue(directory.resolve("generated/two/values/strings.xml").isFile)
+            if (resourceOptions) {
+                val generated = directory.resolve("generated/one/values/strings.xml").readText()
+                assertTrue(generated.contains("<plurals name=\"truck_count\">"))
+                assertTrue(generated.contains("%1\$d trucks"))
+                write("keys.txt", "remote\n")
+                val failed = runner(*tasks, "--offline").withEnvironment(environment).buildAndFail()
+                assertTrue(failed.output.contains("no completed download set"), failed.output)
+                assertEquals(generated, directory.resolve("generated/one/values/strings.xml").readText())
+            }
         } finally {
             server.stop(0)
         }

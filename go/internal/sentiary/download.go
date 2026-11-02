@@ -1,7 +1,9 @@
 package sentiary
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -56,6 +58,9 @@ func (repository *DownloadRepository) Export(ctx context.Context, project downlo
 
 func (repository *DownloadRepository) ConditionalExport(ctx context.Context, project download.Project, file download.File, etag string) (result download.ExportResponse, err error) {
 	defer func() { err = redactCredential(err, project.APIKey) }()
+	if err := file.Options.Validate(file.Format); err != nil {
+		return result, err
+	}
 	format, ok := download.LookupFormat(file.Format)
 	if !ok {
 		return result, fmt.Errorf("unsupported export format")
@@ -94,12 +99,41 @@ func (repository *DownloadRepository) ConditionalExport(ctx context.Context, pro
 	if err != nil {
 		return result, err
 	}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	method := http.MethodGet
+	var body io.Reader
+	if !file.Options.IsDefault() {
+		endpoint, err = client.endpoint("batch", project.ID, "export", "resources", nil)
+		if err != nil {
+			return result, err
+		}
+		payload := struct {
+			Capability     string   `json:"capability"`
+			Format         string   `json:"format"`
+			Languages      []string `json:"languages"`
+			SourceLanguage *string  `json:"sourceLanguage,omitempty"`
+			IncludeEmpty   bool     `json:"includeEmptyTranslations"`
+			*download.ExportOptions
+		}{Capability: download.ResourceExportCapability, Format: file.Format, Languages: file.Languages,
+			IncludeEmpty: file.IncludeEmpty, ExportOptions: file.Options.Canonical()}
+		if file.Layout == download.Combined {
+			payload.SourceLanguage = &file.SourceLanguage
+		}
+		encoded, encodeErr := json.Marshal(payload)
+		if encodeErr != nil {
+			return result, encodeErr
+		}
+		body = bytes.NewReader(encoded)
+		method = http.MethodPost
+	}
+	request, err := http.NewRequestWithContext(ctx, method, endpoint, body)
 	if err != nil {
 		return result, err
 	}
 	if err = client.authorize(request, authAPIKey); err != nil {
 		return result, err
+	}
+	if method == http.MethodPost {
+		request.Header.Set("Content-Type", "application/json")
 	}
 	if etag != "" {
 		request.Header.Set("If-None-Match", etag)
@@ -112,6 +146,9 @@ func (repository *DownloadRepository) ConditionalExport(ctx context.Context, pro
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusNotModified {
 		message, _ := io.ReadAll(io.LimitReader(response.Body, 4096))
 		return result, fmt.Errorf("export failed: HTTP %d: %s", response.StatusCode, strings.TrimSpace(string(message)))
+	}
+	if !file.Options.IsDefault() && response.Header.Get("X-Sentiary-Export-Capability") != download.ResourceExportCapability {
+		return result, fmt.Errorf("server did not confirm %s", download.ResourceExportCapability)
 	}
 	result.ETag = response.Header.Get("ETag")
 	result.State = download.State{ProtocolVersion: 1, ProjectGeneration: response.Header.Get("X-Sentiary-Project-Generation"),

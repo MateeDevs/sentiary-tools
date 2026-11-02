@@ -40,6 +40,7 @@ type Project struct {
 }
 
 type Output struct {
+	Options         ExportOptions
 	Project         string
 	Format          string
 	Layout          Layout
@@ -94,6 +95,7 @@ func Pull(ctx context.Context, config Config, files []File, repository Repositor
 
 // File contains no credentials and can safely be shown in a download preview.
 type File struct {
+	Options        ExportOptions
 	Output         string
 	Project        string
 	Format         string
@@ -132,6 +134,9 @@ func Plan(ctx context.Context, config Config, selected []string, repository Repo
 	projectLanguages := map[string][]string{}
 	for _, name := range names {
 		output := config.Outputs[name]
+		if err := output.Options.Validate(output.Format); err != nil {
+			return nil, fmt.Errorf("output %q: %w", name, err)
+		}
 		languages := slices.Clone(output.Languages)
 		var actual []string
 		if output.AllLanguages || len(output.LanguageAliases) > 0 {
@@ -169,7 +174,7 @@ func Plan(ctx context.Context, config Config, selected []string, repository Repo
 		}
 		languages = slices.Sorted(slices.Values(languages))
 		base := File{Output: name, Project: output.Project, Format: output.Format, Layout: output.Layout,
-			Languages: languages, SourceLanguage: output.SourceLanguage, IncludeEmpty: output.IncludeEmpty}
+			Languages: languages, SourceLanguage: output.SourceLanguage, IncludeEmpty: output.IncludeEmpty, Options: output.Options}
 		if output.Layout == Combined {
 			if !slices.Contains(languages, output.SourceLanguage) {
 				return nil, fmt.Errorf("output %q: source_language must be selected", name)
@@ -272,6 +277,9 @@ func resolveAlias(target string, aliases map[string]string, actual []string) (st
 
 // ValidateOutput checks representation-independent rules before writing configuration.
 func ValidateOutput(output Output) error {
+	if err := output.Options.Validate(output.Format); err != nil {
+		return err
+	}
 	format, ok := LookupFormat(output.Format)
 	if !ok {
 		return fmt.Errorf("unsupported format")

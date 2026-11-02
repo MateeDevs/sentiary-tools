@@ -28,6 +28,14 @@ Create `sentiary.toml` with the [first download guide](../getting-started/quicks
 
 TOML owns project IDs, credentials, output formats/paths, language selection, aliases, and empty-value policy. The settings extension owns only resource consumption. There is no compatibility layer for the old `projectId`, `projectApiKey`, `exportPaths`, or naming callbacks.
 
+Term selection, required translations, and opt-in Android/Compose plurals also belong
+in [TOML output options](../configuration/reference.md#selection-required-translations-and-plurals).
+Use a CLI build supporting these fields and a backend advertising `resource-export-v1`;
+integration protocol 1 alone does not establish that support. No plugin upgrade or
+selector/transform DSL is required. Default resource folders still need explicit
+`locale_map` entries. Separate outputs can emit English to both `en.lproj` and
+`Base.lproj`.
+
 ## Binding containers and every field
 
 The settings `sentiary` extension has two named containers: `android { create("NAME") { ... } }` and `compose { create("NAME") { ... } }`. Container kind supplies protocol format `android` or `compose`; the named output must use that format and `per_language` layout. A generic or combined Xcode output cannot be bound as Android/Compose resources.
@@ -58,6 +66,28 @@ These are Gradle project properties, supplied with `-P` or `gradle.properties`. 
 | `sentiary.cliExecutable` | string path | No | Empty | Overrides managed CLI installation; absolute path or relative to build root, e.g. `-Psentiary.cliExecutable=/path/to/sentiary-cli` |
 
 An executable override takes precedence over `cliVersion` and bypasses managed-download checksum verification, but still undergoes protocol negotiation. There is no public checksum, installer URL, or CLI-install-cache directory override. `SENTIARY_USER_API_KEY`, local credentials, `SENTIARY_CACHE_DIR`, and `SENTIARY_BASE_URL` are inherited by the CLI process. The export cache is separate from the managed binary cache. TOML destinations remain relative to the config directory even when `sentiary.config` points below the build root; binding roots remain relative to the build root.
+
+## Project credentials (unreleased)
+
+The CLI resolves project credentials from TOML references and its inherited
+environment at task execution, including after Configuration Cache reuse. The
+plugin does not copy keys into task properties or integration request/result JSON.
+No credential extension or plugin production-code change is required.
+
+CLI `v2.0.0`, the current managed default, does not support `api_key` reference tables and does
+not use `SENTIARY_PROJECT_API_KEY` for pull. No supporting released version exists
+yet. Build the CLI from this checkout and use:
+
+```sh
+go -C go build -o ../bin/sentiary-cli ./cmd/sentiary-cli
+./gradlew -Psentiary.cliExecutable=/absolute/path/to/sentiary-tools/bin/sentiary-cli build
+```
+
+After the first supporting CLI release is published, set `sentiary.cliVersion` to
+that exact tag to use managed installation and checksum verification. Do not infer
+these options from the integration-protocol handshake. Follow the
+[credential migration notes](../migration.md#project-credentials-unreleased) before
+upgrading environments that already define `SENTIARY_PROJECT_API_KEY`.
 
 ## Tasks and automatic build dependencies
 

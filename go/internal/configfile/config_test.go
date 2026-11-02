@@ -25,6 +25,14 @@ layout = "combined"
 path = "generated/Localizable.xcstrings"
 `
 
+func environment(values map[string]string) func(string) string {
+	return func(name string) string { return values[name] }
+}
+
+func userEnvironment(key string) func(string) string {
+	return environment(map[string]string{"SENTIARY_USER_API_KEY": key})
+}
+
 func writeConfig(t *testing.T, content string) string {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "sentiary.toml")
@@ -35,7 +43,7 @@ func writeConfig(t *testing.T, content string) string {
 }
 
 func TestOutputInheritsProjectSettings(t *testing.T) {
-	config, err := Load(writeConfig(t, validConfig), "", "")
+	config, err := Load(writeConfig(t, validConfig), "", userEnvironment(""))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +54,7 @@ func TestOutputInheritsProjectSettings(t *testing.T) {
 }
 
 func TestDocumentedExamplePlansAndroidComposeAndOneCatalog(t *testing.T) {
-	config, err := Load("../../examples/sentiary.toml", ".", "")
+	config, err := Load("../../examples/sentiary.toml", ".", userEnvironment(""))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +75,7 @@ func TestExplicitOutputSettingsReplaceDefaults(t *testing.T) {
 	config, err := Load(writeConfig(t, validConfig+`languages = ["cs"]
 source_language = "cs"
 include_empty = false
-`), "", "")
+`), "", userEnvironment(""))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,7 +98,7 @@ func TestCredentialsPrecedence(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			config, err := Load(path, "", test.environment)
+			config, err := Load(path, "", userEnvironment(test.environment))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -111,7 +119,7 @@ func TestLocalSupplementCannotChangeOutputs(t *testing.T) {
 			if err := os.WriteFile(filepath.Join(filepath.Dir(path), "sentiary.local.toml"), []byte(test.content), 0o600); err != nil {
 				t.Fatal(err)
 			}
-			if _, err := Load(path, "", ""); err == nil {
+			if _, err := Load(path, "", userEnvironment("")); err == nil {
 				t.Fatal("accepted local output overrides")
 			}
 		})
@@ -133,7 +141,7 @@ func TestInvalidConfigurations(t *testing.T) {
 		{"unknown version", strings.Replace(validConfig, "config_version = 1", "config_version = 2", 1)},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			if _, err := Load(writeConfig(t, test.content), "", ""); err == nil {
+			if _, err := Load(writeConfig(t, test.content), "", userEnvironment("")); err == nil {
 				t.Fatal("invalid config accepted")
 			}
 		})
@@ -141,7 +149,7 @@ func TestInvalidConfigurations(t *testing.T) {
 }
 
 func TestDecodeErrorsDoNotRevealSecrets(t *testing.T) {
-	_, err := Load(writeConfig(t, strings.Replace(validConfig, `api_key = "project-secret"`, `api_key = ["private-secret"]`, 1)), "", "")
+	_, err := Load(writeConfig(t, strings.Replace(validConfig, `api_key = "project-secret"`, `api_key = ["private-secret"]`, 1)), "", userEnvironment(""))
 	if err == nil || strings.Contains(err.Error(), "private-secret") {
 		t.Fatalf("unsafe decode error: %v", err)
 	}
@@ -153,7 +161,7 @@ func TestDiscoveryUsesNearestParentAndExplicitOverride(t *testing.T) {
 	if err := os.MkdirAll(child, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	config, err := Load("", child, "")
+	config, err := Load("", child, userEnvironment(""))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -167,10 +175,10 @@ func TestDiscoveryUsesNearestParentAndExplicitOverride(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(child, "sentiary.toml"), []byte("invalid"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := Load("", child, ""); err == nil {
+	if _, err := Load("", child, userEnvironment("")); err == nil {
 		t.Fatal("ignored nearest config")
 	}
-	if _, err := Load(path, child, ""); err != nil {
+	if _, err := Load(path, child, userEnvironment("")); err != nil {
 		t.Fatal(err)
 	}
 }

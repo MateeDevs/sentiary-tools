@@ -524,7 +524,7 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 | `SENTIARY_PROJECT_ID` | Project fallback for API commands; no default. | `export SENTIARY_PROJECT_ID='PROJECT_ID'` |
 | `SENTIARY_BASE_URL` | API server; defaults to `https://api.sentiary.com`. | `export SENTIARY_BASE_URL='https://api.staging.sentiary.coolify.matee.cz'` |
 | `SENTIARY_CACHE_DIR` | Export cache directory; defaults to the [OS cache path](../configuration/downloads.md#cache-location-and-identity). | `export SENTIARY_CACHE_DIR='.ci-cache/sentiary'` |
-| `SENTIARY_PROJECT_API_KEY` | Optional key offered by `init`; no default and no direct `pull` fallback. | `export SENTIARY_PROJECT_API_KEY='PROJECT_KEY'` |
+| `SENTIARY_PROJECT_API_KEY` | Optional `init` key. Unreleased: single-declared-project `pull` shorthand, with explicit source conflicts; ignored by `v2.0.0` pull. | `export SENTIARY_PROJECT_API_KEY='PROJECT_KEY'` |
 
 Installer-only `INSTALL_DIR` and `SENTIARY_VERSION` are covered in [installation](../getting-started/installation.md).
 

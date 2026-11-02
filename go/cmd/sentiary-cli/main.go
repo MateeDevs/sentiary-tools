@@ -32,7 +32,13 @@ func main() {
 	}
 
 	httpClient := &http.Client{Timeout: 30 * time.Second}
-	config := sentiary.ConfigFromEnv()
+	var config sentiary.Config
+	if len(os.Args) > 1 && os.Args[1] == "pull" {
+		// Configured pulls resolve their own credentials, or skip them entirely offline.
+		config = sentiary.Config{BaseURL: sentiary.BaseURLFromEnv()}
+	} else {
+		config = sentiary.ConfigFromEnv()
+	}
 	api := sentiary.NewClient(config, httpClient)
 	app := cli.New(api)
 	app.Downloads = sentiary.NewDownloadRepository(config, httpClient)
