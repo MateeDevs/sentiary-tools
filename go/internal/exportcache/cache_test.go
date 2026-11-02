@@ -2,6 +2,7 @@ package exportcache
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,11 +14,56 @@ import (
 	"github.com/MateeDevs/sentiary-tools/go/internal/download"
 )
 
+func TestStateMetadataOmitsNegotiationAndReadsOldSurplusFields(t *testing.T) {
+	cache, err := Open(t.TempDir(), "https://example.test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	set := testSet("selection", string([]byte{0, 255, 10}))
+	if err := cache.Publish(set); err != nil {
+		t.Fatal(err)
+	}
+	paths, err := filepath.Glob(filepath.Join(cache.directory, "sets", "*.json"))
+	if err != nil || len(paths) != 1 {
+		t.Fatalf("metadata paths: %v", err)
+	}
+	data, err := os.ReadFile(paths[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(data, []byte("protocolVersion")) || bytes.Contains(data, []byte("capabilities")) {
+		t.Fatal("new cache contains negotiation metadata")
+	}
+	var metadata map[string]any
+	if err := json.Unmarshal(data, &metadata); err != nil {
+		t.Fatal(err)
+	}
+	state := metadata["Projects"].(map[string]any)["p"].(map[string]any)
+	state["protocolVersion"] = 1
+	state["capabilities"] = []string{"resource-export-v1"}
+	data, err = json.Marshal(metadata)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(paths[0], data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	sets, err := cache.Read()
+	if err != nil || len(sets) != 1 {
+		t.Fatalf("old state metadata: %v", err)
+	}
+	for key, export := range set.Exports {
+		if !sets[0].Exports[key].Valid || !bytes.Equal(export.Content, sets[0].Exports[key].Content) {
+			t.Fatal("old metadata changed cached bytes")
+		}
+	}
+}
+
 func testSet(selection, content string) download.Snapshot {
 	request := download.Request{ProjectID: "p", Format: "xlsx", Layout: download.PerLanguage, Languages: []string{"en"}}
 	data := []byte(content)
 	return download.Snapshot{Version: 1, Selection: download.Digest([]byte(selection)), CompletedAt: time.Now().UTC(),
-		Projects: map[string]download.State{"p": {ProtocolVersion: 1, ProjectGeneration: "g", DataRevision: "1", ExporterVersion: "v", Languages: []string{"en"}}},
+		Projects: map[string]download.State{"p": {ProjectGeneration: "g", DataRevision: "1", ExporterVersion: "v", Languages: []string{"en"}}},
 		Exports:  map[string]download.CachedExport{request.ID(): {Request: request, Checksum: download.Digest(data), Content: data, ETag: `W/"tag"`, Valid: true}}}
 }
 func TestCacheNormalizesServerAndKeepsBinaryContent(t *testing.T) {

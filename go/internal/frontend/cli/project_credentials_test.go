@@ -40,7 +40,7 @@ func TestPullProjectEnvironmentCredentialsAndRotation(t *testing.T) {
 			config := credentialConfig
 			expected := map[string]string{"mobile": "mobile-secret", "backoffice": "web-secret"}
 			if mode == "single project" {
-				config = strings.Replace(catalogConfig, `api_key = "private-project-key"`, `api_key = "inline-secret"`, 1)
+				config = strings.Replace(catalogConfig, `api_key = "private-project-key"`, `api_key = " "`, 1)
 				expected = map[string]string{"mobile-project": "project-secret"}
 			}
 			var calls atomic.Int32
@@ -53,7 +53,7 @@ func TestPullProjectEnvironmentCredentialsAndRotation(t *testing.T) {
 				}
 				w.Header().Set("Content-Type", "application/json")
 				if strings.HasSuffix(r.URL.Path, "/state") {
-					_, _ = w.Write([]byte(`{"protocolVersion":1,"projectGeneration":"generation","dataRevision":"1","exporterVersion":"v1","languages":["en","cs"]}`))
+					_, _ = w.Write([]byte(`{"projectGeneration":"generation","dataRevision":"1","exporterVersion":"v1","languages":["en","cs"]}`))
 					return
 				}
 				w.Header().Set("ETag", `W/"stable"`)
@@ -196,7 +196,7 @@ func readCredentialArtifacts(t *testing.T, root string) map[string][]byte {
 	return files
 }
 
-func TestGlobalProjectCredentialRejectsMultiProjectBeforeSelectionOrWrites(t *testing.T) {
+func TestMissingExplicitReferenceFailsEvenWithGlobalProjectCredential(t *testing.T) {
 	var calls int
 	app, path, _ := pullApp(t, credentialConfig, func(*http.Request) (*http.Response, error) { calls++; return nil, nil })
 	t.Setenv("SENTIARY_PROJECT_API_KEY", "project-secret")
@@ -208,7 +208,7 @@ func TestGlobalProjectCredentialRejectsMultiProjectBeforeSelectionOrWrites(t *te
 		t.Fatal(err)
 	}
 	err := app.Run(context.Background(), []string{"pull", "--config", path, "--output", "mobile"})
-	if err == nil || !strings.Contains(err.Error(), "exactly one declared project") || strings.Contains(err.Error(), "secret") {
+	if err == nil || !strings.Contains(err.Error(), "missing or empty") || strings.Contains(err.Error(), "secret") {
 		t.Fatalf("wrong conflict: %v", err)
 	}
 	if calls != 0 {

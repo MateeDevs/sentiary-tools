@@ -57,7 +57,6 @@ func TestExportIdentityUsesCanonicalContent(t *testing.T) {
 func TestResourceSnapshotRestoresExactBytesAndRejectsDifferentPolicy(t *testing.T) {
 	cache := &memoryCache{}
 	repo := newSnapshotRepo()
-	repo.state.Capabilities = []string{ResourceExportCapability}
 	cfg := config()
 	out := cfg.Outputs["ios"]
 	keys := []string{"a", "b"}
@@ -81,17 +80,17 @@ func TestResourceSnapshotRestoresExactBytesAndRejectsDifferentPolicy(t *testing.
 	}
 }
 
-func TestOldServerCannotServeResourceOptions(t *testing.T) {
+func TestResourceOptionsDoNotRequireStateNegotiation(t *testing.T) {
 	cfg := config()
 	out := cfg.Outputs["ios"]
 	out.Options.Contexts = []string{"screen"}
 	cfg.Outputs["ios"] = out
 	repo := newSnapshotRepo()
 	cache := &memoryCache{}
-	if _, err := FetchSnapshot(context.Background(), cfg, nil, repo, cache); err == nil {
-		t.Fatal("accepted old server")
+	if _, err := FetchSnapshot(context.Background(), cfg, nil, repo, cache); err != nil {
+		t.Fatal(err)
 	}
-	if repo.calls != 0 || len(cache.sets) != 0 {
-		t.Fatal("exported or published unsupported request")
+	if repo.calls == 0 || len(cache.sets) != 1 {
+		t.Fatal("did not export and publish request")
 	}
 }

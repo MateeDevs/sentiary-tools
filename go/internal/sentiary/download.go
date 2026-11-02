@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"slices"
 	"strings"
 
@@ -68,73 +67,46 @@ func (repository *DownloadRepository) ConditionalExport(ctx context.Context, pro
 	if err := download.ValidateLanguages(file.Languages); err != nil {
 		return result, err
 	}
-	query := url.Values{}
-	query.Set("format", file.Format)
-	query.Set("includeEmptyTranslations", fmt.Sprint(file.IncludeEmpty))
 	switch file.Layout {
 	case download.Combined:
 		if !format.Combined || !slices.Contains(file.Languages, file.SourceLanguage) {
 			return result, fmt.Errorf("invalid combined export selection")
 		}
-		for _, language := range file.Languages {
-			query.Add("languageIds", language)
-		}
-		query.Set("sourceLanguageId", file.SourceLanguage)
 	case download.PerLanguage:
 		if len(file.Languages) != 1 {
 			return result, fmt.Errorf("per_language export requires one language")
 		}
-		query.Set("languageId", file.Languages[0])
 	default:
 		return result, fmt.Errorf("unsupported export layout")
 	}
 	client := repository.client(project)
-	// Pass path segments separately: endpoint escapes each segment.
-	var endpoint string
-	if file.Layout == download.Combined {
-		endpoint, err = client.endpoint("batch", project.ID, "export", "combined", query)
-	} else {
-		endpoint, err = client.endpoint("batch", project.ID, "export", query)
-	}
+	endpoint, err := client.endpoint("batch", project.ID, "export", "resources", nil)
 	if err != nil {
 		return result, err
 	}
-	method := http.MethodGet
-	var body io.Reader
-	if !file.Options.IsDefault() {
-		endpoint, err = client.endpoint("batch", project.ID, "export", "resources", nil)
-		if err != nil {
-			return result, err
-		}
-		payload := struct {
-			Capability     string   `json:"capability"`
-			Format         string   `json:"format"`
-			Languages      []string `json:"languages"`
-			SourceLanguage *string  `json:"sourceLanguage,omitempty"`
-			IncludeEmpty   bool     `json:"includeEmptyTranslations"`
-			*download.ExportOptions
-		}{Capability: download.ResourceExportCapability, Format: file.Format, Languages: file.Languages,
-			IncludeEmpty: file.IncludeEmpty, ExportOptions: file.Options.Canonical()}
-		if file.Layout == download.Combined {
-			payload.SourceLanguage = &file.SourceLanguage
-		}
-		encoded, encodeErr := json.Marshal(payload)
-		if encodeErr != nil {
-			return result, encodeErr
-		}
-		body = bytes.NewReader(encoded)
-		method = http.MethodPost
+	payload := struct {
+		Format         string   `json:"format"`
+		Languages      []string `json:"languages"`
+		SourceLanguage *string  `json:"sourceLanguage,omitempty"`
+		IncludeEmpty   bool     `json:"includeEmptyTranslations"`
+		*download.ExportOptions
+	}{Format: file.Format, Languages: file.Languages,
+		IncludeEmpty: file.IncludeEmpty, ExportOptions: file.Options.Canonical()}
+	if file.Layout == download.Combined {
+		payload.SourceLanguage = &file.SourceLanguage
 	}
-	request, err := http.NewRequestWithContext(ctx, method, endpoint, body)
+	encoded, encodeErr := json.Marshal(payload)
+	if encodeErr != nil {
+		return result, encodeErr
+	}
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(encoded))
 	if err != nil {
 		return result, err
 	}
 	if err = client.authorize(request, authAPIKey); err != nil {
 		return result, err
 	}
-	if method == http.MethodPost {
-		request.Header.Set("Content-Type", "application/json")
-	}
+	request.Header.Set("Content-Type", "application/json")
 	if etag != "" {
 		request.Header.Set("If-None-Match", etag)
 	}
@@ -145,13 +117,13 @@ func (repository *DownloadRepository) ConditionalExport(ctx context.Context, pro
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusNotModified {
 		message, _ := io.ReadAll(io.LimitReader(response.Body, 4096))
+		if response.StatusCode == http.StatusNotFound || response.StatusCode == http.StatusMethodNotAllowed {
+			return result, fmt.Errorf("configured pull requires backend POST resource export support: HTTP %d: %s", response.StatusCode, strings.TrimSpace(string(message)))
+		}
 		return result, fmt.Errorf("export failed: HTTP %d: %s", response.StatusCode, strings.TrimSpace(string(message)))
 	}
-	if !file.Options.IsDefault() && response.Header.Get("X-Sentiary-Export-Capability") != download.ResourceExportCapability {
-		return result, fmt.Errorf("server did not confirm %s", download.ResourceExportCapability)
-	}
 	result.ETag = response.Header.Get("ETag")
-	result.State = download.State{ProtocolVersion: 1, ProjectGeneration: response.Header.Get("X-Sentiary-Project-Generation"),
+	result.State = download.State{ProjectGeneration: response.Header.Get("X-Sentiary-Project-Generation"),
 		DataRevision: response.Header.Get("X-Sentiary-Data-Revision"), ExporterVersion: response.Header.Get("X-Sentiary-Exporter-Version")}
 	result.NotModified = response.StatusCode == http.StatusNotModified
 	result.Content, err = io.ReadAll(response.Body)

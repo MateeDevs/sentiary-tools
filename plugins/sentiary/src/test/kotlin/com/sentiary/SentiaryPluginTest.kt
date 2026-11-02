@@ -277,6 +277,8 @@ class SentiaryPluginTest {
         }
         val projectCredential = if (credentialMode == "references") {
             "api_key = { env = \"FIXTURE_MOBILE_KEY\" }"
+        } else if (credentialMode == "global") {
+            "api_key = \" \""
         } else {
             "api_key = \"fixture-key\""
         }
@@ -334,18 +336,18 @@ class SentiaryPluginTest {
             if (exchange.requestURI.path.endsWith("/state")) {
                 stateRequests.incrementAndGet()
                 val bytes = """
-                    {"protocolVersion":1,"projectGeneration":"fixture","dataRevision":"1","exporterVersion":"v1","languages":["en"],"capabilities":["resource-export-v1"]}
+                    {"projectGeneration":"fixture","dataRevision":"1","exporterVersion":"v1","languages":["en"]}
                 """.trimIndent()
                     .toByteArray()
                 exchange.sendResponseHeaders(200, bytes.size.toLong())
                 exchange.responseBody.use { it.write(bytes) }
             } else {
+                assertEquals("POST", exchange.requestMethod)
+                assertTrue(exchange.requestURI.path.endsWith("/export/resources"))
+                val request = exchange.requestBody.use { it.readBytes().decodeToString() }
+                assertTrue(!request.contains("capability"), request)
                 if (resourceOptions) {
-                    assertEquals("POST", exchange.requestMethod)
-                    assertTrue(exchange.requestURI.path.endsWith("/export/resources"))
-                    val request = exchange.requestBody.use { it.readBytes().decodeToString() }
                     assertTrue(request.contains("\"pluralBases\":[\"truck_count\"]"), request)
-                    exchange.responseHeaders.add("X-Sentiary-Export-Capability", "resource-export-v1")
                 }
                 exportRequests.incrementAndGet()
                 exchange.responseHeaders.add("ETag", "W/\"fixture\"")

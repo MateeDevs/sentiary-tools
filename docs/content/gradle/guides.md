@@ -41,7 +41,7 @@ The example binds `app_main`, `app_debug`, and `library_main` to `:app` main/deb
 ./gradlew :app:mergeDebugResources :library:packageDebugResources --parallel
 ```
 
-Use a user key with access to both remote projects, or project keys with no higher-priority user key configured. Add more bindings for additional modules/source sets, keeping at most one per kind/module/source set. The same mechanism supports multiple Compose modules by creating one `compose` binding per module and matching each output/root; use `commonMain` explicitly.
+Use a user key with access to both remote projects, or explicit project keys. Project TOML credentials take priority over user credentials. Add more bindings for additional modules/source sets, keeping at most one per kind/module/source set. The same mechanism supports multiple Compose modules by creating one `compose` binding per module and matching each output/root; use `commonMain` explicitly.
 
 ## Offline clean recovery and configuration reuse
 

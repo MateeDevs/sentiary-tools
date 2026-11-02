@@ -12,8 +12,6 @@ import (
 
 // State identifies one project's export semantics. Revision is decimal, never a JSON number.
 type State struct {
-	Capabilities      []string `json:"capabilities,omitempty"`
-	ProtocolVersion   int      `json:"protocolVersion"`
 	ProjectGeneration string   `json:"projectGeneration"`
 	DataRevision      string   `json:"dataRevision"`
 	ExporterVersion   string   `json:"exporterVersion"`
@@ -21,8 +19,8 @@ type State struct {
 }
 
 func (s State) Validate() error {
-	if s.ProtocolVersion != 1 || s.ProjectGeneration == "" || s.ExporterVersion == "" || s.DataRevision == "" {
-		return fmt.Errorf("server requires export/state protocol version 1")
+	if s.ProjectGeneration == "" || s.ExporterVersion == "" || s.DataRevision == "" {
+		return fmt.Errorf("export state is missing generation, revision, or exporter version")
 	}
 	for _, digit := range s.DataRevision {
 		if digit < '0' || digit > '9' {
@@ -169,15 +167,10 @@ func FetchSnapshot(ctx context.Context, config Config, selected []string, reposi
 		for attempt := 0; attempt < 3; attempt++ {
 			state, err := repository.State(ctx, project)
 			if err != nil {
-				return nil, fmt.Errorf("export/state protocol v1 required: %w", err)
+				return nil, fmt.Errorf("read export state: %w", err)
 			}
 			if err := state.Validate(); err != nil {
 				return nil, err
-			}
-			for _, output := range outputs {
-				if !output.Options.IsDefault() && !slices.Contains(state.Capabilities, ResourceExportCapability) {
-					return nil, fmt.Errorf("server does not support %s", ResourceExportCapability)
-				}
 			}
 			part := config
 			part.Outputs = outputs

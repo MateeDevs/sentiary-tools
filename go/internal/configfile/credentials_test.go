@@ -67,6 +67,17 @@ func TestOfflineNeverReadsCredentialEnvironmentOrLocalSupplement(t *testing.T) {
 	}
 }
 
+func TestOnlineValidatesLocalSupplementEvenWithExplicitProjectKey(t *testing.T) {
+	path := writeConfig(t, validConfig)
+	if err := os.WriteFile(filepath.Join(filepath.Dir(path), "sentiary.local.toml"), []byte("invalid TOML [private-secret"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	_, err := Load(path, "", environment(map[string]string{"SENTIARY_USER_API_KEY": "unused-user-secret"}))
+	if err == nil || !strings.Contains(err.Error(), "invalid TOML") || strings.Contains(err.Error(), "secret") {
+		t.Fatalf("unsafe or missing local validation error: %v", err)
+	}
+}
+
 func TestSharedCredentialStructureValidatedBeforeEnvironmentOnlineAndOffline(t *testing.T) {
 	for _, test := range []struct{ name, field string }{
 		{"empty variable name", `api_key = { env = "" }`},
@@ -113,13 +124,13 @@ func TestReferencedKeyOverridesGlobalUserAndLoadsSeparatelyPerProject(t *testing
 	}
 }
 
-func TestLocalUserConflictsWithGlobalProjectEvenWithEnvironmentUserUnset(t *testing.T) {
-	path := writeConfig(t, validConfig)
+func TestLocalUserOverridesGlobalProjectEvenWithEnvironmentUserUnset(t *testing.T) {
+	path := writeConfig(t, strings.Replace(validConfig, `api_key = "project-secret"`, `api_key = " "`, 1))
 	if err := os.WriteFile(filepath.Join(filepath.Dir(path), "sentiary.local.toml"), []byte(`user_api_key = "local-secret"`), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	_, err := Load(path, "", environment(map[string]string{"SENTIARY_PROJECT_API_KEY": "project-secret"}))
-	if err == nil || !strings.Contains(err.Error(), "conflicts") || strings.Contains(err.Error(), "secret") {
-		t.Fatalf("wrong conflict: %v", err)
+	config, err := Load(path, "", environment(map[string]string{"SENTIARY_PROJECT_API_KEY": "project-secret"}))
+	if err != nil || config.Projects["app"].APIKey != "local-secret" {
+		t.Fatalf("wrong credential precedence: %v", err)
 	}
 }

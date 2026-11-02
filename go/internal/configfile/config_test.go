@@ -88,8 +88,8 @@ include_empty = false
 func TestCredentialsPrecedence(t *testing.T) {
 	for _, test := range []struct{ name, environment, local, expected string }{
 		{"project", "", "", "project-secret"},
-		{"local", "", "personal-secret", "personal-secret"},
-		{"environment", "environment-secret", "personal-secret", "environment-secret"},
+		{"local", "", "personal-secret", "project-secret"},
+		{"environment", "environment-secret", "personal-secret", "project-secret"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			path := writeConfig(t, validConfig)

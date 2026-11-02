@@ -20,8 +20,12 @@ Current limitations include one binding per source set/kind/module, Android appl
   for explicit, independently resolved project environment credentials. Strings
   never interpolate; empty/missing referenced values fail without user-key fallback.
 - Configured pull now honors nonblank `SENTIARY_PROJECT_API_KEY` for exactly one
-  declared project. This previously ignored variable can now cause conflicts with
-  user environment/local credentials, explicit references, or multi-project configs.
+  declared project, after project TOML and local user credentials. Multi-project
+  configs ignore it. Project TOML now wins over user environment/local credentials;
+  local user credentials win over user environment credentials. Lower-priority
+  sources are not conflicts.
+- All configured pulls require POST resource export. Capability negotiation and
+  export-state protocol versions are removed; consistency metadata remains.
 - Offline pull does not read credential variables or the local supplement;
   shared source declarations still validate. Credentials/source names stay outside
   export-cache identity and plugin task properties.

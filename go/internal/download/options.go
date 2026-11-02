@@ -7,11 +7,10 @@ import (
 	"unicode/utf8"
 )
 
-// These limits are part of the resource-export-v1 wire contract.
+// These limits are part of the resource export wire contract.
 const (
-	ResourceExportCapability = "resource-export-v1"
-	MaxExportListItems       = 10000
-	MaxExportItemBytes       = 1024
+	MaxExportListItems = 10000
+	MaxExportItemBytes = 1024
 )
 
 // ExportOptions contains evaluated values, never local list paths.

@@ -67,9 +67,9 @@ func TestInitCredentialsRedactedAndIgnorePreserved(t *testing.T) {
 	if string(ignore) != "existing\nsentiary.local.toml\n.sentiary/\n" {
 		t.Fatalf("ignore changed: %s", ignore)
 	}
-	// The init environment remains valid for the wizard, but would conflict in pull.
+	// Pull honors the project literal written by init before the local user credential.
 	cfg, err := configfile.Load("", directory, func(string) string { return "" })
-	if err != nil || cfg.Projects["app"].APIKey != "secret-personal" {
+	if err != nil || cfg.Projects["app"].APIKey != "secret-project" {
 		t.Fatalf("local credential: %v", err)
 	}
 	app.Stdin = strings.NewReader("")

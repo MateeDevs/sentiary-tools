@@ -30,7 +30,7 @@ TOML owns project IDs, credentials, output formats/paths, language selection, al
 
 Term selection, required translations, and opt-in Android/Compose plurals also belong
 in [TOML output options](../configuration/reference.md#selection-required-translations-and-plurals).
-Use a CLI build supporting these fields and a backend advertising `resource-export-v1`;
+Use a CLI build supporting these fields and a backend with POST resource export;
 integration protocol 1 alone does not establish that support. No plugin upgrade or
 selector/transform DSL is required. Default resource folders still need explicit
 `locale_map` entries. Separate outputs can emit English to both `en.lproj` and

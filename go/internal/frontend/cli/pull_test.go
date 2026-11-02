@@ -48,7 +48,7 @@ func pullApp(t *testing.T, config string, transport roundTripFunc) (*App, string
 	app := New(newTestAPI(transport))
 	app.Downloads = sentiary.NewDownloadRepository(sentiary.Config{BaseURL: "https://example.test"}, &http.Client{Transport: roundTripFunc(func(request *http.Request) (*http.Response, error) {
 		if strings.HasSuffix(request.URL.Path, "/export/state") {
-			return jsonResponse(request, `{"protocolVersion":1,"projectGeneration":"g","dataRevision":"1","exporterVersion":"v","languages":["en","cs"],"capabilities":["resource-export-v1"]}`), nil
+			return jsonResponse(request, `{"projectGeneration":"g","dataRevision":"1","exporterVersion":"v","languages":["en","cs"]}`), nil
 		}
 		response, err := transport(request)
 		if err == nil && response.StatusCode == 200 {
@@ -69,13 +69,18 @@ func TestPullCombinedUsesOneExportRequestAndSavesExactBytes(t *testing.T) {
 	content := "{\"sourceLanguage\":\"en\",\"strings\":{\"hello\":\"Ahoj 👋\"}}"
 	app, path, _ := pullApp(t, catalogConfig, func(request *http.Request) (*http.Response, error) {
 		calls++
-		if request.URL.Path != "/api/v1/batch/mobile-project/export/combined" {
+		if request.Method != http.MethodPost || request.URL.Path != "/api/v1/batch/mobile-project/export/resources" || request.URL.RawQuery != "" {
 			t.Fatalf("wrong endpoint: %s", request.URL.Path)
 		}
-		if !reflect.DeepEqual(request.URL.Query()["languageIds"], []string{"cs", "en"}) {
-			t.Fatalf("wrong languages: %v", request.URL.Query())
+		var body struct {
+			Languages      []string
+			SourceLanguage string
+			Format         string
 		}
-		if request.URL.Query().Get("sourceLanguageId") != "en" || request.URL.Query().Get("format") != "xcstrings" {
+		if err := json.NewDecoder(request.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(body.Languages, []string{"cs", "en"}) || body.SourceLanguage != "en" || body.Format != "xcstrings" {
 			t.Fatal("wrong combined options")
 		}
 		if request.Header.Get("Authorization") != "Bearer private-project-key" {
@@ -96,14 +101,14 @@ func TestInvalidCredentialFailsWithoutFallbackAndRedactsErrorBody(t *testing.T) 
 	calls := 0
 	app, path, _ := pullApp(t, catalogConfig, func(request *http.Request) (*http.Response, error) {
 		calls++
-		response := textResponse(request, "rejected private-personal-key")
+		response := textResponse(request, "rejected private-project-key")
 		response.StatusCode = http.StatusUnauthorized
 		response.Status = "401 Unauthorized"
 		return response, nil
 	})
 	t.Setenv("SENTIARY_USER_API_KEY", "private-personal-key")
 	err := app.Run(context.Background(), []string{"pull", "--config", path})
-	if err == nil || strings.Contains(err.Error(), "private-personal-key") || !strings.Contains(err.Error(), "[redacted]") {
+	if err == nil || strings.Contains(err.Error(), "private-project-key") || !strings.Contains(err.Error(), "[redacted]") {
 		t.Fatalf("unsafe error: %v", err)
 	}
 	if calls != 1 {
@@ -131,7 +136,11 @@ func TestPullExpandsAllLanguagesThroughExportState(t *testing.T) {
 	calls := 0
 	app, path, _ := pullApp(t, strings.Replace(catalogConfig, `["en", "cs"]`, `"*"`, 1), func(request *http.Request) (*http.Response, error) {
 		calls++
-		if !reflect.DeepEqual(request.URL.Query()["languageIds"], []string{"cs", "en"}) {
+		var body struct{ Languages []string }
+		if err := json.NewDecoder(request.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(body.Languages, []string{"cs", "en"}) {
 			t.Fatal("all languages not expanded")
 		}
 		return textResponse(request, "catalog"), nil
@@ -244,7 +253,11 @@ path = "old/{language}.mo"
 language_aliases = { sk = "cs" }
 `
 	app, path, stdout := pullApp(t, cfg, func(request *http.Request) (*http.Response, error) {
-		if request.URL.Query().Get("languageId") != "cs" {
+		var body struct{ Languages []string }
+		if err := json.NewDecoder(request.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(body.Languages, []string{"cs"}) {
 			t.Fatalf("wrong API language: %s", request.URL)
 		}
 		return textResponse(request, content), nil
@@ -322,7 +335,7 @@ func TestConcurrentPullProcessesSerializeFetchingAndWriting(t *testing.T) {
 				close(firstStarted)
 				<-release
 			}
-			_, _ = io.WriteString(w, `{"protocolVersion":1,"projectGeneration":"g","dataRevision":"1","exporterVersion":"v","languages":["en","cs"]}`)
+			_, _ = io.WriteString(w, `{"projectGeneration":"g","dataRevision":"1","exporterVersion":"v","languages":["en","cs"]}`)
 			return
 		}
 		w.Header().Set("ETag", `W/"test"`)

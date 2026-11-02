@@ -147,9 +147,10 @@ positions. Mixed numbered/unnumbered or relative format arguments fail. The
 application passes the count for quantity selection separately from format arguments.
 Structured plural import and Apple plural assembly remain unsupported.
 
-The CLI requires the backend capability `resource-export-v1`, separate from the
-Gradle integration protocol. It posts evaluated list values, never local paths.
-Older servers fail rather than silently returning the full catalog. Cache identity
+All configured pulls require the backend POST resource export endpoint, including
+default and combined exports. The CLI posts evaluated list values, never local paths.
+There is no capability negotiation or export-state protocol version. A failed POST
+never falls back to GET or silently returns the full catalog. Cache identity
 includes list contents, selection presence, contexts, required keys, and plural
 bases, but not list paths or order. Existing cache entries without these options
 remain readable. Offline pulls restore exact matching server bytes and cannot
@@ -191,25 +192,23 @@ precedence over global user sources; their presence alone is not a conflict.
 Unknown table fields, missing/non-string `env`, other `api_key` types, and duplicate
 `api_key` definitions are structural errors.
 
-For exactly one declared project, `SENTIARY_PROJECT_API_KEY` is a shorthand that
-overrides inline `api_key`. A nonblank shorthand conflicts with either nonblank
-`SENTIARY_USER_API_KEY`, local `user_api_key`, or a project `api_key = { env = "..." }` reference.
-It always fails with multiple declared projects, even when `--output` selects only
-one project's outputs. Whitespace-only shorthand values are absent.
-
 After validating shared configuration, online credentials are selected as follows:
 
-1. If nonblank, validate and use the single-project `SENTIARY_PROJECT_API_KEY` shorthand.
-2. Otherwise, projects with a reference table require the value of that exact `env` variable.
-3. Projects without a reference retain the existing precedence:
+1. Project TOML `api_key`: a nonblank literal or the exact explicit `env` reference.
+2. Nonblank `user_api_key` from the local supplement.
+3. Nonblank `SENTIARY_PROJECT_API_KEY`, only with exactly one declared project.
+4. Nonblank `SENTIARY_USER_API_KEY`.
 
-    1. Nonblank `SENTIARY_USER_API_KEY`.
-    2. Nonblank local `user_api_key`.
-    3. That project's nonblank inline `api_key`.
+Lower-priority sources never conflict with or override the selected source.
+Whitespace-only literals and fallback values are absent. A missing or blank
+explicit reference is an error without fallback. Multi-project configurations
+ignore `SENTIARY_PROJECT_API_KEY`, even when `--output` selects one project.
+Online loading always parses and validates an existing local supplement, even
+when its credential will not be used.
 
 An invalid selected key fails without trying alternative sources. All declared
 projects require usable credentials online, including those with no selected
-output. Source conflicts fail before export requests or destination replacement.
+output. Missing credentials fail before export requests or destination replacement.
 The credential and server determine permissions, not the environment variable's
 name. Keys supplied through a user-named variable do not acquire user permissions.
 The wizard's existing use of `SENTIARY_PROJECT_API_KEY` is unchanged.

@@ -52,24 +52,12 @@ func Resolve(projects map[string]Project, sources Sources) (map[string]string, e
 	globalProject := strings.TrimSpace(sources.ProjectEnvironment)
 	globalUser := strings.TrimSpace(sources.UserEnvironment)
 	localUser := strings.TrimSpace(sources.LocalUser)
-	if globalProject != "" {
-		if len(projects) != 1 {
-			return nil, fmt.Errorf("%s requires exactly one declared project", ProjectEnvironment)
-		}
-		if globalUser != "" || localUser != "" {
-			return nil, fmt.Errorf("%s conflicts with %s or local user_api_key", ProjectEnvironment, UserEnvironment)
-		}
+	if len(projects) != 1 {
+		globalProject = ""
 	}
 	resolved := make(map[string]string, len(projects))
 	for _, alias := range aliases(projects) {
 		project := projects[alias]
-		if globalProject != "" {
-			if project.EnvironmentVariable != nil {
-				return nil, fmt.Errorf("project %q: %s conflicts with api_key.env", alias, ProjectEnvironment)
-			}
-			resolved[alias] = globalProject
-			continue
-		}
 		if project.EnvironmentVariable != nil {
 			name := *project.EnvironmentVariable
 			key := strings.TrimSpace(sources.References[name])
@@ -79,12 +67,18 @@ func Resolve(projects map[string]Project, sources Sources) (map[string]string, e
 			resolved[alias] = key
 			continue
 		}
-		key := globalUser
+		key := ""
+		if project.InlineKey != nil {
+			key = strings.TrimSpace(*project.InlineKey)
+		}
 		if key == "" {
 			key = localUser
 		}
-		if key == "" && project.InlineKey != nil {
-			key = strings.TrimSpace(*project.InlineKey)
+		if key == "" {
+			key = globalProject
+		}
+		if key == "" {
+			key = globalUser
 		}
 		if key == "" {
 			return nil, fmt.Errorf("project %q: provide api_key (a literal string or env reference), or a global credential", alias)

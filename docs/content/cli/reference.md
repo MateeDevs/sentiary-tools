@@ -520,11 +520,11 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 
 | Variable | Purpose and default | Example |
 | --- | --- | --- |
-| `SENTIARY_USER_API_KEY` | Account credential; unset by default. Required for API commands; highest-priority credential for online pulls. | `export SENTIARY_USER_API_KEY='YOUR_USER_API_KEY'` |
+| `SENTIARY_USER_API_KEY` | Account credential; unset by default. Required for API commands; final fallback for configured online pulls. | `export SENTIARY_USER_API_KEY='YOUR_USER_API_KEY'` |
 | `SENTIARY_PROJECT_ID` | Project fallback for API commands; no default. | `export SENTIARY_PROJECT_ID='PROJECT_ID'` |
 | `SENTIARY_BASE_URL` | API server; defaults to `https://api.sentiary.com`. | `export SENTIARY_BASE_URL='https://api.staging.sentiary.coolify.matee.cz'` |
 | `SENTIARY_CACHE_DIR` | Export cache directory; defaults to the [OS cache path](../configuration/downloads.md#cache-location-and-identity). | `export SENTIARY_CACHE_DIR='.ci-cache/sentiary'` |
-| `SENTIARY_PROJECT_API_KEY` | Optional `init` key. Unreleased: single-declared-project `pull` shorthand, with explicit source conflicts; ignored by `v2.0.0` pull. | `export SENTIARY_PROJECT_API_KEY='PROJECT_KEY'` |
+| `SENTIARY_PROJECT_API_KEY` | Optional `init` key. Unreleased: single-declared-project `pull` fallback after TOML/local credentials; ignored for multiple projects and by `v2.0.0` pull. | `export SENTIARY_PROJECT_API_KEY='PROJECT_KEY'` |
 
 Installer-only `INSTALL_DIR` and `SENTIARY_VERSION` are covered in [installation](../getting-started/installation.md).
 

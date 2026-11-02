@@ -96,7 +96,7 @@ func (app *App) runPull(ctx context.Context, args []string) (err error) {
 		return app.writeJSON(downloadPreview(files))
 	} else {
 		if !ok {
-			return errors.New("download repository does not support export/state protocol v1")
+			return errors.New("download repository does not support consistent conditional exports")
 		}
 		downloaded, err = download.FetchSnapshot(ctx, config, selected, repository, cache)
 	}

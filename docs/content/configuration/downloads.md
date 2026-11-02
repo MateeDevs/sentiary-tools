@@ -32,6 +32,13 @@ All requested exports must succeed before any generated file changes. Individual
 
 Online pulls authenticate and check for updates. A server, access, or download error never silently selects offline data. A completed export set may remain available even if a later destination write fails. Consistency is per project; a pull is not a cross-project transaction or a translation lockfile.
 
+Every configured export uses POST resource export, including default and combined
+exports. The CLI checks project generation, data revision, and exporter version
+against export state and retries a changed project up to three times. There is no
+capability negotiation or fallback to GET. Conditional responses retain ETag and
+revision metadata. Extended requests validate selection and format before 304;
+default unchanged exports skip loading translations.
+
 ## Cache location and identity
 
 Precedence: `--cache-dir`, then `SENTIARY_CACHE_DIR`, then the OS cache directory shown below. Relative overrides are relative to the process working directory.
@@ -67,7 +74,7 @@ Deleting `build/` does not invalidate a cache set. Restore it with the same conf
 | --- | --- |
 | Untracked or edited destination | Review/back up files; deliberately adopt with `--force` |
 | Case-only owned rename | Move through a distinct destination in a successful pull |
-| Unsupported export/state protocol | Use a compatible backend; legacy commands remain separate |
+| Missing export state or POST resource endpoint | Use a compatible backend; legacy GET commands remain separate |
 | Project changed during three attempts | Retry after edits settle |
 | No completed set covers request | Run an online pull for that selection and cache location |
 | Missing/corrupt object | Run online to fetch valid content; do not edit hashes |

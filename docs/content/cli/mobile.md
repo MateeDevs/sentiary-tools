@@ -70,4 +70,4 @@ sentiary-cli pull --output ios
 
 Add the generated catalog to your Xcode target's resources. Ensure the file exists before the Xcode build. Set a source-language override on the output only when that language is included in the selection. `include_empty = true` writes empty localizations with state `new`; no fallback text is inserted. Do not edit generated text in Xcode expecting a merge back to Sentiary.
 
-Pull several outputs together with `--output android --output compose --output ios`, or omit selection for all. Offline restoration follows the same selection rules. The backend must support combined export and export/state protocol 1.
+Pull several outputs together with `--output android --output compose --output ios`, or omit selection for all. Offline restoration follows the same selection rules. The backend must support POST resource export and export state, including combined exports.

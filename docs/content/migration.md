@@ -47,17 +47,17 @@ Use a [source build](contributing/development.md#build-and-check) and the
 evaluation. When this feature is released, pin the first supporting release tag
 explicitly; protocol 1 alone does not identify credential-field support.
 
-**Behavior change:** a nonblank `SENTIARY_PROJECT_API_KEY`, previously ignored by
-pull, now overrides inline project keys in a single-project config. Remove stale
-CI/Gradle environment variables before upgrading. The shorthand conflicts with
-nonblank user environment/local credentials and with an `api_key` environment reference; it always
-fails for multiple declared projects, regardless of selected outputs. Blank values
-are ignored. The wizard and legacy API command credential rules do not change.
+**Behavior change:** configured pull now chooses project TOML `api_key` before
+local `user_api_key`, then single-project `SENTIARY_PROJECT_API_KEY`, then
+`SENTIARY_USER_API_KEY`. A user environment key no longer overrides project TOML
+or the local user key. Lower-priority sources are not conflicts. Multi-project
+configurations ignore the automatic project environment key. Blank literals and
+fallback values are skipped. The wizard and legacy command rules do not change.
 
 Prefer per-project `api_key = { env = "NAME" }` references for multiple projects.
 Replace the literal `api_key` value rather than adding a second definition. Explicit
 references override global user credentials and fail without fallback when missing
-or blank. Projects without references retain existing user/local/inline priority.
+or blank. Empty literals, unlike explicit references, allow fallback.
 See the [complete credential rules](configuration/reference.md#project-environment-credentials-unreleased)
 and [multi-project example](examples/project-credentials.toml).
 
@@ -68,6 +68,13 @@ Offline restore skips credential lookup and ignores local/value conflicts, but
 still rejects invalid shared declarations. Key rotation and source changes do not
 change export-cache identity. No new credential-bearing config file or Gradle
 extension is required.
+
+Configured pull also requires a backend with POST resource export for every format
+and layout. A failed POST does not fall back to legacy GET. Capability negotiation
+and export-state protocol versions are removed; generation, revision, exporter
+version, and languages still protect complete sets. Cache format and Gradle–CLI
+integration versions remain unchanged. Public GET exports and legacy commands
+retain their existing behavior.
 
 ## Review generated-file ownership
 

@@ -1,6 +1,6 @@
 # CLI integration protocol
 
-This machine interface is separate from ordinary CLI commands and the backend export/state protocol. The [Gradle settings plugin](../gradle/index.md) uses it for resource bindings.
+This machine interface is separate from ordinary CLI commands and backend export state. The [Gradle settings plugin](../gradle/index.md) uses it for resource bindings.
 
 Download the [JSON Schema bundle](schemas.json) for handshake, request, result, and preview shapes. Use a reference such as `schemas.json#/$defs/request`, `#/$defs/result`, `#/$defs/preview`, or `#/$defs/handshake` to select a shape from the bundle. The bundle describes emitted/accepted structure; semantic restrictions below also apply. Paths and digests in examples are illustrative.
 
@@ -16,10 +16,10 @@ sentiary-cli version --json
 
 `version` is a string; `integrationProtocols` is an array of supported integer versions. The current executable advertises `[1]`. Negotiate support before running a request; do not infer it solely from a release version. `--version --json` and `-v --json` also work. Extra version arguments return usage exit 2.
 
-Protocol 1 does not prove backend resource-export support. Outputs using selection,
-required translations, or plural bases require the independent backend
-`resource-export-v1` capability. The CLI checks export/state capabilities and the
-POST response acknowledgment. The Gradle plugin still binds and stages final
+Protocol 1 does not prove backend resource-export support. All configured pulls
+use POST resource export, without capability negotiation or GET fallback. Export
+state supplies generation, revision, exporter version, and languages for consistent
+sets. The Gradle plugin still binds and stages final
 server bytes; it does not evaluate selectors or assemble plurals. See the
 [configuration reference](../configuration/reference.md#selection-required-translations-and-plurals).
 
