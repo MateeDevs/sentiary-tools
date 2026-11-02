@@ -3,7 +3,7 @@ tags:
   - Gradle
 ---
 
-# Gradle plugin 2.1
+# Gradle plugin
 
 ## Setup
 
@@ -26,19 +26,19 @@ Create `sentiary.toml` with the [first download guide](../getting-started/quicks
 
 [Plugin source on GitHub](https://github.com/MateeDevs/sentiary-tools/tree/main/plugins/sentiary)
 
-TOML owns project IDs, credentials, output formats/paths, language selection, aliases, and empty-value policy. The settings extension owns only resource consumption. There is no compatibility layer for the old `projectId`, `projectApiKey`, `exportPaths`, or naming callbacks.
+Configure project IDs, credentials, output formats and paths, languages, aliases,
+and empty-value policy in TOML. Use the settings extension to bind those outputs
+to modules and source sets.
 
 Term selection, required translations, and opt-in Android/Compose plurals also belong
 in [TOML output options](../configuration/reference.md#selection-required-translations-and-plurals).
 Plugin 2.1.0 installs CLI v2.1.0, which supports these fields. The backend must
-support POST resource exports. No selector/transform DSL is required.
-Default resource folders still need explicit
-`locale_map` entries. Separate outputs can emit English to both `en.lproj` and
-`Base.lproj`.
+support POST resource exports.
+Default resource folders require explicit `locale_map` entries.
 
-## Binding containers and every field
+## Resource bindings
 
-The settings `sentiary` extension has two named containers: `android { create("NAME") { ... } }` and `compose { create("NAME") { ... } }`. Container kind supplies protocol format `android` or `compose`; the named output must use that format and `per_language` layout. A generic or combined Xcode output cannot be bound as Android/Compose resources.
+The settings `sentiary` extension has two named containers: `android { create("NAME") { ... } }` and `compose { create("NAME") { ... } }`. The named TOML output must use the matching `android` or `compose` format and `per_language` layout. For other outputs, run `sentiaryPull` without a resource binding.
 
 | Field | Type | Required | Default | Behavior / accepted values | Example |
 | --- | --- | --- | --- | --- | --- |
@@ -49,7 +49,7 @@ The settings `sentiary` extension has two named containers: `android { create("N
 | `resourceRoot` | string | Yes | Empty (invalid) | Relative to build root, canonicalized; generated files must be strictly inside this root | `resourceRoot = "app/build/generated/sentiary"` |
 | `localDirectories` | list of strings | No | Empty list | Compose-only extra local resource roots, relative to build root; Android requires empty list | `localDirectories = listOf("shared/extraComposeResources")` |
 
-There is at most one binding for each `(modulePath, kind, sourceSet)`. The same output may be selected by more than one binding if each root contains its files. Additional binding fields, format overrides, variant selectors, or language/credential overrides do not exist.
+There is at most one binding for each `(modulePath, kind, sourceSet)`. The same output may be selected by more than one binding if each root contains its files.
 
 Android needs `com.android.application` or `com.android.library` in the bound module. Source sets beginning with `test` or `androidTest` (case-insensitive) are rejected. The adapter matches the selected source-set name against `main`, variant name, build type, combined flavor name, and individual flavor names. A source-set name's syntax alone does not prove that a variant will consume it.
 
@@ -57,7 +57,7 @@ Compose needs `org.jetbrains.compose`. Its adapter uses the public Compose `cust
 
 ## Overrides and credentials
 
-These are Gradle project properties, supplied with `-P` or `gradle.properties`. They are not extension fields. Standard Gradle property resolution applies; command-line `-P` overrides file values. No plugin-specific environment fallback is implemented for these properties.
+Supply these Gradle project properties with `-P` or `gradle.properties`, not as extension fields. Standard Gradle property resolution applies; command-line `-P` overrides file values.
 
 | Property | Type | Required | Default | Behavior / example |
 | --- | --- | --- | --- | --- |
@@ -65,30 +65,37 @@ These are Gradle project properties, supplied with `-P` or `gradle.properties`. 
 | `sentiary.cliVersion` | string release tag | No | `v2.1.0` | Managed version; `[A-Za-z0-9][A-Za-z0-9._-]*`; e.g. `-Psentiary.cliVersion=v2.1.0` |
 | `sentiary.cliExecutable` | string path | No | Empty | Overrides managed CLI installation; absolute path or relative to build root, e.g. `-Psentiary.cliExecutable=/path/to/sentiary-cli` |
 
-An executable override takes precedence over `cliVersion` and bypasses managed-download checksum verification, but still undergoes protocol negotiation. There is no public checksum, installer URL, or CLI-install-cache directory override. `SENTIARY_USER_API_KEY`, local credentials, `SENTIARY_CACHE_DIR`, and `SENTIARY_BASE_URL` are inherited by the CLI process. The export cache is separate from the managed binary cache. TOML destinations remain relative to the config directory even when `sentiary.config` points below the build root; binding roots remain relative to the build root.
+An executable override takes precedence over `cliVersion`. You are responsible for
+verifying that executable; the plugin checks its integration compatibility before use.
+The CLI inherits the task environment, including credential, cache, and server variables.
+TOML destinations are relative to the config directory; binding roots are relative
+to the build root.
 
 ## Project credentials
 
-The CLI resolves project credentials from TOML references and its inherited
-environment at task execution, including after Configuration Cache reuse. The
-plugin does not copy keys into task properties or integration request/result JSON.
-No credential extension is required. Use `api_key = { env = "VARIABLE_NAME" }`
-in each project or `SENTIARY_PROJECT_API_KEY` for a single-project configuration.
-Plugin 2.1.0 uses CLI v2.1.0 by default. Plugin 2.0.0 can also use the new CLI with
-`-Psentiary.cliVersion=v2.1.0`. The resource binding DSL is unchanged.
-See the [credential priority notes](../migration.md#project-credentials-in-210).
+Configure credentials in TOML with `api_key = { env = "VARIABLE_NAME" }` and make
+the variable available to Gradle. The CLI resolves credentials when the task runs,
+including after Configuration Cache reuse; keys are not copied into task properties.
+See the [credential reference](../configuration/reference.md#project-environment-credentials)
+for alternatives and priority rules.
 
 ## Tasks and automatic build dependencies
 
 | Task | Behavior |
 | --- | --- |
-| Root `:sentiaryPull` | Runs version handshake, invokes the CLI, and downloads the selected outputs |
+| Root `:sentiaryPull` | Downloads the selected outputs using the CLI |
 | `sentiaryStageAndroid<SourceSet>` in bound module | Depends on root pull; validates checksums/root containment; stages generated and source-set local resources |
 | `sentiaryStageCompose<SourceSet>` in bound module | Depends on root pull; stages generated, conventional, and extra Compose roots |
 
 Names capitalize the first character of the source set: `main` becomes `sentiaryStageAndroidMain`, `commonMain` becomes `sentiaryStageComposeCommonMain`. Staging outputs go to the module's `build/sentiary/staging/<kind>/<sourceSet>`.
 
-When bindings exist, the shared CLI request selects only their outputs; unbound outputs are excluded. With no bindings, `sentiaryPull` runs a normal full-config pull, useful for generic exports or Xcode. A build runs the shared task at most once in its task graph. The task is deliberately not cached or skipped for online freshness, even when Configuration Cache is reused. Staging also runs again to validate current files/collisions. Old `sentiaryUpdateLocalizations`, `sentiaryUpdateProjectInfo`, and `--force-update` are removed; no plugin `--force` option forwards ownership adoption. Perform deliberate adoption with the CLI.
+When bindings exist, `sentiaryPull` downloads only their outputs; unbound outputs
+are excluded. With no bindings, it downloads all configured outputs, including
+generic formats or Xcode catalogs. It runs at most once per task graph and checks
+for updates on every online build, including with Configuration Cache reuse.
+Staging also validates current files and collisions on each build.
+To adopt existing destinations or discard local edits, review the files and run
+the CLI with `pull --force`; Gradle does not forward that option.
 
 Android source-set resource directories are collected into staging, then replaced by the staged directory. Applicable variant pre-build lifecycle tasks depend on staging. Compose registers a task-backed custom directory. Do not add separate manual directory wiring for the same binding. Keep framework source-set configuration and the plugin's generated roots consistent.
 
@@ -119,8 +126,11 @@ Gradle `--offline` forwards CLI `--offline`. It also needs a complete matching e
 
 Use this supported framework combination; other framework versions are not covered by this guide. Configuration Cache and Isolated Projects are supported. Online pulls still run to check freshness when Gradle reuses configuration.
 
-For Isolated Projects with Compose 1.10.3, set `org.jetbrains.compose.hot.reload.disable=true`. Set `kotlin.internal.collectFUSMetrics=false` to avoid a Kotlin statistics build-service classloader conflict. Both are framework properties, not Sentiary extension fields. Download the [Gradle properties example](../examples/gradle-evaluation.properties).
+For Compose with Isolated Projects, see the required
+[framework settings](../troubleshooting.md#compose-and-isolated-projects).
 
 ## Limitations
 
-There is one binding per source set/kind/module. Android supports application/library plugins and production source sets only. There is no generic/combined resource adapter or public managed-checksum override. See [migration](../migration.md) for removed 1.x options and [offline use](../configuration/downloads.md) for recovery requirements.
+Android bindings support application/library plugins and production source sets
+only. Resource staging supports Android and Compose outputs, not generic formats
+or combined catalogs. See [offline use](../configuration/downloads.md) for recovery requirements.

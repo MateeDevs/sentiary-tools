@@ -99,13 +99,13 @@ There is no default format; set `format` explicitly. All formats default to `per
 
 Only `xcstrings` supports `combined`. That layout creates one catalog for all selected languages. It requires a fixed path, no placeholders, no `locale_map`, no `language_aliases`, and a source language included in the resolved selection. Combined catalogs support plain strings; plurals and device variants are outside the current exporter contract.
 
-`include_empty = false` omits empty translations. For combined catalogs, `true` includes empty localizations with state `new`; it does not invent fallback text. `pull` preserves downloaded bytes, including binary spreadsheet/Gettext exports. Legacy `export` and `import` accept only `json`, `android`, `apple`, and `compose`.
+`include_empty = false` omits empty translations. For combined catalogs, `true` includes empty localizations with state `new`; it does not invent fallback text. `pull` preserves downloaded bytes, including binary spreadsheet/Gettext exports. Standalone `export` and `import` accept only `json`, `android`, `apple`, and `compose`.
 
 ## Selection, required translations, and plurals
 
-These four options belong to each output, not the project. They require CLI
-**v2.1.0 or newer** and a backend supporting POST resource exports. List paths resolve
-relative to the directory containing `sentiary.toml`, not the current working
+These four options belong to each output, not the project. They require a backend
+supporting POST resource exports. List paths resolve relative to the directory
+containing `sentiary.toml`, not the current working
 directory. Multiple outputs may reuse one list. Files use UTF-8, one literal key
 per line. Surrounding whitespace is trimmed and blank lines are ignored. There
 are no comments or escapes: `#example` is a literal key. Duplicate entries fail
@@ -141,44 +141,42 @@ Names must match `[a-z_][a-z0-9_]*`; exporters do not rename resources.
 Each emitted group needs nonblank `other`. Empty optional groups are omitted
 with `include_empty = false`; nonempty groups without usable `other` fail.
 With `include_empty = true`, an empty `other` still fails. Required plurals need
-`other` in every language, not identical quantity sets. No language fallback or
-cross-quantity argument compatibility check is performed. Ordinary strings and
-plural items use the same legacy platform transformations and shared XMLUtil writer.
-Android and Compose convert `%@` to `%s`, including explicit positions such as
-`%1$@`. Compose numbers unnumbered `%s` and `%d` in encounter order, leaving explicit
-positions unchanged. Mixed numbered/unnumbered and relative (`%<s`) arguments are
-not rejected. This is not a full Formatter parser: width and precision are not
-generally normalized, and mixed numbering can produce position collisions.
-Backend acceptance does not guarantee target-framework compatibility.
-Platform escaping remains separate from XML attribute/value escaping.
-The application passes the count for quantity selection separately from format arguments.
-Plural assembly changes structure, not placeholder rules. Ordinary mixed-case and
-dotted keys remain unchanged; only declared plural bases have the naming restriction.
-Without plural bases, dotted terms remain ordinary strings.
-Structured plural import and Apple plural assembly remain unsupported.
+`other` in every language, not identical quantity sets. No language fallback is applied.
+Without plural bases, dotted terms remain ordinary strings. Other string keys retain
+their spelling; the naming restriction above applies only to declared plural bases.
+Structured plural import and Apple plural assembly are not supported.
 
-All configured pulls require the backend POST resource export endpoint, including
-default and combined exports. The CLI posts evaluated list values, never local paths.
-There is no capability negotiation or export-state protocol version. A failed POST
-never falls back to GET or silently returns the full catalog. Cache identity
-includes list contents, selection presence, contexts, required keys, and plural
-bases, but not list paths or order. Existing cache entries without these options
-remain readable. Offline pulls restore exact matching server bytes and cannot
-regenerate new selections from old full-catalog exports. A server validation
-failure prevents replacement of every destination in the pull; filesystem failures
-during sequential replacement still can leave partial changes.
+### Formatting arguments
+
+Android and Compose exports convert `%@` to `%s` and `%1$@` to `%1$s`.
+Compose also numbers unnumbered `%s` and `%d` in order: `%s: %d` becomes
+`%1$s: %2$d`. Explicit positions are left unchanged. These rules apply equally
+to ordinary strings and plural items.
+
+Use explicit positions consistently when a translation has multiple arguments.
+Width and precision forms such as `%04d` and `%.2f` are not automatically numbered.
+Mixing explicit and implicit positions can produce conflicting argument numbers.
+Sentiary does not validate argument compatibility; check generated resources with
+your platform's build tools and formatting APIs.
+
+The application passes the count used to select a plural quantity separately from
+formatting arguments. Quantities do not have to contain the same arguments.
+
+### Download behavior
+
+Configured pulls require a backend supporting POST resource exports. A failed
+request does not fall back to an unfiltered export. Moving a list file or reordering
+its entries does not invalidate matching cached exports, but changing the selected
+values can.
+Offline pulls restore matching server files; they cannot create a new selection
+from an old full-catalog export. Validation failures leave all destinations unchanged.
+See [download safety and recovery](downloads.md) for write-failure handling.
 
 ## Local supplement and credentials
 
 `sentiary.local.toml` is read beside the selected shared config, even when that config has another filename. It accepts one optional field, `user_api_key` (string, default empty), for example `user_api_key = "YOUR_USER_API_KEY"`. Copy the [local credential template](../examples/local-credentials.toml) to that filename and replace its placeholder; keep it out of source control. Unknown fields fail. It cannot override projects, outputs, server, or paths.
 
 ### Project environment credentials
-
-CLI **v2.1.0 or newer** supports project environment references and the single-project
-`SENTIARY_PROJECT_API_KEY` pull fallback. Gradle plugin **2.1.0** installs CLI
-`v2.1.0` by default. No config or database migration is required. See the
-[credential priority notes](../migration.md#project-credentials-in-210) and
-[Gradle credential setup](../gradle/index.md#project-credentials).
 
 Download the [multi-project credential example](../examples/project-credentials.toml).
 Each project can choose a literal string or an environment reference:
@@ -198,8 +196,7 @@ Only a reference table triggers lookup. It must contain exactly one field, `env`
 whose value is a literal variable name, not general TOML interpolation. The name
 must be nonempty and match `[A-Za-z_][A-Za-z0-9_]*` without surrounding whitespace.
 The referenced value is trimmed; a missing, empty, or whitespace-only value fails
-online without falling back to a user credential. A project reference takes
-precedence over global user sources; their presence alone is not a conflict.
+online without fallback.
 Unknown table fields, missing/non-string `env`, other `api_key` types, and duplicate
 `api_key` definitions are structural errors.
 
@@ -211,8 +208,7 @@ After validating shared configuration, online credentials are selected as follow
 4. Nonblank `SENTIARY_USER_API_KEY`.
 
 Lower-priority sources never conflict with or override the selected source.
-Whitespace-only literals and fallback values are absent. A missing or blank
-explicit reference is an error without fallback. Multi-project configurations
+Whitespace-only literals and fallback values are absent. Multi-project configurations
 ignore `SENTIARY_PROJECT_API_KEY`, even when `--output` selects one project.
 Online loading always parses and validates an existing local supplement, even
 when its credential will not be used.
@@ -222,20 +218,18 @@ projects require usable credentials online, including those with no selected
 output. Missing credentials fail before export requests or destination replacement.
 The credential and server determine permissions, not the environment variable's
 name. Keys supplied through a user-named variable do not acquire user permissions.
-The wizard's existing use of `SENTIARY_PROJECT_API_KEY` is unchanged.
-`SENTIARY_PROJECT_ID` applies to legacy API commands, not TOML project IDs. Legacy
-commands do not load TOML/local credentials or gain these new pull mechanisms.
+Standalone API commands use separate [credential rules](../cli/reference.md#invocation-credentials-and-streams)
+and do not read TOML credentials. `SENTIARY_PROJECT_ID` does not override TOML project IDs.
 
 Offline loading never evaluates credential environment variables and ignores the
 local supplement entirely, including malformed TOML. Referenced variables need
-not exist, and environment/local-value conflicts do not block restoration. Shared
-structure, including valid variable names and the strict `api_key` value/table shape,
-still validates. Operational variables such as `SENTIARY_BASE_URL` and
+not exist. Shared structure, including valid variable names and the strict
+`api_key` value/table shape, still validates. Operational variables such as `SENTIARY_BASE_URL` and
 `SENTIARY_CACHE_DIR` still apply. Neither keys nor their source names enter cache
 identity; key rotation or changing sources does not invalidate cached exports.
 Resolved keys are never written back to TOML, preview output, or cache metadata.
 Ignore `sentiary.local.toml` and `.sentiary/` in version control. Shared `api_key`
-retains the project's existing permissions; it is not a download-only key.
+grants the project's permissions; it is not a download-only key.
 
 ## Validation failures
 

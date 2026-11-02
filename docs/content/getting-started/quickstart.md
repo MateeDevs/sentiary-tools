@@ -6,24 +6,26 @@ tags:
 
 # First configured download
 
-Start with an existing Sentiary project ID and its language IDs. The current `init` wizard accepts those IDs locally; it does not browse or create remote projects.
+Start with an existing Sentiary project ID, its language IDs, and an API key with access to the project.
+
+## Create a configuration
 
 ```sh
 export SENTIARY_USER_API_KEY='YOUR_USER_API_KEY'
 sentiary-cli init --directory .
 ```
 
-The directory must already exist. The wizard asks for project aliases, IDs, language selections, output names, formats, paths, and locale mappings. It supports multiple projects and outputs. For combined Xcode catalogs it asks for a selected source language. Enter `cancel` at a prompt or end stdin to abort. It refuses to overwrite `sentiary.toml` or a local credentials file that it would create.
+The wizard asks for project IDs, languages, output formats, and destination paths.
+Review its preview and confirm to create `sentiary.toml`. It does not create remote projects
+or overwrite an existing configuration. See the [init reference](../cli/reference.md#init)
+for wizard options.
 
-The defaults produce Android/Compose paths under `build/sentiary/`, or a combined `Localizable.xcstrings`. Generic formats require an explicit path. The preview redacts project keys and requires a final `y` before writing. Saving a project key from `SENTIARY_PROJECT_API_KEY` in shared TOML or a user key from `SENTIARY_USER_API_KEY` in local TOML requires explicit opt-in. The default uses environment credentials. New config files use mode `0600` where supported. Ignore entries for `sentiary.local.toml` and `.sentiary/` are offered by default.
+Alternatively, copy the [mobile configuration](../examples/sentiary.toml) and edit its
+project ID, credentials, languages, and paths. Keep secrets out of committed files;
+use [environment references](../configuration/reference.md#project-environment-credentials)
+for shared configurations.
 
-The wizard is unchanged. CLI v2.1.0 also supports secret-free project
-environment references and a single-project `SENTIARY_PROJECT_API_KEY` pull
-shorthand. See the
-[credential rules](../configuration/reference.md#project-environment-credentials)
-before mixing project and user credential sources.
-
-Alternatively, copy a [mobile configuration](../examples/sentiary.toml), replace project IDs, and edit languages and paths. Do not commit personal credentials. The local supplement supports only `user_api_key`.
+## Preview and download
 
 ```sh
 sentiary-cli pull --dry-run
@@ -31,12 +33,17 @@ sentiary-cli pull
 sentiary-cli pull --output android
 ```
 
-The preview prints resolved file paths as JSON. Wildcard languages and aliases require a read request to resolve project languages. It does not download exports or write generated files. An ordinary online preview still requires credentials.
+The preview lists destination files without writing them. Online previews require credentials.
+A pull downloads and verifies all selected exports before replacing generated files.
+If a destination already exists, review [file adoption](../configuration/downloads.md#ownership-and-adoption)
+before using `--force`, which can discard local edits.
 
-A pull downloads and verifies the full selection, publishes a completed cache set, then replaces generated files. Existing files need deliberate [adoption](../configuration/downloads.md#ownership-and-adoption). Review the plan and affected files before using `--force`.
+## Restore offline
 
 ```sh
 sentiary-cli pull --offline
 ```
 
-Offline mode restores the newest single completed set covering the request. It needs no credentials or network, but needs a previous successful online pull and intact cache objects. See [offline recovery](../configuration/downloads.md#restore-deleted-generated-files).
+After a successful online pull, offline mode can restore matching files without
+credentials or a network connection. Keep the cache intact. See
+[offline recovery](../configuration/downloads.md#restore-deleted-generated-files).

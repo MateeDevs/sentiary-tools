@@ -1,6 +1,6 @@
 # Sentiary documentation
 
-Manage translations in Sentiary and deliver them to your application with CLI and Gradle 2.0.
+Manage translations in Sentiary and deliver them to your application with the CLI and Gradle plugin.
 
 <div class="grid cards" markdown>
 
@@ -38,6 +38,6 @@ sentiary-cli pull
 
 Start with an existing Sentiary project and its language IDs. Follow the [first download guide](getting-started/quickstart.md) for credentials and generated-file ownership.
 
-[Contribute](contributing/development/index.html) · [Browse by topic](topics/index.html) · [Migrate from Gradle 1.x](migration.md) · [Troubleshooting](troubleshooting.md)
+[Contribute](contributing/development/index.html) · [Browse by topic](topics/index.html) · [Troubleshooting](troubleshooting.md)
 
 For AI tools: [llms.txt](llms.txt) · [Full documentation](llms-full.txt)

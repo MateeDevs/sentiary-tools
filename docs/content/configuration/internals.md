@@ -12,7 +12,7 @@ All requested exports must succeed before any generated destination changes. Fil
 
 ## Conditional requests and completed sets
 
-Online pulls authenticate and request backend `export/state` protocol 1, then send stored ETags via `If-None-Match`. A valid `304` reuses verified bytes. The response generation, data revision, and exporter version must match the observed project state. Each changing project is retried up to three times, then fails. A server/access/download error never silently selects offline data.
+Online pulls authenticate and request backend `export/state`, then send stored ETags via `If-None-Match` on resource exports. A valid `304` reuses verified bytes. The response generation, data revision, and exporter version must match the observed project state. Each changing project is retried up to three times, then fails. A server/access/download error never silently selects offline data.
 
 A completed set is published only after all requested exports are verified and saved as immutable SHA-256 objects. Publication precedes destination validation/writes. A destination conflict can therefore leave a usable completed set. Snapshot consistency is per project; it is not a cross-project transaction or a translation lockfile. A committed intermediate state of a bulk edit may be captured.
 

@@ -1,7 +1,7 @@
 [project]
 site_url = "https://docs.sentiary.com/"
 site_name = "Sentiary documentation"
-site_description = "Get started with Sentiary 2.0: CLI, MCP, configuration, Gradle, and API guides"
+site_description = "Get started with Sentiary: CLI, MCP, configuration, Gradle, and API guides"
 docs_dir = "content"
 site_dir = "site"
 repo_url = "https://github.com/MateeDevs/sentiary-tools"
@@ -13,7 +13,6 @@ nav = [
     { "Overview" = "index.md" },
     { "Installation" = "getting-started/installation.md" },
     { "First download" = "getting-started/quickstart.md" },
-    { "Migration from 1.x" = "migration.md" },
     { "Troubleshooting" = "troubleshooting.md" },
     { "Browse by topic" = "topics.md" },
   ] },
@@ -39,7 +38,7 @@ nav = [
   { "Contributing" = [
     { "Development" = "contributing/development.md" },
     { "Documentation" = "contributing/documentation.md" },
-    { "Releases" = "contributing/releases.md" },
+    { "Publishing" = "contributing/releases.md" },
   ] },
 ]
 
@@ -89,7 +88,6 @@ compose = "material/layers"
 ios = "material/apple"
 offline = "material/cloud-off-outline"
 api = "material/api"
-migration = "material/swap-horizontal"
 
 [project.extra.tags]
 CLI = "cli"
@@ -100,7 +98,6 @@ Compose = "compose"
 iOS = "ios"
 Offline = "offline"
 API = "api"
-Migration = "migration"
 
 [project.plugins.llmstxt]
 full_output = "llms-full.txt"
@@ -109,7 +106,7 @@ Sentiary manages localization terms and translations. Use the CLI to download tr
 configure projects and outputs in TOML, or integrate generated resources into Gradle builds.
 
 The sections below cover getting started, the complete CLI, configuration and offline use,
-Gradle integration, API authentication, and migration and troubleshooting.
+Gradle integration, API authentication, and troubleshooting.
 For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
 """
 
@@ -135,8 +132,7 @@ For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
 "API" = [
   { "api/index.md" = "REST API overview, authentication, and the authoritative OpenAPI schema." },
 ]
-"Migration and troubleshooting" = [
-  { "migration.md" = "Migrate from Gradle plugin 1.x to CLI and Gradle 2.0." },
+"Troubleshooting" = [
   { "troubleshooting.md" = "Diagnose installation, configuration, download, and build failures." },
 ]
 
@@ -149,6 +145,7 @@ For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
 [project.plugins.tags]
 
 [project.plugins.redirects.redirect_maps]
+"migration.md" = "gradle/index.md"
 "examples/index.md" = "getting-started/quickstart.md"
 "examples/mobile.md" = "cli/mobile.md"
 "examples/advanced.md" = "configuration/languages.md"

@@ -32,12 +32,11 @@ All requested exports must succeed before any generated file changes. Individual
 
 Online pulls authenticate and check for updates. A server, access, or download error never silently selects offline data. A completed export set may remain available even if a later destination write fails. Consistency is per project; a pull is not a cross-project transaction or a translation lockfile.
 
-Every configured export uses POST resource export, including default and combined
-exports. The CLI checks project generation, data revision, and exporter version
-against export state and retries a changed project up to three times. There is no
-capability negotiation or fallback to GET. Conditional responses retain ETag and
-revision metadata. Extended requests validate selection and format before 304;
-default unchanged exports skip loading translations.
+Online pulls check for changes and download a consistent set for each project.
+If translations change during a pull, the CLI retries that project up to three
+times. Unchanged exports can reuse cached files, but required-key and selection
+validation still applies. A compatible backend with POST resource export support
+is required; a failed request never switches to an unfiltered export.
 
 ## Cache location and identity
 
@@ -52,19 +51,16 @@ Precedence: `--cache-dir`, then `SENTIARY_CACHE_DIR`, then the OS cache director
 Cached exports are scoped to the server, project, format, layout, languages, source language, and empty-translation policy. Moving a checkout or renaming outputs can reuse exports. Sets do not expire automatically. Protect cached translation content like generated files; it contains no API keys.
 
 Credential values and source names are not part of export identity. Rotating a key
-or switching between inline, user, or project environment credentials preserves
-matching cached exports. [Project environment credentials](reference.md#project-environment-credentials)
-are supported from CLI v2.1.0.
+or switching [credential sources](reference.md#project-environment-credentials)
+preserves matching cached exports.
 
 ## Offline restoration
 
 `pull --offline` makes no network calls and needs no credentials. It finds the newest single completed set covering the requested exports, including a selected subset. It does not combine several sets. Wildcard expansion uses that set's saved project languages. Every selected object's checksum must verify before writes. Completion time and age are printed to stderr.
 
-The new credential resolver is completely bypassed offline: credential environment
-variables may be absent or conflicting, referenced variables need not exist, and
-even an invalid local credential supplement is ignored. Shared TOML still validates,
-including `api_key` string/reference-table types and valid `env` names. Operational
-cache/base-URL settings are not credential variables and still apply.
+Offline pulls ignore credential environment variables and the local credential
+supplement. Referenced variables need not exist. Shared TOML still validates,
+including `api_key` types and valid `env` names. Cache and base-URL settings still apply.
 
 Deleting `build/` does not invalidate a cache set. Restore it with the same config and cache location. Changing format, selected languages, source language, or empty-value policy may require another online pull. Offline mode does not establish current access or freshness.
 
@@ -74,7 +70,7 @@ Deleting `build/` does not invalidate a cache set. Restore it with the same conf
 | --- | --- |
 | Untracked or edited destination | Review/back up files; deliberately adopt with `--force` |
 | Case-only owned rename | Move through a distinct destination in a successful pull |
-| Missing export state or POST resource endpoint | Use a compatible backend; legacy GET commands remain separate |
+| Missing export state or POST resource endpoint | Use a backend supporting configured resource exports |
 | Project changed during three attempts | Retry after edits settle |
 | No completed set covers request | Run an online pull for that selection and cache location |
 | Missing/corrupt object | Run online to fetch valid content; do not edit hashes |
@@ -123,4 +119,4 @@ sentiary-cli pull --offline --cache-dir .ci-cache/sentiary --output android --ou
 
 The command restores missing files without a key or network. Verify the resulting paths with your app build. It prints the completed set's timestamp and age to stderr. A cache primed only for Android cannot restore Compose. Separate completed sets are not combined; prime the joint selection online first.
 
-For a planned disconnected CI build, use the same explicit offline invocation after restoring a trusted complete cache. Do not automatically retry a failed online pull offline: doing so can conceal revoked access or service errors. The 2.0 settings plugin forwards Gradle's `--offline` to the CLI. Standalone CLI invocations still need the explicit `--offline` flag.
+For a planned disconnected CI build, use the same explicit offline invocation after restoring a trusted complete cache. Do not automatically retry a failed online pull offline: doing so can conceal revoked access or service errors. The settings plugin forwards Gradle's `--offline` to the CLI. Standalone CLI invocations need the explicit `--offline` flag.

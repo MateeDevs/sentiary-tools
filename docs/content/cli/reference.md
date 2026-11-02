@@ -34,7 +34,7 @@ Examples use placeholder IDs and credentials. Commands that create, edit, remove
 | `version`, `--version`, `-v` as command | Command; no version argument | Prints version; optional exact `--json` second argument only | `sentiary-cli version` |
 | `version --json` | Literal switch; optional, off | Not repeatable; no environment fallback | `sentiary-cli version --json` |
 
-The table for each command lists every registered option. Each row lists its type, requirement, default, and example. Options have no environment fallback unless stated. Scalar options use the last supplied value; `pull --output` accumulates selections. All non-`pull` formats use the legacy four-format list. `get` needs exactly one of `--string-id` or `--key`. For `add`, language is optional; when supplied it triggers a second request to create the initial translation. The current client ignores `--translation` if language is omitted. A translation failure can leave the new term created. For `edit`, nonempty values update fields; `--clear-description` / `--clear-context` explicitly clear them and take precedence over the corresponding text flags.
+The table for each command lists every registered option. Each row lists its type, requirement, default, and example. Options have no environment fallback unless stated. Scalar options use the last supplied value; `pull --output` accumulates selections. Standalone `export` and `import` support `json`, `android`, `apple`, and `compose`. `get` needs exactly one of `--string-id` or `--key`. For `add`, language is optional; when supplied it triggers a second request to create the initial translation. The client ignores `--translation` if language is omitted. A translation failure can leave the new term created. For `edit`, nonempty values update fields; `--clear-description` / `--clear-context` explicitly clear them and take precedence over the corresponding text flags.
 
 ## list-projects
 
@@ -477,6 +477,21 @@ sentiary-cli init --directory=.
 | --- | --- | --- | --- |
 | `--directory` | Existing target directory for init | string; Optional; `"."` | `--directory=.` |
 
+The wizard accepts project aliases and IDs, language selections, named outputs,
+formats, paths, and locale mappings. It supports multiple projects and outputs;
+combined Xcode catalogs require a selected source language. It does not browse or
+create remote projects. Enter `cancel` or end stdin to abort.
+
+Android/Compose defaults use `build/sentiary/`; combined Xcode catalogs use
+`Localizable.xcstrings`. Other formats require an explicit path. The wizard redacts
+project keys in its preview and requires a final `y` before writing.
+It refuses to overwrite `sentiary.toml` or a local credential file it would create.
+
+Credentials stay in the environment by default. Saving `SENTIARY_PROJECT_API_KEY`
+in shared TOML or `SENTIARY_USER_API_KEY` in local TOML requires explicit opt-in.
+New config files use mode `0600` where supported. The wizard offers ignore entries
+for `sentiary.local.toml` and `.sentiary/`; keep both out of version control.
+
 ## pull
 
 Download configured translation outputs.
@@ -524,7 +539,7 @@ The example assumes `SENTIARY_PROJECT_ID=PROJECT_ID`; `--project-id=PROJECT_ID` 
 | `SENTIARY_PROJECT_ID` | Project fallback for API commands; no default. | `export SENTIARY_PROJECT_ID='PROJECT_ID'` |
 | `SENTIARY_BASE_URL` | API server; defaults to `https://api.sentiary.com`. | `export SENTIARY_BASE_URL='https://api.staging.sentiary.coolify.matee.cz'` |
 | `SENTIARY_CACHE_DIR` | Export cache directory; defaults to the [OS cache path](../configuration/downloads.md#cache-location-and-identity). | `export SENTIARY_CACHE_DIR='.ci-cache/sentiary'` |
-| `SENTIARY_PROJECT_API_KEY` | Optional `init` key. From v2.1.0, single-declared-project `pull` fallback after TOML/local credentials; ignored for multiple projects. | `export SENTIARY_PROJECT_API_KEY='PROJECT_KEY'` |
+| `SENTIARY_PROJECT_API_KEY` | Optional `init` key; single-declared-project `pull` fallback after TOML/local credentials, ignored for multiple projects. | `export SENTIARY_PROJECT_API_KEY='PROJECT_KEY'` |
 
 Installer-only `INSTALL_DIR` and `SENTIARY_VERSION` are covered in [installation](../getting-started/installation.md).
 

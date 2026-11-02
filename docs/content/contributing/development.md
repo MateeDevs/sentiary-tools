@@ -41,6 +41,6 @@ same checkout before running the plugin checks.
 
 - [CLI and hosted MCP](../mcp/index.md): authentication, server configuration, Docker, and tool reference.
 - [Documentation maintenance](documentation.md): preview, strict build, Markdown exports, and hosting.
-- [Gradle development and releases](releases.md): integration matrix, consumer builds, and publication.
+- [Publishing the CLI and Gradle plugin](releases.md): integration matrix, consumer builds, and publication.
 - [CLI integration protocol](../integration/protocol.md): the Gradle-to-CLI machine interface.
 - [Download internals](../configuration/internals.md): caching, ownership, and concurrency.

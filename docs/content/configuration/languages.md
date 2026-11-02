@@ -37,13 +37,13 @@ Run one CLI command before both module builds:
 sentiary-cli pull --output module_a --output module_b
 ```
 
-This is manual orchestration. The Gradle 2.0 settings plugin can replace manual orchestration for [Android/Compose bindings](../gradle/index.md#setup). Keep output paths distinct across modules and avoid two configs managing the same destinations.
+The Gradle settings plugin can automate these steps for [Android/Compose bindings](../gradle/index.md#setup). Keep output paths distinct across modules and avoid two configs managing the same destinations.
 
 ## Multiple remote projects and generic formats
 
 The `website` output uses a second project and explicitly selects one language. A single user key must have access to both configured projects. Alternatively, remove user-key sources and add appropriate project keys to each project table; do not publish real keys.
 
-`catalog` overrides both source language and language selection for a combined Xcode catalog. It also enables empty translations. `sheet` exports binary XLSX bytes to language-specific files; use `pull` rather than legacy `export` for that format.
+`catalog` overrides both source language and language selection for a combined Xcode catalog. It also enables empty translations. `sheet` exports binary XLSX bytes to language-specific files; use `pull` for that format.
 
 ```sh
 sentiary-cli pull --output website --output catalog --output sheet

@@ -61,4 +61,4 @@ For a build that only needs generic/Xcode files, apply the settings plugin with 
 sentiary-cli pull --output ios
 ```
 
-Run that before the Xcode build and register the catalog in its target. It is not a Gradle resource staging binding. See [CI caching](../configuration/downloads.md#ci-caching) for export-cache storage and [migration](../migration.md) for old-task and ownership differences.
+Run that before the Xcode build and register the catalog in its target. It is not a Gradle resource staging binding. See [CI caching](../configuration/downloads.md#ci-caching) for export-cache storage and [file adoption](../configuration/downloads.md#ownership-and-adoption) for existing destinations.

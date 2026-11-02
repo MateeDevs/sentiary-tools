@@ -34,19 +34,25 @@ nginx serves `.txt` as `text/plain` and `.md` as `text/markdown`, both with UTF-
 
 ## Source inventory and coverage
 
+Describe current behavior, supported versions, configuration, and recovery steps.
+Do not include release history, migration comparisons, or implementation chronology.
+Keep quickstarts focused on a working path, validation rules in references, and
+framework workarounds in troubleshooting. Link to the authoritative credential
+rules instead of repeating their priority in each guide.
+
 | Source | Site coverage / maintenance action |
 | --- | --- |
 | `go/internal/frontend/cli/app.go`, `management.go` | [Every command and flag](../cli/reference.md); include helper-registered flags |
 | `go/internal/frontend/cli/init.go`, `pull.go` | Wizard and pull behavior; shared option table in CLI reference |
 | `go/cmd/sentiary-cli/main.go`, `go/internal/buildinfo` | Version forms, handshake, exit codes |
-| `go/internal/sentiary/config.go`, `client.go`, `client_management.go`, `models.go` | Environment fallbacks, legacy format restrictions, required fields, accepted role/filter/order values |
+| `go/internal/sentiary/config.go`, `client.go`, `client_management.go`, `models.go` | Environment fallbacks, API command format restrictions, required fields, accepted role/filter/order values |
 | `go/internal/configfile/config.go` | [Every TOML field](../configuration/reference.md), inheritance, discovery, unknown-field rejection |
 | `go/internal/download/plan.go` | Format inventory, language selection, alias and path validation |
 | `go/internal/download/snapshot.go`, `go/internal/exportcache/cache.go` | Completed sets, revisions, cache identity, offline and failure semantics |
 | `go/internal/fileoutput/store.go` | Ownership, cleanup, locks, adoption, partial-write guarantees |
 | `go/install.sh`, `go/install.ps1`, `.github/workflows/release.yml`, `go/go.mod` | [Installation](../getting-started/installation.md), targets, checksum manifest and toolchain |
 | `go/internal/frontend/cli/integration.go`, preview/result structs in `pull.go` | [Protocol](../integration/protocol.md), downloadable schema bundle |
-| `plugins/sentiary/` build, extension, tasks, source and tests | [Gradle reference](../gradle/index.md) and [migration](../migration.md) |
+| `plugins/sentiary/` build, extension, tasks, source and tests | [Gradle reference](../gradle/index.md) and [build guides](../gradle/guides.md) |
 
 When commands change, enumerate command registrations and run every command with `--help` without credentials. Compare flags, types, defaults, required validation, environment fallbacks, repeatability, and examples. Help alone does not expose validations or API-only restrictions. Check the source as well. Never run mutating command examples against an account just to check syntax.
 
@@ -108,4 +114,4 @@ On Windows the built executable needs a `.exe` suffix. Add `GOBIN` or the Go wor
 
 - [CLI integration protocol](../integration/protocol.md)
 - [Download and cache internals](../configuration/internals.md)
-- [Gradle release operations](releases.md)
+- [Publishing the CLI and Gradle plugin](releases.md)
