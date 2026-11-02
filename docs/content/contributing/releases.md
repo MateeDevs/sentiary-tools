@@ -39,6 +39,22 @@ Current limitations include one binding per source set/kind/module, Android appl
 - Structured plural import, Apple plural assembly, English-source coverage validation,
   and Android resource-attribute preservation remain outside this release.
 
+### Backend resource-export compatibility correction
+
+The backend correction uses one XMLUtil writer and the same legacy text
+transformations for Android/Compose strings and plural items. It supersedes the
+original plural plan's stricter placeholder policy: mixed numbered/unnumbered and
+relative arguments are no longer rejected. Compose still numbers only unnumbered
+`%s` and `%d`; this is not general width/precision normalization, and mixed numbering
+can collide. See the [formatting limits](../configuration/reference.md#selection-required-translations-and-plurals).
+Plural structural validation and ordinary mixed-case/dotted keys remain unchanged.
+
+No new CLI/plugin version, config field, cache deletion, or `--force` is required.
+CLI/plugin 2.1.0 remain compatible. Deployment can change export bytes and ETags;
+offline pulls still restore the exact cached bytes rather than regenerating XML.
+This note describes the backend correction, not a new tools release or a deployment
+confirmation.
+
 ### Publication checklist
 
 1. Run Go tests/vet, plugin integration tests/lint/validation, and strict documentation builds.

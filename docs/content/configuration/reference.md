@@ -142,12 +142,19 @@ Each emitted group needs nonblank `other`. Empty optional groups are omitted
 with `include_empty = false`; nonempty groups without usable `other` fail.
 With `include_empty = true`, an empty `other` still fails. Required plurals need
 `other` in every language, not identical quantity sets. No language fallback or
-cross-quantity argument compatibility check is performed. In plural-enabled outputs,
-Compose numbers
-unambiguous unnumbered placeholders while preserving argument types and explicit
-positions. Mixed numbered/unnumbered or relative format arguments fail. The
-application passes the count for quantity selection separately from format arguments.
-Without plural bases, existing string-export placeholder handling remains unchanged.
+cross-quantity argument compatibility check is performed. Ordinary strings and
+plural items use the same legacy platform transformations and shared XMLUtil writer.
+Android and Compose convert `%@` to `%s`, including explicit positions such as
+`%1$@`. Compose numbers unnumbered `%s` and `%d` in encounter order, leaving explicit
+positions unchanged. Mixed numbered/unnumbered and relative (`%<s`) arguments are
+not rejected. This is not a full Formatter parser: width and precision are not
+generally normalized, and mixed numbering can produce position collisions.
+Backend acceptance does not guarantee target-framework compatibility.
+Platform escaping remains separate from XML attribute/value escaping.
+The application passes the count for quantity selection separately from format arguments.
+Plural assembly changes structure, not placeholder rules. Ordinary mixed-case and
+dotted keys remain unchanged; only declared plural bases have the naming restriction.
+Without plural bases, dotted terms remain ordinary strings.
 Structured plural import and Apple plural assembly remain unsupported.
 
 All configured pulls require the backend POST resource export endpoint, including
