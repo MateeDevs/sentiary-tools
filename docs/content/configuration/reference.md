@@ -31,7 +31,7 @@ All TOML fields are listed below. Unknown fields, invalid TOML, and unsupported 
 | Field | Type | Required | Default / behavior | Example |
 | --- | --- | --- | --- | --- |
 | `id` | string | Yes | Nonempty existing Sentiary project ID | `id = "PROJECT_ID"` |
-| `api_key` | string or table | No | Literal credential fallback, or explicit environment reference (unreleased); reference table must contain only a string `env` field | `api_key = "PROJECT_KEY"` or `api_key = { env = "SENTIARY_MOBILE_API_KEY" }` |
+| `api_key` | string or table | No | Literal credential or explicit environment reference; reference table must contain only a string `env` field | `api_key = "PROJECT_KEY"` or `api_key = { env = "SENTIARY_MOBILE_API_KEY" }` |
 | `languages` | array of strings or string `"*"` | Unless each output supplies it | Nonempty unique IDs, or all project languages | `languages = ["en", "cs"]` |
 | `source_language` | string | For combined output unless overridden | No default | `source_language = "en"` |
 | `include_empty` | boolean | No | `false` | `include_empty = false` |
@@ -103,7 +103,8 @@ Only `xcstrings` supports `combined`. That layout creates one catalog for all se
 
 ## Selection, required translations, and plurals
 
-These four options belong to each output, not the project. List paths resolve
+These four options belong to each output, not the project. They require CLI
+**v2.1.0 or newer** and a backend supporting POST resource exports. List paths resolve
 relative to the directory containing `sentiary.toml`, not the current working
 directory. Multiple outputs may reuse one list. Files use UTF-8, one literal key
 per line. Surrounding whitespace is trimmed and blank lines are ignored. There
@@ -141,10 +142,12 @@ Each emitted group needs nonblank `other`. Empty optional groups are omitted
 with `include_empty = false`; nonempty groups without usable `other` fail.
 With `include_empty = true`, an empty `other` still fails. Required plurals need
 `other` in every language, not identical quantity sets. No language fallback or
-cross-quantity argument compatibility check is performed. Compose numbers
+cross-quantity argument compatibility check is performed. In plural-enabled outputs,
+Compose numbers
 unambiguous unnumbered placeholders while preserving argument types and explicit
 positions. Mixed numbered/unnumbered or relative format arguments fail. The
 application passes the count for quantity selection separately from format arguments.
+Without plural bases, existing string-export placeholder handling remains unchanged.
 Structured plural import and Apple plural assembly remain unsupported.
 
 All configured pulls require the backend POST resource export endpoint, including
@@ -162,12 +165,13 @@ during sequential replacement still can leave partial changes.
 
 `sentiary.local.toml` is read beside the selected shared config, even when that config has another filename. It accepts one optional field, `user_api_key` (string, default empty), for example `user_api_key = "YOUR_USER_API_KEY"`. Copy the [local credential template](../examples/local-credentials.toml) to that filename and replace its placeholder; keep it out of source control. Unknown fields fail. It cannot override projects, outputs, server, or paths.
 
-### Project environment credentials (unreleased)
+### Project environment credentials
 
-CLI `v2.0.0` accepts only string `api_key` values and ignores `SENTIARY_PROJECT_API_KEY`
-for `pull`. **No released version contains this change yet.** Use a source build
-until the first supporting release is published. See [migration notes](../migration.md#project-credentials-unreleased)
-and the [Gradle executable override](../gradle/index.md#project-credentials-unreleased).
+CLI **v2.1.0 or newer** supports project environment references and the single-project
+`SENTIARY_PROJECT_API_KEY` pull fallback. Gradle plugin **2.1.0** installs CLI
+`v2.1.0` by default. No config or database migration is required. See the
+[credential priority notes](../migration.md#project-credentials-in-210) and
+[Gradle credential setup](../gradle/index.md#project-credentials).
 
 Download the [multi-project credential example](../examples/project-credentials.toml).
 Each project can choose a literal string or an environment reference:

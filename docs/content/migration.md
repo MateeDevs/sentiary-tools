@@ -34,18 +34,17 @@ Copy the [mobile example](examples/sentiary.toml) and replace IDs, languages, an
 
 Move personal credentials out of Gradle scripts. In CLI `v2.0.0`, online TOML
 precedence is user environment key, local user key, then shared project key;
-`SENTIARY_PROJECT_API_KEY` is ignored by pull. The unreleased changes below add
-project environment sources. Legacy API commands still do not read local TOML.
+`SENTIARY_PROJECT_API_KEY` is ignored by pull. Version 2.1.0 adds project
+environment sources. Legacy API commands still do not read local TOML.
 Check which credential will win before migration.
 
-## Project credentials (unreleased)
+## Project credentials in 2.1.0
 
-No released CLI version supports `api_key = { env = "NAME" }` yet; `v2.0.0`
-accepts only string values for `api_key`.
-Use a [source build](contributing/development.md#build-and-check) and the
-[Gradle executable override](gradle/index.md#project-credentials-unreleased) for
-evaluation. When this feature is released, pin the first supporting release tag
-explicitly; protocol 1 alone does not identify credential-field support.
+CLI v2.1.0 supports `api_key = { env = "NAME" }`. Plugin 2.1.0 installs this CLI
+by default; plugin 2.0.0 can select it with `-Psentiary.cliVersion=v2.1.0`.
+No configuration conversion, cache reset, or database migration is required.
+Existing literal `api_key` values remain supported. Review the priority below
+when multiple credential sources are available.
 
 **Behavior change:** configured pull now chooses project TOML `api_key` before
 local `user_api_key`, then single-project `SENTIARY_PROJECT_API_KEY`, then
@@ -58,7 +57,7 @@ Prefer per-project `api_key = { env = "NAME" }` references for multiple projects
 Replace the literal `api_key` value rather than adding a second definition. Explicit
 references override global user credentials and fail without fallback when missing
 or blank. Empty literals, unlike explicit references, allow fallback.
-See the [complete credential rules](configuration/reference.md#project-environment-credentials-unreleased)
+See the [complete credential rules](configuration/reference.md#project-environment-credentials)
 and [multi-project example](examples/project-credentials.toml).
 
 Plain string values remain literal, including strings containing `${NAME}` or

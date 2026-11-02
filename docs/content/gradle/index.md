@@ -3,7 +3,7 @@ tags:
   - Gradle
 ---
 
-# Gradle plugin 2.0
+# Gradle plugin 2.1
 
 ## Setup
 
@@ -18,7 +18,7 @@ pluginManagement {
     }
 }
 plugins {
-    id("com.sentiary.gradle") version "2.0.0"
+    id("com.sentiary.gradle") version "2.1.0"
 }
 ```
 
@@ -30,9 +30,9 @@ TOML owns project IDs, credentials, output formats/paths, language selection, al
 
 Term selection, required translations, and opt-in Android/Compose plurals also belong
 in [TOML output options](../configuration/reference.md#selection-required-translations-and-plurals).
-Use a CLI build supporting these fields and a backend with POST resource export;
-integration protocol 1 alone does not establish that support. No plugin upgrade or
-selector/transform DSL is required. Default resource folders still need explicit
+Plugin 2.1.0 installs CLI v2.1.0, which supports these fields. The backend must
+support POST resource exports. No selector/transform DSL is required.
+Default resource folders still need explicit
 `locale_map` entries. Separate outputs can emit English to both `en.lproj` and
 `Base.lproj`.
 
@@ -62,32 +62,21 @@ These are Gradle project properties, supplied with `-P` or `gradle.properties`. 
 | Property | Type | Required | Default | Behavior / example |
 | --- | --- | --- | --- | --- |
 | `sentiary.config` | string path | No | Empty | CLI discovery from build root; `-Psentiary.config=config/sentiary.toml` uses that path |
-| `sentiary.cliVersion` | string release tag | No | `v2.0.0` | Managed version; `[A-Za-z0-9][A-Za-z0-9._-]*`; e.g. `-Psentiary.cliVersion=v2.0.0` |
+| `sentiary.cliVersion` | string release tag | No | `v2.1.0` | Managed version; `[A-Za-z0-9][A-Za-z0-9._-]*`; e.g. `-Psentiary.cliVersion=v2.1.0` |
 | `sentiary.cliExecutable` | string path | No | Empty | Overrides managed CLI installation; absolute path or relative to build root, e.g. `-Psentiary.cliExecutable=/path/to/sentiary-cli` |
 
 An executable override takes precedence over `cliVersion` and bypasses managed-download checksum verification, but still undergoes protocol negotiation. There is no public checksum, installer URL, or CLI-install-cache directory override. `SENTIARY_USER_API_KEY`, local credentials, `SENTIARY_CACHE_DIR`, and `SENTIARY_BASE_URL` are inherited by the CLI process. The export cache is separate from the managed binary cache. TOML destinations remain relative to the config directory even when `sentiary.config` points below the build root; binding roots remain relative to the build root.
 
-## Project credentials (unreleased)
+## Project credentials
 
 The CLI resolves project credentials from TOML references and its inherited
 environment at task execution, including after Configuration Cache reuse. The
 plugin does not copy keys into task properties or integration request/result JSON.
-No credential extension or plugin production-code change is required.
-
-CLI `v2.0.0`, the current managed default, does not support `api_key` reference tables and does
-not use `SENTIARY_PROJECT_API_KEY` for pull. No supporting released version exists
-yet. Build the CLI from this checkout and use:
-
-```sh
-go -C go build -o ../bin/sentiary-cli ./cmd/sentiary-cli
-./gradlew -Psentiary.cliExecutable=/absolute/path/to/sentiary-tools/bin/sentiary-cli build
-```
-
-After the first supporting CLI release is published, set `sentiary.cliVersion` to
-that exact tag to use managed installation and checksum verification. Do not infer
-these options from the integration-protocol handshake. Follow the
-[credential migration notes](../migration.md#project-credentials-unreleased) before
-upgrading environments that already define `SENTIARY_PROJECT_API_KEY`.
+No credential extension is required. Use `api_key = { env = "VARIABLE_NAME" }`
+in each project or `SENTIARY_PROJECT_API_KEY` for a single-project configuration.
+Plugin 2.1.0 uses CLI v2.1.0 by default. Plugin 2.0.0 can also use the new CLI with
+`-Psentiary.cliVersion=v2.1.0`. The resource binding DSL is unchanged.
+See the [credential priority notes](../migration.md#project-credentials-in-210).
 
 ## Tasks and automatic build dependencies
 
@@ -126,7 +115,7 @@ Gradle `--offline` forwards CLI `--offline`. It also needs a complete matching e
 | Android Gradle Plugin | 9.0.0 (compile SDK 36) |
 | Kotlin for consuming projects | 2.3.20 |
 | Compose Multiplatform | 1.10.3 |
-| Sentiary CLI | 2.0, integration protocol 1 |
+| Sentiary CLI | 2.1.0, integration protocol 1 |
 
 Use this supported framework combination; other framework versions are not covered by this guide. Configuration Cache and Isolated Projects are supported. Online pulls still run to check freshness when Gradle reuses configuration.
 

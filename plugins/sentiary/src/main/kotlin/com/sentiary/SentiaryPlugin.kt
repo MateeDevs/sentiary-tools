@@ -54,7 +54,7 @@ class SentiaryPlugin : Plugin<Settings> {
                         .resolve("caches/sentiary/cli")
                         .absolutePath,
                     settings.providers.gradleProperty("sentiary.config").orNull,
-                    settings.providers.gradleProperty("sentiary.cliVersion").getOrElse("v2.0.0"),
+                    settings.providers.gradleProperty("sentiary.cliVersion").getOrElse("v2.1.0"),
                     settings.providers.gradleProperty("sentiary.cliExecutable").orNull,
                     settings.gradle.startParameter.isOffline,
                     bindings,

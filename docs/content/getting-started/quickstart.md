@@ -17,10 +17,10 @@ The directory must already exist. The wizard asks for project aliases, IDs, lang
 
 The defaults produce Android/Compose paths under `build/sentiary/`, or a combined `Localizable.xcstrings`. Generic formats require an explicit path. The preview redacts project keys and requires a final `y` before writing. Saving a project key from `SENTIARY_PROJECT_API_KEY` in shared TOML or a user key from `SENTIARY_USER_API_KEY` in local TOML requires explicit opt-in. The default uses environment credentials. New config files use mode `0600` where supported. Ignore entries for `sentiary.local.toml` and `.sentiary/` are offered by default.
 
-The wizard is unchanged. The unreleased CLI also supports secret-free project
+The wizard is unchanged. CLI v2.1.0 also supports secret-free project
 environment references and a single-project `SENTIARY_PROJECT_API_KEY` pull
-shorthand; released CLI `v2.0.0` does not. See the
-[credential rules and version requirement](../configuration/reference.md#project-environment-credentials-unreleased)
+shorthand. See the
+[credential rules](../configuration/reference.md#project-environment-credentials)
 before mixing project and user credential sources.
 
 Alternatively, copy a [mobile configuration](../examples/sentiary.toml), replace project IDs, and edit languages and paths. Do not commit personal credentials. The local supplement supports only `user_api_key`.

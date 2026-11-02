@@ -41,7 +41,6 @@ plural_bases_file = "plurals.txt"
 			content = "changed bytes that must never reach the destination"
 		}
 		response := textResponse(request, content)
-		response.Header.Set("X-Sentiary-Export-Capability", "resource-export-v1")
 		return response, nil
 	})
 	for _, name := range []string{"keys.txt", "required.txt", "plurals.txt"} {

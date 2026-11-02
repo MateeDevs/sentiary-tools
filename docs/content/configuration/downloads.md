@@ -53,8 +53,8 @@ Cached exports are scoped to the server, project, format, layout, languages, sou
 
 Credential values and source names are not part of export identity. Rotating a key
 or switching between inline, user, or project environment credentials preserves
-matching cached exports. [Project environment credentials](reference.md#project-environment-credentials-unreleased)
-are currently unreleased; the existing CLI 2.0 credential rules still apply to released binaries.
+matching cached exports. [Project environment credentials](reference.md#project-environment-credentials)
+are supported from CLI v2.1.0.
 
 ## Offline restoration
 

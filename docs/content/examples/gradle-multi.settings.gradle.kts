@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 plugins {
-    id("com.sentiary.gradle") version "2.0.0"
+    id("com.sentiary.gradle") version "2.1.0"
 }
 rootProject.name = "sentiary-multi-example"
 include(":app", ":library")

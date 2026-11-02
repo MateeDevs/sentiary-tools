@@ -10,11 +10,13 @@ The implementation uses isolated lifecycle actions and task execution for CLI/co
 
 For Isolated Projects with the matrix Compose version, set `org.jetbrains.compose.hot.reload.disable=true`. The fixtures also set `kotlin.internal.collectFUSMetrics=false` to avoid a Kotlin statistics build-service classloader conflict. Use the [canonical evaluation properties](../examples/gradle-evaluation.properties) as a starting point and replace its executable placeholder.
 
-Version 2.0.0 was published after the backend export-cache rollout and migration through 6, authenticated export/state protocol 1 verification, and publication and verification of the CLI `v2.0.0` binaries and `SHA256SUMS`. For future releases, preserve this order: backend compatibility, CLI assets, asset verification, then plugin publication.
+Release in this order: backend compatibility, CLI assets, asset verification, then
+plugin publication. Version 2.1.0 requires no new database or client migration.
+Configured pull requires POST resource exports; verify the backend before publishing.
 
 Current limitations include one binding per source set/kind/module, Android application/library plugins only, no Android test-source bindings, no generic/combined resource adapter, no public managed-checksum override, and framework API compatibility tied to the adapters above. The [integration protocol](../integration/protocol.md) remains a separate machine interface.
 
-## Unreleased CLI notes: project credentials
+## CLI and plugin 2.1.0
 
 - Extend `projects.NAME.api_key` to accept a literal string or `{ env = "NAME" }`
   for explicit, independently resolved project environment credentials. Strings
@@ -31,10 +33,22 @@ Current limitations include one binding per source set/kind/module, Android appl
   export-cache identity and plugin task properties.
 - `init` and legacy API command credential selection are unchanged.
 
-No release includes this feature yet. Before publishing, record the actual first
-supporting CLI tag in configuration, migration, and Gradle documentation; verify
-its assets before recommending managed `sentiary.cliVersion` installation. Do not
-claim that the existing `v2.0.0` binaries support these fields.
+- Add output-level exact-key/context selection, required translations, and opt-in
+  Android/Compose dotted-key plural assembly. CLI v2.1.0 is the first supporting release.
+- Plugin 2.1.0 pins managed CLI v2.1.0. The binding DSL and integration protocol remain unchanged.
+- Structured plural import, Apple plural assembly, English-source coverage validation,
+  and Android resource-attribute preservation remain outside this release.
+
+### Publication checklist
+
+1. Run Go tests/vet, plugin integration tests/lint/validation, and strict documentation builds.
+2. Deploy and verify the backend POST export contract, including validation and conditional responses.
+3. Push the CLI release tag `v2.1.0`. The release workflow publishes CLI/MCP assets, not the plugin.
+4. Verify the published binaries, their version, and `SHA256SUMS`.
+5. Publish the plugin separately using `./plugins/gradlew -p plugins :sentiary:publishPlugins`.
+   Supply Gradle Plugin Portal credentials through the normal local/CI secret configuration.
+6. Verify plugin marker and implementation coordinates and the pinned CLI version.
+7. Confirm production documentation and publish the maintainer-facing report.
 
 ## Monorepo development
 
@@ -50,9 +64,9 @@ pluginManagement {
 plugins { id("com.sentiary.gradle") }
 ```
 
-The implementation coordinates are `com.sentiary:sentiary:2.0.0` (previous artifact:
+The implementation coordinates are `com.sentiary:sentiary:2.1.0` (previous artifact:
 `com.sentiary:gradle-plugin`). The plugin marker remains
-`com.sentiary.gradle:com.sentiary.gradle.gradle.plugin:2.0.0` and references the new
+`com.sentiary.gradle:com.sentiary.gradle.gradle.plugin:2.1.0` and references the new
 implementation. From the repository root, generate both POMs locally without publishing:
 
 ```sh
@@ -67,4 +81,5 @@ branch `staging`, commit `7d4902adfc6a37519fe11f7315bd16a29d577c27`.
 Only tracked files were imported. `gradle-plugin/` became `plugins/sentiary/`; the wrapper,
 version catalog, and shared Gradle configuration live in `plugins/`.
 The original plugin license is retained at `plugins/sentiary/LICENSE`.
-Plugin ID, implementation class, packages, and version `2.0.0` are unchanged.
+The imported plugin retained its ID, implementation class, packages, and version
+`2.0.0`. The current release is 2.1.0.

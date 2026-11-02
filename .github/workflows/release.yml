@@ -157,13 +157,21 @@ jobs:
 
             The installers support AMD64 and ARM64 on macOS, Linux, and Windows.
 
-            Set your personal API key before you run a command:
+            For configured pulls, reference each project's environment credential in `sentiary.toml`:
 
-            ```sh
-            export SENTIARY_USER_API_KEY="your-personal-api-key"
+            ```toml
+            [projects.mobile]
+            id = "PROJECT_ID"
+            api_key = { env = "SENTIARY_MOBILE_API_KEY" }
             ```
 
-            Keep this key private. The CLI uses your Sentiary account and permissions.
+            Set that variable securely in your shell or CI. Keep keys out of tracked configuration.
+            Single-project pulls can also use `SENTIARY_PROJECT_API_KEY`.
+
+            This release adds output-level key/context selection, required translations,
+            and opt-in Android/Compose plurals. See the [configuration reference](https://docs.sentiary.com/configuration/reference/).
+            Configured pull requires a backend supporting POST resource exports.
+            Gradle plugin 2.1.0 pins CLI v2.1.0 and is published separately.
 
             ## Agent skills
 
