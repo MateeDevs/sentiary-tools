@@ -46,7 +46,7 @@ func (app *App) runPull(ctx context.Context, args []string) (err error) {
 	if *offline {
 		config, err = configfile.LoadOffline(*configPath, directory)
 	} else {
-		config, err = configfile.Load(*configPath, directory, os.Getenv)
+		config, err = configfile.Load(*configPath, directory, app.CredentialEnvironment.Get)
 	}
 	if err != nil {
 		return err

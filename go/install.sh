@@ -87,11 +87,24 @@ else
 fi
 
 install_path="$install_dir/$BINARY"
-cp "$source_binary" "$install_path"
-chmod +x "$install_path"
+prepared="$(mktemp "$install_dir/.sentiary-install.XXXXXX")"
+prepared_marker=""
+trap 'rm -rf "$tmp_dir"; rm -f "$prepared"; if [ -n "$prepared_marker" ]; then rm -f "$prepared_marker"; fi' EXIT INT TERM
+cp "$source_binary" "$prepared"
+chmod 755 "$prepared"
+if command -v sha256sum >/dev/null 2>&1; then
+  binary_checksum="$(sha256sum "$prepared" | awk '{print $1}')"
+else
+  binary_checksum="$(shasum -a 256 "$prepared" | awk '{print $1}')"
+fi
+prepared_marker="$(mktemp "$install_dir/.sentiary-owned.XXXXXX")"
+printf '%s\n' "$binary_checksum" > "$prepared_marker"
+chmod 600 "$prepared_marker"
+mv -f "$prepared" "$install_path"
+mv -f "$prepared_marker" "$install_path.sentiary-owned"
 
 if command -v "$install_path" >/dev/null 2>&1; then
-  version="$($install_path --version 2>/dev/null || true)"
+  version="$("$install_path" --version 2>/dev/null || true)"
 else
   version=""
 fi

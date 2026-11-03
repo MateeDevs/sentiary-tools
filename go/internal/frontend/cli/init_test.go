@@ -77,3 +77,36 @@ func TestInitCredentialsRedactedAndIgnorePreserved(t *testing.T) {
 		t.Fatal("overwrote config")
 	}
 }
+
+func TestInitDotenvProjectKeyWritesOnlyEnvironmentReference(t *testing.T) {
+	t.Setenv("SENTIARY_PROJECT_API_KEY", "")
+	if err := os.Unsetenv("SENTIARY_PROJECT_API_KEY"); err != nil {
+		t.Fatal(err)
+	}
+	directory := t.TempDir()
+	app := New(nil)
+	app.CredentialEnvironment = CredentialEnvironment{values: map[string]string{"SENTIARY_PROJECT_API_KEY": "dotenv-secret-project"}}
+	app.Stdin = strings.NewReader("app\np1\nen\ny\nweb\njson\nweb/{language}.json\nn\nn\nn\ny\ny\n")
+	var output bytes.Buffer
+	app.Stdout, app.Stderr = &output, &output
+	if err := app.Run(context.Background(), []string{"init", "--directory", directory}); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(directory, "sentiary.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "dotenv-secret") || strings.Contains(output.String(), "dotenv-secret") {
+		t.Fatal("dotenv credential escaped into config or output")
+	}
+	config, err := configfile.Load("", directory, app.CredentialEnvironment.Get)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.Projects["app"].APIKey != "dotenv-secret-project" || !strings.Contains(string(data), "env = 'SENTIARY_PROJECT_API_KEY'") {
+		t.Fatalf("expected functional environment reference, config: %s", data)
+	}
+	if !strings.Contains(output.String(), "--env-file again") {
+		t.Fatal("missing future-invocation instructions")
+	}
+}

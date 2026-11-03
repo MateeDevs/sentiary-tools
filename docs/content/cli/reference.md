@@ -15,7 +15,17 @@ Use [mobile downloads](mobile.md) for Android, Compose, and Xcode examples. The 
 
 ## Invocation, credentials, and streams
 
-Use `sentiary-cli COMMAND [OPTIONS]`. All options below belong after the command. There are no global credential, server, or JSON switches. Go flag syntax accepts `--flag=value` and `--flag value` (also single-dash forms). Boolean flags accept `--flag` for true or `--flag=false`; do not use a separate boolean word. Positional arguments are rejected. Scalar options may be repeated, with the last value winning; only `pull --output` accumulates multiple values. Comma-separated language lists are one scalar option.
+Use `sentiary-cli COMMAND [OPTIONS]`. All options below belong after the command. There are no global server or JSON switches. Go flag syntax accepts `--flag=value` and `--flag value` (also single-dash forms). Boolean flags accept `--flag` for true or `--flag=false`; do not use a separate boolean word. Positional arguments are rejected. Scalar options may be repeated, with the last value winning; only `pull --output` accumulates multiple values. The credential-only `--env-file` option is an exception: repeated selections are rejected. Comma-separated language lists are one scalar option.
+
+### Explicit dotenv credentials
+
+Use `sentiary-cli pull --env-file .env.local` to read exactly one explicit dotenv file relative to the current directory. There is no automatic file discovery. The CLI accepts `--env-file PATH` or `--env-file=PATH`. Missing, unreadable, and malformed selected files fail even when process credentials are already present. Help, version, update, and offline pull do not read the file.
+
+Process environment variables take precedence, including explicitly empty values. Dotenv only supplies credential variables: `SENTIARY_USER_API_KEY`, `SENTIARY_PROJECT_API_KEY`, and arbitrary names referenced by TOML `api_key = { env = "NAME" }`. Existing credential tier precedence is unchanged. Dotenv does not set the project ID, base URL, cache, or any other operational setting, and never modifies the process environment. This option is CLI-only, not an MCP or Gradle plugin setting.
+
+The HashiCorp `go-envparse` library supports assignments, optional `export`, single/double quotes, comments, and JSON escapes in double quotes. Duplicate names use the last assignment. Shell commands and variable expressions remain literal: there is no shell execution or interpolation. Its quoting and escape rules are not a full shell grammar.
+
+`init` never copies dotenv credentials or the dotenv path into generated TOML. When a project key comes from dotenv, it offers an environment reference instead. Supply `--env-file` again on later commands. Saving a raw process-environment key remains an explicit opt-in. Keep credential files out of source control.
 
 `SENTIARY_BASE_URL` optionally overrides the default `https://api.sentiary.com` for API commands and online pulls; it also scopes the export cache. All API commands require `SENTIARY_USER_API_KEY`; project commands use `--project-id` then `SENTIARY_PROJECT_ID`. They do not load TOML or project keys. Authorization and project-role requirements are enforced by the API: a user key does not grant access beyond its owner's permissions. `pull` instead uses [TOML credential precedence](../configuration/reference.md#local-supplement-and-credentials). `init`, help, and version need no network credentials; offline pull needs none.
 
@@ -24,6 +34,10 @@ Management and string commands write indented JSON to stdout, including mutation
 Exit `0` means success/help/version; `2` means a CLI usage error (unknown command/flag, missing CLI-required option, unexpected positional argument, invalid version arguments); `1` means another failure, including config, authentication, API, filesystem, cancellation, or init cancellation. Some required values are checked by the API client and therefore produce `1`, not `2`. A nonzero pull has no successful JSON result; check exit status before parsing stdout.
 
 Examples use placeholder IDs and credentials. Commands that create, edit, remove, invite, import, or set translations mutate remote data and run without a confirmation prompt. Help examples are safe locally.
+
+## update
+
+`sentiary-cli update` checks the latest stable official release immediately and asks before installation. Use `--check` for a check without a prompt or installation. Use `--yes` to approve installation noninteractively; without it, a noninteractive installation request fails with instructions. Explicit requests work in CI and ignore automatic update preferences, but still require a stable build and verified installer ownership for replacement. Declining succeeds; explicit update failures return exit code `1`. See [update checks and installer safety](../getting-started/installation.md#upgrade-and-inspect).
 
 ## Common help and version options
 

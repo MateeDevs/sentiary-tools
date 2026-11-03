@@ -69,16 +69,27 @@ func (app *App) runInit(ctx context.Context, args []string) error {
 			return err
 		}
 		project := map[string]any{"id": id, "languages": selection}
-		saveKey, err := ask("Save SENTIARY_PROJECT_API_KEY in shared TOML? [y/N]")
+		prompt := "Save SENTIARY_PROJECT_API_KEY in shared TOML? [y/N]"
+		_, processProjectKey := os.LookupEnv("SENTIARY_PROJECT_API_KEY")
+		dotenvProjectKey := !processProjectKey && app.CredentialEnvironment.values["SENTIARY_PROJECT_API_KEY"] != ""
+		if dotenvProjectKey {
+			prompt = "Reference SENTIARY_PROJECT_API_KEY from the environment in shared TOML? [y/N]"
+			fmt.Fprintln(app.Stderr, "Use --env-file again on subsequent commands; dotenv credentials are never copied into TOML.")
+		}
+		saveKey, err := ask(prompt)
 		if err != nil {
 			return err
 		}
 		if strings.EqualFold(saveKey, "y") {
-			key := os.Getenv("SENTIARY_PROJECT_API_KEY")
-			if key == "" {
-				return errors.New("set SENTIARY_PROJECT_API_KEY before choosing to store it")
+			if dotenvProjectKey {
+				project["api_key"] = map[string]string{"env": "SENTIARY_PROJECT_API_KEY"}
+			} else {
+				key := os.Getenv("SENTIARY_PROJECT_API_KEY")
+				if key == "" {
+					return errors.New("set SENTIARY_PROJECT_API_KEY before choosing to store it")
+				}
+				project["api_key"] = key
 			}
-			project["api_key"] = key
 		}
 		projects[alias] = project
 		for {

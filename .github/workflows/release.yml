@@ -168,10 +168,22 @@ jobs:
             Set that variable securely in your shell or CI. Keep keys out of tracked configuration.
             Single-project pulls can also use `SENTIARY_PROJECT_API_KEY`.
 
-            This release adds output-level key/context selection, required translations,
-            and opt-in Android/Compose plurals. See the [configuration reference](https://docs.sentiary.com/configuration/reference/).
-            Configured pull requires a backend supporting POST resource exports.
-            Gradle plugin 2.1.0 pins CLI v2.1.0 and is published separately.
+            ## What's new in v2.2.0
+
+            - Explicit `--env-file PATH` supplies dotenv credentials without automatic discovery,
+              process environment mutation, shell execution, or copying dotenv secrets into TOML.
+              Process credentials retain precedence, including explicitly empty values.
+            - `sentiary-cli update` supports immediate checks and approved updates. Interactive
+              init/online pull commands can offer cached updates with remind/skip choices;
+              background checks run at most daily. CI, noninteractive, JSON, offline,
+              development, and staging commands do not auto-update.
+            - Official installers record binary ownership. Self-replacement requires a matching
+              ownership record and verifies release checksums; legacy installations must reinstall
+              once. No elevation is requested. Installation docs include copy-and-run commands.
+
+            Existing export contracts and integration protocol 1 remain unchanged.
+            Gradle plugin 2.1.0 is unchanged, still pins CLI v2.1.0, and is not published by this release.
+            MCP binaries are included with the same version; dotenv and self-update are CLI-only.
 
             ## Agent skills
 

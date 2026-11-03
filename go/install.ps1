@@ -41,6 +41,7 @@ try {
     $actual = (Get-FileHash -Algorithm SHA256 -Path $temporaryPath).Hash
     if ($actual -ine $expected) { throw "Binary checksum mismatch" }
     Move-Item -Force -Path $temporaryPath -Destination $installPath
+    [IO.File]::WriteAllText("$installPath.sentiary-owned", $actual.ToLowerInvariant() + "`n")
 } finally {
     if (Test-Path $temporaryPath) {
         Remove-Item -Force $temporaryPath

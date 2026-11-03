@@ -30,14 +30,15 @@ func IsUsageError(err error) bool {
 }
 
 type App struct {
-	DownloadServer string
-	Downloads      download.Repository
-	API            sentiary.API
-	Stdin          io.Reader
-	Stdout         io.Writer
-	Stderr         io.Writer
-	ReadFile       func(string) ([]byte, error)
-	WriteFile      func(string, []byte, os.FileMode) error
+	CredentialEnvironment CredentialEnvironment
+	DownloadServer        string
+	Downloads             download.Repository
+	API                   sentiary.API
+	Stdin                 io.Reader
+	Stdout                io.Writer
+	Stderr                io.Writer
+	ReadFile              func(string) ([]byte, error)
+	WriteFile             func(string, []byte, os.FileMode) error
 }
 
 func New(api sentiary.API) *App {
@@ -525,8 +526,10 @@ Commands:
   init                    Create a config for existing projects.
   pull                    Download configured translation outputs.
   import                  Import project strings.
+  update                  Check for or approve an official CLI update.
 
 Run sentiary-cli <command> --help for command options.`)
+	_, _ = fmt.Fprintln(app.Stderr, "Use --env-file PATH once to supply credential variables from an explicit dotenv file.")
 }
 
 func require(name string, value string) error {

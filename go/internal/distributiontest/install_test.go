@@ -11,6 +11,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/MateeDevs/sentiary-tools/go/internal/updates"
 )
 
 func TestShellInstallerChecksPinnedReleaseChecksum(t *testing.T) {
@@ -22,11 +24,18 @@ func TestShellInstallerChecksPinnedReleaseChecksum(t *testing.T) {
 			root := t.TempDir()
 			mock := filepath.Join(root, "bin")
 			fixture := filepath.Join(root, "fixture")
-			install := filepath.Join(root, "install")
-			for _, path := range []string{mock, fixture} {
+			install := filepath.Join(root, "install with spaces")
+			for _, path := range []string{mock, fixture, install} {
 				if err := os.MkdirAll(path, 0755); err != nil {
 					t.Fatal(err)
 				}
+			}
+			markerTarget := filepath.Join(root, "unrelated-file")
+			if err := os.WriteFile(markerTarget, []byte("preserve me"), 0600); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink(markerTarget, filepath.Join(install, "sentiary-cli.sentiary-owned")); err != nil {
+				t.Fatal(err)
 			}
 			arch := runtime.GOARCH
 			asset := "sentiary-cli-" + runtime.GOOS + "-" + arch
@@ -69,12 +78,21 @@ cp "$SENTIARY_INSTALL_FIXTURE/$name" "$4"
 			command := exec.Command("sh", "../../install.sh", "v2.0.0")
 			command.Env = append(os.Environ(), "SENTIARY_VERSION=", "INSTALL_DIR="+install, "PATH="+mock+string(os.PathListSeparator)+os.Getenv("PATH"), "SENTIARY_INSTALL_FIXTURE="+fixture)
 			output, err := command.CombinedOutput()
+			if target, readErr := os.ReadFile(markerTarget); readErr != nil || string(target) != "preserve me" {
+				t.Fatal("installer modified ownership symlink target")
+			}
 			if valid {
 				if err != nil {
 					t.Fatalf("install: %v: %s", err, output)
 				}
 				if _, err := os.Stat(filepath.Join(install, "sentiary-cli")); err != nil {
 					t.Fatal(err)
+				}
+				if !updates.Owned(filepath.Join(install, "sentiary-cli")) {
+					t.Fatal("installer did not record matching binary ownership")
+				}
+				if !strings.Contains(string(output), "Version: fixture-version") {
+					t.Fatal("installer did not execute binary from a path containing spaces")
 				}
 			} else {
 				if err == nil || !strings.Contains(string(output), "checksum mismatch") {
