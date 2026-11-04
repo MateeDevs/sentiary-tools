@@ -74,7 +74,7 @@ jobs:
           cache-dependency-path: go/go.sum
           cache: true
 
-      - name: Build CLI and MCP
+      - name: Build CLI
         shell: bash
         env:
           CGO_ENABLED: "0"
@@ -84,15 +84,10 @@ jobs:
         run: |
           mkdir -p dist
           cli_binary="sentiary-cli-${GOOS}-${GOARCH}${{ matrix.extension }}"
-          mcp_binary="sentiary-mcp-server-${GOOS}-${GOARCH}${{ matrix.extension }}"
           go -C go build -trimpath \
             -ldflags="-s -w -X github.com/MateeDevs/sentiary-tools/go/internal/buildinfo.Version=${VERSION}" \
             -o "../dist/${cli_binary}" \
             ./cmd/sentiary-cli
-          go -C go build -trimpath \
-            -ldflags="-s -w -X github.com/MateeDevs/sentiary-tools/go/internal/buildinfo.Version=${VERSION}" \
-            -o "../dist/${mcp_binary}" \
-            ./cmd/sentiary-mcp
 
       - name: Package downloads
         shell: bash
@@ -101,8 +96,6 @@ jobs:
           if [ "${{ matrix.goos }}" != "windows" ]; then
             tar -czf "sentiary-cli-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" \
               "sentiary-cli-${{ matrix.goos }}-${{ matrix.goarch }}"
-            tar -czf "sentiary-mcp-server-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" \
-              "sentiary-mcp-server-${{ matrix.goos }}-${{ matrix.goarch }}"
           fi
 
       - name: Upload downloads
@@ -138,7 +131,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.version }}
-          name: Sentiary CLI and MCP ${{ needs.prepare.outputs.version }}
+          name: Sentiary CLI ${{ needs.prepare.outputs.version }}
           target_commitish: ${{ github.sha }}
           body: |
             ## CLI
@@ -183,12 +176,11 @@ jobs:
 
             Existing export contracts and integration protocol 1 remain unchanged.
             Gradle plugin 2.1.0 is unchanged, still pins CLI v2.1.0, and is not published by this release.
-            MCP binaries are included with the same version; dotenv and self-update are CLI-only.
+            The MCP server has been removed. Existing MCP clients should migrate to the CLI.
 
             ## Agent skills
 
             - [Sentiary CLI skill](https://github.com/MateeDevs/sentiary-tools/tree/main/.agents/skills/sentiary-cli)
-            - [Sentiary MCP skill](https://github.com/MateeDevs/sentiary-tools/tree/main/.agents/skills/sentiary-mcp)
           generate_release_notes: true
           make_latest: true
           files: |

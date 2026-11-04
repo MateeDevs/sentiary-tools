@@ -20,8 +20,7 @@ type integrationBinding struct {
 	ResourceRoot string `json:"resourceRoot"`
 }
 type integrationRequest struct {
-	ProtocolVersion int                  `json:"protocolVersion"`
-	Bindings        []integrationBinding `json:"bindings"`
+	Bindings []integrationBinding `json:"bindings"`
 }
 
 func readIntegration(path string, config download.Config) (*integrationRequest, []string, error) {
@@ -40,9 +39,6 @@ func readIntegration(path string, config download.Config) (*integrationRequest, 
 	}
 	if err := decoder.Decode(new(any)); err != io.EOF {
 		return nil, nil, fmt.Errorf("invalid integration request trailer")
-	}
-	if request.ProtocolVersion != integrationProtocol {
-		return nil, nil, fmt.Errorf("unsupported integration protocol; expected 1")
 	}
 	var selected []string
 	seen := map[string]bool{}
@@ -89,6 +85,5 @@ type integrationFile struct {
 	Checksum string `json:"sha256"`
 }
 type integrationResult struct {
-	ProtocolVersion int               `json:"protocolVersion"`
-	Files           []integrationFile `json:"files"`
+	Files []integrationFile `json:"files"`
 }

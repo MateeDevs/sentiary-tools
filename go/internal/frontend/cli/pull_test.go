@@ -290,9 +290,8 @@ language_aliases = { sk = "cs" }
 
 func TestIntegrationRequestRejectsBeforeDestinationWrites(t *testing.T) {
 	for _, tc := range []struct{ name, body string }{
-		{"protocol", `{"protocolVersion":2,"bindings":[]}`},
-		{"format", `{"protocolVersion":1,"bindings":[{"output":"ios","format":"android","resourceRoot":"/tmp"}]}`},
-		{"unknown field", `{"protocolVersion":1,"bindings":[],"unknown":true}`},
+		{"format", `{"bindings":[{"output":"ios","format":"android","resourceRoot":"/tmp"}]}`},
+		{"unknown field", `{"bindings":[],"unknown":true}`},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			app, path, _ := pullApp(t, catalogConfig, func(*http.Request) (*http.Response, error) {
@@ -400,7 +399,7 @@ func TestIntegrationResourceRootRejectsBeforeTargetWrites(t *testing.T) {
 	cfg = strings.Replace(cfg, `generated/Localizable.xcstrings`, `generated/{language}/strings.xml`, 1)
 	app, path, _ := pullApp(t, cfg, func(request *http.Request) (*http.Response, error) { return textResponse(request, "bytes"), nil })
 	requestPath := filepath.Join(filepath.Dir(path), "request.json")
-	body, _ := json.Marshal(integrationRequest{ProtocolVersion: 1, Bindings: []integrationBinding{{Output: "ios", Format: "compose", ResourceRoot: filepath.Join(filepath.Dir(path), "different")}}})
+	body, _ := json.Marshal(integrationRequest{Bindings: []integrationBinding{{Output: "ios", Format: "compose", ResourceRoot: filepath.Join(filepath.Dir(path), "different")}}})
 	if err := os.WriteFile(requestPath, body, 0600); err != nil {
 		t.Fatal(err)
 	}

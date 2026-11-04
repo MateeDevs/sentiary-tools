@@ -27,7 +27,7 @@
 - **One configuration.** Download Android, Compose Multiplatform, and Xcode resources with a TOML config.
 - **Part of your build.** Generate and stage translations with the Gradle settings plugin.
 - **Ready offline.** Restore a previously downloaded export set without a network connection.
-- **Made for automation.** Manage projects, languages, and translations from the CLI or through hosted MCP.
+- **Made for automation.** Manage projects, languages, and translations from the CLI.
 
 ## Get started
 
@@ -45,6 +45,8 @@ sentiary-cli pull
 | --- | --- |
 | CLI | [Commands](https://docs.sentiary.com/cli/reference/) · [Configuration](https://docs.sentiary.com/configuration/reference/) · [Mobile apps](https://docs.sentiary.com/cli/mobile/) |
 | Gradle plugin | [Setup](https://docs.sentiary.com/gradle/) · [Android and Compose](https://docs.sentiary.com/gradle/guides/) |
-| AI assistants | [Hosted MCP](https://docs.sentiary.com/mcp/#hosted-mcp) · [CLI skill](.agents/skills/sentiary-cli/SKILL.md) · [MCP skill](.agents/skills/sentiary-mcp/SKILL.md) |
+| AI assistants | [CLI skill](.agents/skills/sentiary-cli/SKILL.md) |
+
+The MCP server has been removed. Existing MCP clients should migrate to the [CLI](https://docs.sentiary.com/getting-started/installation/); AI assistants can use the CLI skill above.
 
 [Development](https://docs.sentiary.com/contributing/development/) · [Documentation maintenance](https://docs.sentiary.com/contributing/documentation/) · [Troubleshooting](https://docs.sentiary.com/troubleshooting/)

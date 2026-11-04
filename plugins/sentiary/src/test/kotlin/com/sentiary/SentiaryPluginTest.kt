@@ -47,14 +47,14 @@ class SentiaryPluginTest {
             files=[]
             if '--integration-request' in sys.argv:
                 request=json.loads(pathlib.Path(sys.argv[sys.argv.index('--integration-request')+1]).read_text())
-                assert request['protocolVersion']==1
+                assert set(request)=={'bindings'}
                 for binding in request['bindings']:
                     path=pathlib.Path(binding['resourceRoot'])/'values'/'strings.xml'
                     path.parent.mkdir(parents=True,exist_ok=True)
                     content=('<resources><string name="remote">'+binding["output"]+'</string></resources>').encode()
                     path.write_bytes(content)
                     files.append({'output':binding['output'],'path':str(path),'sha256':hashlib.sha256(content).hexdigest()})
-            print(json.dumps({'protocolVersion':1,'files':files}))
+            print(json.dumps({'files':files}))
     """,
         ).apply { setExecutable(true) }
 
@@ -179,7 +179,7 @@ class SentiaryPluginTest {
                 (
                     System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
                         ?: (System.getProperty("user.home") + "/Library/Android/sdk")
-                ),
+                    ),
         )
         write(
             "gradle.properties",

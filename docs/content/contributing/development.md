@@ -8,7 +8,7 @@ Plugin integration fixtures also need Python 3 and Android SDK platform 36.
 
 | Directory | Contents |
 | --- | --- |
-| `go/` | CLI, hosted MCP service, shared API client, and installers |
+| `go/` | CLI, API client, and installers |
 | `plugins/` | Gradle build, wrapper, and version catalog |
 | `plugins/sentiary/` | Gradle settings plugin, available as `:sentiary` |
 | `docs/` | Documentation site configuration and public guides in `content/` |
@@ -16,12 +16,11 @@ Plugin integration fixtures also need Python 3 and Android SDK platform 36.
 
 ## Build and check
 
-Build both frontends:
+Build the CLI:
 
 ```sh
 mkdir -p bin
 go -C go build -o ../bin/sentiary-cli ./cmd/sentiary-cli
-go -C go build -o ../bin/sentiary-mcp ./cmd/sentiary-mcp
 ```
 
 Run Go checks and plugin integration fixtures from the repository root:
@@ -39,7 +38,7 @@ same checkout before running the plugin checks.
 
 ## Further reading
 
-- [CLI and hosted MCP](../mcp/index.md): authentication, server configuration, Docker, and tool reference.
+- [CLI reference](../cli/reference.md): authentication, commands, and flags.
 - [Documentation maintenance](documentation.md): preview, strict build, Markdown exports, and hosting.
 - [Publishing the CLI and Gradle plugin](releases.md): integration matrix, consumer builds, and publication.
 - [CLI integration protocol](../integration/protocol.md): the Gradle-to-CLI machine interface.

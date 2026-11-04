@@ -15,7 +15,7 @@ For Isolated Projects with the matrix Compose version, set `org.jetbrains.compos
 
 1. Run Go tests/vet, plugin integration tests/lint/validation, and strict documentation builds.
 2. Deploy and verify the backend POST export contract, including validation and conditional responses.
-3. Push the CLI release tag `vX.Y.Z` for the version being published. The release workflow publishes CLI/MCP assets, not the plugin.
+3. Push the CLI release tag `vX.Y.Z` for the version being published. The release workflow publishes CLI assets, not the plugin.
 4. Verify the published binaries, their version, and `SHA256SUMS`.
 5. Publish the plugin separately using `./plugins/gradlew -p plugins :sentiary:publishPlugins`.
    Supply Gradle Plugin Portal credentials through the normal local/CI secret configuration.

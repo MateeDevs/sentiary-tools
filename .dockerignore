@@ -11,7 +11,6 @@
 **/site
 bin
 /go/sentiary-cli
-/go/sentiary-mcp
 *.test
 coverage.out
 **/.DS_Store

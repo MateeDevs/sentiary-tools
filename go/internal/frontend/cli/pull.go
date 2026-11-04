@@ -129,7 +129,7 @@ func (app *App) runPull(ctx context.Context, args []string) (err error) {
 		return err
 	}
 	if *jsonOutput {
-		result := integrationResult{ProtocolVersion: integrationProtocol, Files: []integrationFile{}}
+		result := integrationResult{Files: []integrationFile{}}
 		for _, file := range downloaded {
 			result.Files = append(result.Files, integrationFile{file.Output, file.Path, download.Digest(file.Content)})
 		}

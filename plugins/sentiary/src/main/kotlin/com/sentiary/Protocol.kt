@@ -15,7 +15,7 @@ internal object Protocol {
             ),
         )
 
-    fun request(bindings: List<String>): String = """{"protocolVersion":1,"bindings":[${bindings.joinToString(",")}]}"""
+    fun request(bindings: List<String>): String = """{"bindings":[${bindings.joinToString(",")}]}"""
 
     fun checkVersion(json: String) {
         val version = JsonParser.parseString(json).asJsonObject
@@ -29,7 +29,6 @@ internal object Protocol {
         output: String,
     ): List<Pair<File, String>> {
         val result = JsonParser.parseString(json).asJsonObject
-        require(result.get("protocolVersion")?.asInt == 1) { "Unsupported Sentiary result protocol" }
         return result
             .getAsJsonArray("files")
             .map { it.asJsonObject }

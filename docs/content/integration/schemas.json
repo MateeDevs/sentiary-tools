@@ -22,9 +22,6 @@
     "request": {
       "type": "object",
       "properties": {
-        "protocolVersion": {
-          "const": 1
-        },
         "bindings": {
           "anyOf": [
             {
@@ -56,17 +53,11 @@
           ]
         }
       },
-      "required": [
-        "protocolVersion"
-      ],
       "additionalProperties": false
     },
     "result": {
       "type": "object",
       "properties": {
-        "protocolVersion": {
-          "const": 1
-        },
         "files": {
           "type": "array",
           "items": {
@@ -92,7 +83,6 @@
         }
       },
       "required": [
-        "protocolVersion",
         "files"
       ]
     },

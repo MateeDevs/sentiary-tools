@@ -1,7 +1,7 @@
 [project]
 site_url = "https://docs.sentiary.com/"
 site_name = "Sentiary documentation"
-site_description = "Get started with Sentiary: CLI, MCP, configuration, Gradle, and API guides"
+site_description = "Get started with Sentiary: CLI, configuration, Gradle, and API guides"
 docs_dir = "content"
 site_dir = "site"
 repo_url = "https://github.com/MateeDevs/sentiary-tools"
@@ -29,7 +29,6 @@ nav = [
     { "Setup and reference" = "gradle/index.md" },
     { "Android and Compose builds" = "gradle/guides.md" },
   ] },
-  { "MCP" = [{ "Hosted service and tools" = "mcp/index.md" }] },
   { "API" = [{ "Overview and authentication" = "api/index.md" }] },
   { "Integration" = [
     { "CLI protocol" = "integration/protocol.md" },
@@ -136,8 +135,7 @@ For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
   { "troubleshooting.md" = "Diagnose installation, configuration, download, and build failures." },
 ]
 
-"MCP and integration" = [
-  { "mcp/index.md" = "Hosted MCP authentication, deployment, and complete tool inventory." },
+"Integration" = [
   { "integration/protocol.md" = "CLI handshake, request, result, and preview contracts." },
   { "configuration/internals.md" = "Download concurrency, conditional requests, and cache identity." },
 ]
@@ -145,6 +143,7 @@ For the complete REST API schema, use [OpenAPI](api/openapi.yaml).
 [project.plugins.tags]
 
 [project.plugins.redirects.redirect_maps]
+"mcp/index.md" = "index.md"
 "migration.md" = "gradle/index.md"
 "examples/index.md" = "getting-started/quickstart.md"
 "examples/mobile.md" = "cli/mobile.md"

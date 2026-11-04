@@ -1,5 +1,4 @@
 /sentiary-cli
-/sentiary-mcp
 /bin/
 .sentiary/
 sentiary.local.toml
@@ -20,7 +19,6 @@ local.properties
 
 # Go module local binaries
 /go/sentiary-cli
-/go/sentiary-mcp
 
 # Environment-specific documentation build inputs
 docs/.zensical-build.toml

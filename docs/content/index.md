@@ -18,9 +18,9 @@ Manage translations in Sentiary and deliver them to your application with the CL
 
 -   :material-robot: **Connect an AI assistant**
 
-    Manage projects, languages, and translations through hosted MCP.
+    Manage projects, languages, and translations with the CLI.
 
-    [Set up MCP](mcp/index.md)
+    [CLI command reference](cli/reference.md)
 
 -   :material-api: **Explore the API**
 
@@ -29,6 +29,8 @@ Manage translations in Sentiary and deliver them to your application with the CL
     [Open the API guide](api/index.md)
 
 </div>
+
+The MCP server has been removed. Existing MCP clients should migrate to the [CLI](getting-started/installation.md). AI assistants can use the [Sentiary CLI skill](https://github.com/MateeDevs/sentiary-tools/tree/main/.agents/skills/sentiary-cli).
 
 ```sh
 sentiary-cli init

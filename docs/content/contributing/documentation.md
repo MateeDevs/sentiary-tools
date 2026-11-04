@@ -69,7 +69,6 @@ Use repository `MateeDevs/sentiary-tools`, branch `main` for production or `stag
 Dockerfile `/docs/Dockerfile`, build target `docs`, exposed port `80`, and health check `/`.
 Use the existing server and destination for the selected environment. Set the build-time variable `DOCS_ENVIRONMENT` to `production` or `staging`; production is the default. Deploy through the Coolify CLI and verify
 HTTPS, navigation, search, assets, and reference pages after the build finishes.
-The MCP runtime uses `/go/Dockerfile` with the repository root as its build context.
 The staging CLI workflow only uploads build artifacts; it does not create releases.
 
 Build the documentation image from the repository root:
@@ -77,8 +76,6 @@ Build the documentation image from the repository root:
 ```sh
 docker build -f docs/Dockerfile --build-arg DOCS_ENVIRONMENT=production -t sentiary-docs .
 ```
-
-For MCP container setup, see [self-hosting](../mcp/index.md#self-host-with-docker).
 
 ### API reference
 
