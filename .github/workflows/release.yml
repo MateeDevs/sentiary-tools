@@ -161,22 +161,19 @@ jobs:
             Set that variable securely in your shell or CI. Keep keys out of tracked configuration.
             Single-project pulls can also use `SENTIARY_PROJECT_API_KEY`.
 
-            ## What's new in v2.2.0
+            ## What's new in v2.2.1
 
-            - Explicit `--env-file PATH` supplies dotenv credentials without automatic discovery,
-              process environment mutation, shell execution, or copying dotenv secrets into TOML.
-              Process credentials retain precedence, including explicitly empty values.
-            - `sentiary-cli update` supports immediate checks and approved updates. Interactive
-              init/online pull commands can offer cached updates with remind/skip choices;
-              background checks run at most daily. CI, noninteractive, JSON, offline,
-              development, and staging commands do not auto-update.
-            - Official installers record binary ownership. Self-replacement requires a matching
-              ownership record and verifies release checksums; legacy installations must reinstall
-              once. No elevation is requested. Installation docs include copy-and-run commands.
+            - Upgrade the Go toolchain to 1.27.3 and update Go dependencies, addressing
+              all 13 previously reported Dependabot alerts in `golang.org/x/crypto`.
+            - Remove the hosted MCP server. Existing MCP clients should migrate to the CLI.
+            - Remove `protocolVersion` from CLI integration requests and JSON pull results.
+              Custom integrations must omit the field from requests and no longer require it in results.
+              The version handshake remains available.
+            - Update CLI documentation and the agent skill.
 
-            Existing export contracts and integration protocol 1 remain unchanged.
-            Gradle plugin 2.1.0 is unchanged, still pins CLI v2.1.0, and is not published by this release.
-            The MCP server has been removed. Existing MCP clients should migrate to the CLI.
+            Gradle plugin 2.1.0 still pins CLI v2.1.0 and is not published by this release.
+            Do not override its CLI executable with v2.2.1; use the updated plugin source
+            for the new integration request/result shape.
 
             ## Agent skills
 

@@ -94,7 +94,7 @@ Verify the proxied schema matches the backend schema and the reference assets lo
 
 ## Build from source
 
-Use the Go version required by `go/go.mod` (currently `go 1.25.5`) or a compatible newer toolchain:
+Use the Go version required by `go/go.mod` (currently `go 1.27.3`) or a compatible newer toolchain:
 
 ```sh
 git clone https://github.com/MateeDevs/sentiary-tools.git
