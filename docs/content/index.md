@@ -30,7 +30,7 @@ Manage translations in Sentiary and deliver them to your application with the CL
 
 </div>
 
-Existing MCP integrations must migrate to the [CLI](getting-started/installation.md).
+The MCP server has been removed. Existing MCP clients should migrate to the [CLI](getting-started/installation.md). AI assistants can use the [Sentiary CLI skill](https://github.com/MateeDevs/sentiary-tools/tree/main/.agents/skills/sentiary-cli).
 
 ```sh
 sentiary-cli init
